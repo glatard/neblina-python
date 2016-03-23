@@ -51,3 +51,6 @@ class NeblinaAPIBase(object):
 
     def receivePacket(self):
         raise NotImplementedError("receivePacket not override in child.")
+
+    def getBatteryLevel(self):
+        raise NotImplementedError("getBatteryLevel not override in child")

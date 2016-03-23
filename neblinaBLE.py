@@ -38,9 +38,12 @@ from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
 
-NeblinaServiceUUID = "0DF9F021-1532-11E5-8960-0002A5D5C51B"
-NeblinaCtrlServiceUUID = "0DF9F023-1532-11E5-8960-0002A5D5C51B"
-NeblinaDataServiceUUID = "0DF9F022-1532-11E5-8960-0002A5D5C51B"
+ServiceBatteryUUID = "0000180f-0000-1000-8000-00805f9b34fb"
+ServiceBatteryDataUUID = "00002a19-0000-1000-8000-00805f9b34fb"
+
+ServiceNeblinaUUID = "0DF9F021-1532-11E5-8960-0002A5D5C51B"
+ServiceNeblinaCtrlUUID = "0DF9F023-1532-11E5-8960-0002A5D5C51B"
+ServiceNeblinaDataUUID = "0DF9F022-1532-11E5-8960-0002A5D5C51B"
 
 ###################################################################################
 
@@ -51,6 +54,7 @@ class NeblinaDelegate(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
+        print("handleNotification")
         pass
 
 ###################################################################################
@@ -81,13 +85,39 @@ class NeblinaDevice(object):
             self.peripheral = peripheral
             self.peripheral.setDelegate(NeblinaDelegate())
             self.connected = True
-            self.service = self.peripheral.getServiceByUUID(NeblinaServiceUUID)
-            self.writeCh = self.service.getCharacteristics(NeblinaCtrlServiceUUID)[0]
-            self.readCh = self.service.getCharacteristics(NeblinaDataServiceUUID)[0]
+
+            #self.printInfo(self.peripheral)
+
+            self.serviceBattery = self.peripheral.getServiceByUUID(ServiceBatteryUUID)
+            self.readBatteryCh = self.serviceBattery.getCharacteristics(ServiceBatteryDataUUID)[0]
+
+            self.serviceNeblina = self.peripheral.getServiceByUUID(ServiceNeblinaUUID)
+            self.writeNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaCtrlUUID)[0]
+            self.readNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaDataUUID)[0]
 
     def disconnect(self):
         if self.connected:
             self.peripheral.disconnect()
+
+    def printInfo(self, peripheral):
+        print("Printing peripheral information.")
+        services = list(peripheral.getServices())
+        for x in range(0, len(services)):
+            service = services[x]
+            print(str(service))
+
+            ch = list(service.getCharacteristics())
+            for y in range(0, len(ch)):
+                print("    " + str(ch[y]))
+
+    def readBattery(self):
+        return self.readBatteryCh.read()
+
+    def readNeblina(self):
+        return self.readNeblinaCh.read()
+
+    def writeNeblina(self, string):
+        self.writeNeblinaCh.write(string)
 
 ###################################################################################
 
@@ -139,13 +169,20 @@ class NeblinaBLE(NeblinaAPIBase):
     def sendCommand(self, packetString):
         device = self.getDevice()
         if device and device.connected:
-            device.writeCh.write(packetString)
+            device.writeNeblina(packetString)
 
     def receivePacket(self):
         device = self.getDevice()
         if device and device.connected:
-            bytes = device.readCh.read()
+            bytes = device.readNeblina()
             packet = NebResponsePacket(bytes)
             return packet
+        return None
+
+    def getBatteryLevel(self):
+        device = self.getDevice()
+        if device and device.connected:
+            bytes = device.readBattery()
+            return bytes
         return None
 

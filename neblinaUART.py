@@ -82,3 +82,6 @@ class NeblinaUART(NeblinaAPIBase):
         bytes = self.comslip.receivePacketFromStream(self.sc)
         packet = NebResponsePacket(bytes)
         return packet
+
+    def getBatteryLevel(self):
+        raise AssertionError("Not required to use a non-standardize protocol")

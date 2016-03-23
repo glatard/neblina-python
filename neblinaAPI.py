@@ -56,8 +56,9 @@ class NeblinaAPI(object):
 
     def open(self, port):
         self.api.open(port)
-        self.setStreamingInterface(self.interface)
-        self.stopAllStreams()
+        if ( self.api.isOpened(port)):
+            self.setStreamingInterface(self.interface)
+            self.stopAllStreams()
 
     def isOpened(self, port=None):
         return self.api.isOpened(port)
@@ -221,7 +222,7 @@ class NeblinaAPI(object):
                                 packet.header.command == streamingType):
                     print(packet.data, end="\r", flush=True)
                 elif (packet.header.subSystem != SubSystem.Debug):
-                    logging.warning('Unexpected packet: {0}'.format(packet))
+                    logging.warning('Unexpected packet: {0}'.format(packet.stringEncode()))
                 if (numPackets != None):
                     numPackets -= 1
                 keepStreaming = (numPackets == None or numPackets > 0)
@@ -284,16 +285,15 @@ class NeblinaAPI(object):
         packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
 
     def getBatteryLevel(self):
-        self.sendCommand(SubSystem.Power, \
-                         Commands.Power.GetBatteryLevel, True)
+        if self.interface == Interface.BLE:
+            return self.api.getBatteryLevel()
+        elif self.interface == Interface.UART:
+            self.sendCommand(SubSystem.Power, Commands.Power.GetBatteryLevel, True)
 
-        # Drop all packets until you get an ack
-        packet = self.waitForAck(SubSystem.Power, \
-                                 Commands.Power.GetBatteryLevel)
-        packet = self.waitForPacket(PacketType.RegularResponse, \
-                                    SubSystem.Power, \
-                                    Commands.Power.GetBatteryLevel)
-        return packet.data.batteryLevel
+            # Drop all packets until you get an ack
+            packet = self.waitForAck(SubSystem.Power, Commands.Power.GetBatteryLevel)
+            packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetBatteryLevel)
+            return packet.data.batteryLevel
 
     def getTemperature(self):
         self.sendCommand(SubSystem.Power, Commands.Power.GetTemperature, True)
