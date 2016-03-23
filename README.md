@@ -41,6 +41,8 @@ export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python"
 export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python/pyslip"
 ```
 
+It is recommended to run `source ~/.bashrc` to execute the file you just modify to apply the changes. Otherwise, you need to open a new shell.
+
 # How-to
 ## Retrieve COM port name
 In order to connect neblina to the computer, the COM port name is required. Follow these steps to retrieve the COM port name associated with neblina, depending on your platform.
@@ -54,6 +56,10 @@ ls /dev/ttyACM*
 * Now connect `Neblina` and monitor the changes from the previous step. On the [ProMotion](http://promotion.motsai.com/) board, there is a serial USB-COM already provided.
 ** On Windows, the COM port name follow the `COMx` pattern (where `x` is the associated COM port number)
 ** On Linux, the COM port name follow the `/dev/ttyACMx` pattern (where `x` is the associated COM port number)
+* On Linux, it is required to give permissions to use the COM port. Set with the following command by replace `x` with the associated COM port number:
+```
+chown user /dev/ttyACMx
+```
 
 ## Execute the interaction shell (Linux):
 ```
