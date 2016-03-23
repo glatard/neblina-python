@@ -59,20 +59,8 @@ class StreamMenu(cmd.Cmd):
         with open(self.configFileName, 'r') as configFile:
                 comPortName = configFile.readline()
 
-        # Try to open the serial COM port
-        sc = None
-        while sc is None:
-            try:
-                sc = serial.Serial(port=comPortName, baudrate=500000, timeout=1.5)
-            except serial.serialutil.SerialException as se:
-                if 'Device or resource busy:' in se.__str__():
-                    print('Opening COM port is taking a little while, please stand by...')
-                else:
-                    print('se: {0}'.format(se))
-                time.sleep(1)
-
-        self.comm = NeblinaAPI(sc)
-        self.comm.sc.flushInput()
+        self.comm = NeblinaAPI(Interface.UART)
+        self.comm.open(comPortName)
         print("Setting up the connection...")
         time.sleep(1)
         print('.')
@@ -341,7 +329,7 @@ class StreamMenu(cmd.Cmd):
         """Take care of any unfinished business.
            Despite the claims in the Cmd documentaion, Cmd.postloop() is not a stub.
         """
-        self.comm.sc.close()
+        self.comm.close()
         cmd.Cmd.postloop(self)   ## Clean up command completion
         print ("Exiting...")
 
@@ -350,7 +338,6 @@ class StreamMenu(cmd.Cmd):
             it has been interpreted. If you want to modify the input line
             before execution (for example, variable substitution) do it here.
         """
-        self.comm.sc.flushInput()
         # This is added to ensure that the pending bytes in the COM buffer are discarded for each new command.
         # This is crucial to avoid missing Acknowledge packets in the beginning, if Neblina is already streaming.
         self._hist += [ line.strip() ]
