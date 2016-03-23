@@ -108,3 +108,10 @@ class UARTIntegrationTest(unittest.TestCase):
         print("\r")
         self.api.debugUnitTestEnable(False)
 
+    def testLEDs(self):
+        for i in range(0, 10):
+            self.api.setLED(i, 1)
+            #self.assertEqual(1, self.api.getLED(i))
+        for i in range(0, 10):
+            self.api.setLED(i, 0)
+            #self.assertEqual(0, self.api.getLED(i))

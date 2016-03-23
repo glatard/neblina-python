@@ -63,21 +63,32 @@ class BLEIntegrationTest(unittest.TestCase):
     def tearDown(self):
         self.api.close(self.deviceAddress)
 
-    def testStreamEuler(self):
-        self.api.motionStream(Commands.Motion.EulerAngle, 100)
-
-    def testStreamIMU(self):
-        self.api.motionStream(Commands.Motion.IMU, 100)
-
-    def testMEMSComm(self):
-        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-        temp = self.api.getTemperature()
-        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-
-    # Does not WORK! Bug in bluepy or bluez making this value a binary instead of hexadecimal.
-    # def testZPMICComm(self):
+    # def testStreamEuler(self):
+    #     self.api.motionStream(Commands.Motion.EulerAngle, 100)
+    #
+    # def testStreamIMU(self):
+    #     self.api.motionStream(Commands.Motion.IMU, 100)
+    #
+    # def testMEMSComm(self):
+    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+    #     temp = self.api.getTemperature()
+    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+    #
+    # def testPMICComm(self):
     #     batteryLevel = self.api.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
+
+    def testLEDs(self):
+        for i in range(0, 10):
+            self.api.setLED(i, 1)
+            self.assertEqual(1, self.api.getLED(i))
+    #     for i in range(0, 10):
+    #         self.api.setLED(i, 0)
+    #         self.assertEqual(0, self.api.getLED(i))
+
+            #self.api.setLED([(i, 1)])
+            #self.api.getLEDs([i])
+
     #
     # def testUARTPCLoopbackComm(self):
     #     #dataString = "Test#1: Loopback test with KL26 by sending 1000 empty packets..."

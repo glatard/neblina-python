@@ -86,8 +86,6 @@ class NeblinaDevice(object):
             self.peripheral.setDelegate(NeblinaDelegate())
             self.connected = True
 
-            #self.printInfo(self.peripheral)
-
             self.serviceBattery = self.peripheral.getServiceByUUID(ServiceBatteryUUID)
             self.readBatteryCh = self.serviceBattery.getCharacteristics(ServiceBatteryDataUUID)[0]
 
@@ -111,7 +109,8 @@ class NeblinaDevice(object):
                 print("    " + str(ch[y]))
 
     def readBattery(self):
-        return self.readBatteryCh.read()
+        batteryLevel = self.readBatteryCh.read()
+        return struct.unpack("<B", batteryLevel)[0]
 
     def readNeblina(self):
         return self.readNeblinaCh.read()

@@ -415,17 +415,17 @@ class NeblinaAPI(object):
         else:
             return (packet.data.sessionID, packet.data.sessionLength)
 
-    def getLEDs(self, ledIndicesList):
-        if type(ledIndicesList) != list:
+    def getLEDs(self, ledIndices):
+        if type(ledIndices) != list:
             logging.warning("Use this function with a list of leds you want to know the value as an argument.")
             return
-        self.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndicesList)
+        self.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndices=ledIndices)
         packet = self.waitForPacket(PacketType.RegularResponse, \
                                     SubSystem.LED, Commands.LED.GetVal)
         return packet.data.ledTupleList
 
     def getLED(self, index):
-        self.sendCommand(SubSystem.LED, Commands.LED.GetVal, [index])
+        self.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndices=[index])
         packet = self.waitForPacket(PacketType.RegularResponse, \
                                     SubSystem.LED, Commands.LED.GetVal)
         return packet.data.ledTupleList[0]
