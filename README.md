@@ -38,7 +38,6 @@ $ git submodule update
 In order to include the directories required to run `neblina-python`, add the following lines at the end of `~/.bashrc` by replacing `/path/to/the/repo/` with the path where `neblina-python` folder is located:
 ```
 export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python"
-export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python/pyslip"
 ```
 
 It is recommended to run `source ~/.bashrc` to execute the file you just modify to apply the changes. Otherwise, you need to open a new shell.
