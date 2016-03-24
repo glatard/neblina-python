@@ -143,7 +143,7 @@ class NebAccRangeCommandData(NebCommandData):
         - Timestamp (unused for now)
         - Downsampling factor
     """
-    rangeCodes = {2:0x00, 4:0x01, 8:0x02, 16:0x03}
+    rangeCodes = {2: 0x00, 4: 0x01, 8: 0x02, 16: 0x03}
 
     def encode(self):
         garbage = ('\000'*10).encode('utf-8')

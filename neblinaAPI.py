@@ -250,28 +250,20 @@ class NeblinaAPI(object):
         self.sendCommand(SubSystem.Motion, streamingType, False)
 
     def motionSetDownsample(self, factor):
-        self.sendCommand(SubSystem.Motion, \
-                         Commands.Motion.Downsample, factor)
-        self.waitForAck(SubSystem.Motion, \
-                        Commands.Motion.Downsample)
+        self.sendCommand(SubSystem.Motion, Commands.Motion.Downsample, factor)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.Downsample)
 
     def motionSetAccFullScale(self, factor):
-        self.sendCommand(SubSystem.Motion, \
-                         Commands.Motion.AccRange, factor)
-        self.waitForAck(SubSystem.Motion, \
-                        Commands.Motion.AccRange)
+        self.sendCommand(SubSystem.Motion, Commands.Motion.AccRange, factor)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.AccRange)
 
     def motionStopStreams(self):
-        self.sendCommand(SubSystem.Motion, \
-                         Commands.Motion.DisableStreaming, True)
-        self.waitForAck(SubSystem.Motion, \
-                        Commands.Motion.DisableStreaming)
+        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
 
     def motionResetTimestamp(self):
-        self.sendCommand(SubSystem.Motion, \
-                         Commands.Motion.ResetTimeStamp, True)
-        self.waitForAck(SubSystem.Motion, \
-                        Commands.Motion.ResetTimeStamp)
+        self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
     def EEPROMRead(self, readPageNumber):
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)

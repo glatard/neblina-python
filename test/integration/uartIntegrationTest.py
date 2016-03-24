@@ -34,6 +34,7 @@ import array
 import logging
 
 from neblina import *
+from neblinaAPIBase import NeblinaAPIBase
 from neblinaUART import NeblinaUART
 from test import neblinaTestUtilities
 
@@ -114,11 +115,70 @@ class UARTIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.uart.debugUnitTestEnable(False)
     #
-    def testLEDs(self):
-        for i in range(0, 10):
-            self.uart.setLED(i, 1)
-            self.assertEqual(1, self.uart.getLED(i))
-        time.sleep(1)
-        for i in range(0, 10):
-            self.uart.setLED(i, 0)
-            #self.assertEqual(0, self.api.getLED(i))
+    # def testLEDs(self):
+    #     for i in range(0, 10):
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 1)
+    #             time.sleep(0.1)
+    #             self.assertEqual(1, self.uart.getLED(i))
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 0)
+    #             time.sleep(0.1)
+    #             self.assertEqual(0, self.uart.getLED(i))
+    #     for i in range(0, 10):
+    #         self.uart.setLEDs(([0, 1], [1, 1]))
+    #         time.sleep(0.1)
+    #         self.assertEqual(1, self.uart.getLED(0))
+    #         self.assertEqual(1, self.uart.getLED(1))
+    #         self.uart.setLEDs(([0, 0], [1, 0]))
+    #         time.sleep(0.1)
+    #         self.assertEqual(0, self.uart.getLED(0))
+    #         self.assertEqual(0, self.uart.getLED(1))
+
+    # def testEEPROM(self):
+    #     # Verify EEPROM Read/Write limit
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.EEPROMRead(-1)
+    #         self.uart.EEPROMRead(256)
+    #         self.uart.EEPROMWrite(-1, "0xFF")
+    #         self.uart.EEPROMWrite(256, "0xFF")
+    #
+    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+    #     for i in range(0, 256):
+    #         storeBytes = self.uart.EEPROMRead(i)
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         self.uart.EEPROMWrite(i, dataBytes)
+    #         time.sleep(0.01)
+    #         dataBytes = self.uart.EEPROMRead(i)
+    #         for j in range(0, 8):
+    #             self.assertEqual(dataBytes[j], i)
+    #         self.uart.EEPROMWrite(i, storeBytes)
+    #         #logging.info("Got \'{0}\' at page #{1}".format(dataBytes, i))
+    #
+    def testMotionDownsample(self):
+        numPacket = 1
+        for i in range(1, 51):
+            factor = i * 20
+            logging.info("Downsample factor : {0}".format(factor))
+            self.uart.motionSetDownsample(factor)
+            start = time.time()
+            self.uart.motionStream(Commands.Motion.IMU, numPacket)
+            end = time.time()
+            self.uart.motionStopStreams()
+            duration = end - start
+            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+            desiredDuration = 1/(1000/factor)*numPacket
+            self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+
+        with self.assertRaises(AssertionError):
+            self.uart.motionSetDownsample(1)
+            self.uart.motionSetDownsample(1001)
+
+    def testMotionAccRange(self):
+        with self.assertRaises(AssertionError):
+            self.uart.motionSetAccFullScale(-1)
+            self.uart.motionSetAccFullScale(17)
+        self.uart.motionSetAccFullScale(2)
+        self.uart.motionSetAccFullScale(4)
+        self.uart.motionSetAccFullScale(8)
+        self.uart.motionSetAccFullScale(16)

@@ -36,9 +36,12 @@ from neblinaError import *
 class NeblinaAPIBase(object):
     """
         NeblinaAPIBase serves as a base interface to Neblina communication protocol.
+
+        This can not be used directly, only derived from.
     """
     def __init__(self):
-        pass
+        # Prevent self instantiation
+        assert type(self) != NeblinaAPIBase
 
     def close(self):
         raise NotImplementedError("close not override in child.")
@@ -140,6 +143,30 @@ class NeblinaAPIBase(object):
                 continue
         return packet
 
+    def motionGetStates(self):
+        self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        self.waitForAck(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        return packet.data
+        # return (packet.data.distance, packet.data.force, packet.data.euler, packet.data.quaternion, \
+        #         packet.data.imuData, packet.data.motion, packet.data.steps, packet.data.magData, packet.data.sitStand)
+
+    def motionSetDownsample(self, factor):
+        # Limit to factor of 20 and between 20 and 1000.
+        assert factor % 20 == 0 and 20 <= factor <= 1000
+        self.sendCommand(SubSystem.Motion, Commands.Motion.Downsample, factor)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.Downsample)
+
+    def motionSetAccFullScale(self, factor):
+        # Limit factor between 0 and 3 inclusively
+        assert factor == 2 or factor == 4 or factor == 8 or factor == 16
+        self.sendCommand(SubSystem.Motion, Commands.Motion.AccRange, factor)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.AccRange)
+
+    def motionResetTimestamp(self):
+        self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
+        self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
+
     def motionStopStreams(self):
         self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
@@ -199,6 +226,19 @@ class NeblinaAPIBase(object):
         # Stop whatever it was streaming
         self.sendCommand(SubSystem.Motion, streamingType, False)
 
+    def EEPROMRead(self, readPageNumber):
+        assert readPageNumber >= 0 and readPageNumber <= 255
+        self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
+        packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Read)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.EEPROM, Commands.EEPROM.Read)
+        return packet.data.dataBytes
+
+    def EEPROMWrite(self, writePageNumber, dataString):
+        assert writePageNumber >= 0 and writePageNumber <= 255
+        self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Write, \
+                         pageNumber=writePageNumber, dataBytes=dataString)
+        packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
+
     def getLEDs(self, ledIndices):
         if type(ledIndices) != list:
             logging.warning("Use this function with a list of leds you want to know the value as an argument.")
@@ -210,6 +250,8 @@ class NeblinaAPIBase(object):
     def getLED(self, index):
         self.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndices=[index])
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
+        if not packet:
+            return 0xF  # Return anything but 0x0 or 0x1
         return packet.data.ledTupleList[0]
 
     def setLEDs(self, ledValues):
