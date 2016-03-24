@@ -134,7 +134,7 @@ class UARTIntegrationTest(unittest.TestCase):
     #         time.sleep(0.1)
     #         self.assertEqual(0, self.uart.getLED(0))
     #         self.assertEqual(0, self.uart.getLED(1))
-
+    #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
     #     with self.assertRaises(AssertionError):
@@ -173,6 +173,7 @@ class UARTIntegrationTest(unittest.TestCase):
     #     with self.assertRaises(AssertionError):
     #         self.uart.motionSetDownsample(1)
     #         self.uart.motionSetDownsample(1001)
+    #     self.uart.motionSetDownsample(20)  # Reset to default
     #
     # def testMotionAccRange(self):
     #     with self.assertRaises(AssertionError):
@@ -182,16 +183,17 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.uart.motionSetAccFullScale(4)
     #     self.uart.motionSetAccFullScale(8)
     #     self.uart.motionSetAccFullScale(16)
+    #     self.uart.motionSetAccFullScale(8)   # Reset to default
 
-    def testMotionState(self):
-        self.uart.motionStopStreams()
-        motionState = self.uart.motionGetStates()
-        self.assertFalse(motionState.distance)
-        self.assertFalse(motionState.force)
-        self.assertFalse(motionState.euler)
-        self.assertFalse(motionState.quaternion)
-        self.assertFalse(motionState.imuData)
-        self.assertFalse(motionState.motion)
-        self.assertFalse(motionState.steps)
-        self.assertFalse(motionState.magData)
-        self.assertFalse(motionState.sitStand)
+    # def testMotionState(self):
+    #     self.uart.motionStopStreams()
+    #     motionState = self.uart.motionGetStates()
+    #     self.assertFalse(motionState.distance)
+    #     self.assertFalse(motionState.force)
+    #     self.assertFalse(motionState.euler)
+    #     self.assertFalse(motionState.quaternion)
+    #     self.assertFalse(motionState.imuData)
+    #     self.assertFalse(motionState.motion)
+    #     self.assertFalse(motionState.steps)
+    #     self.assertFalse(motionState.magData)
+    #     self.assertFalse(motionState.sitStand)

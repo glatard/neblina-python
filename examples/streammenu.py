@@ -59,8 +59,8 @@ class StreamMenu(cmd.Cmd):
         with open(self.configFileName, 'r') as configFile:
                 comPortName = configFile.readline()
 
-        self.comm = NeblinaUART()
-        self.comm.open(comPortName)
+        self.uart = NeblinaUART()
+        self.uart.open(comPortName)
         print("Setting up the connection...")
         time.sleep(1)
         print('.')
@@ -68,13 +68,15 @@ class StreamMenu(cmd.Cmd):
         print('.')
         time.sleep(1)
         print('.')
+        self.uart.setStreamingInterface(Interface.UART)
+        self.uart.stopAllStreams()
 
     # If the user exits with Ctrl-C, try switching the interface back to BLE
     def cmdloop(self, intro=None):
         try:
             cmd.Cmd.cmdloop(self)
         except KeyboardInterrupt as e:
-            self.comm.setStreamingInterface(Interface.BLE)
+            self.uart.setStreamingInterface(Interface.BLE)
 
     ## Command definitions ##
     def do_hist(self, args):
@@ -84,7 +86,7 @@ class StreamMenu(cmd.Cmd):
     def do_exit(self, args):
         """Exits from the console"""
         # Make the module stream back towards its default interface (BLE)
-        self.comm.setStreamingInterface(Interface.BLE)
+        self.uart.setStreamingInterface(Interface.BLE)
         return -1
 
     ## Command definitions to support Cmd object functionality ##
@@ -134,7 +136,7 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        self.comm.EEPROMWrite(writePageNumber, writeBytes)
+        self.uart.EEPROMWrite(writePageNumber, writeBytes)
 
         print('Write to page #{0} of dataBytes {1} was successful.'\
             .format(writePageNumber, writeBytes))
@@ -152,7 +154,7 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        dataBytes = self.comm.EEPROMRead(readPageNumber)
+        dataBytes = self.uart.EEPROMRead(readPageNumber)
 
         try:
             print('Got \'{0}\' at page #{1}'.format(dataBytes.decode('utf-8'), readPageNumber))
@@ -163,54 +165,54 @@ class StreamMenu(cmd.Cmd):
         self.setCOMPortName()
 
     def do_motionState(self, args):
-        states = self.comm.motionGetStates()
+        states = self.uart.motionGetStates()
         print("Distance: {0}\nForce:{1}\nEuler:{2}\nQuaternion:{3}\nIMUData:{4}\nMotion:{5}\nSteps:{6}\nMAGData:{7}\nSitStand:{8}"\
         .format(states.distance, states.force, states.euler, states.quaternion,\
                 states.imuData, states.motion, states.steps, states.magData, states.sitStand))
 
     def do_getBatteryLevel(self, args):
-        batteryLevel = self.comm.getBatteryLevel()
+        batteryLevel = self.uart.getBatteryLevel()
         print('Battery Level: {0}%'.format(batteryLevel))
 
     def do_getTemperature(self, args):
-        temp = self.comm.getTemperature()
+        temp = self.uart.getTemperature()
         print('Board Temperature: {0} degrees (Celsius)'.format(temp))
 
     def do_streamEuler(self, args):
-        self.comm.motionStream(Commands.Motion.EulerAngle)
+        self.uart.motionStream(Commands.Motion.EulerAngle)
 
     def do_streamIMU(self, args):
-        self.comm.motionStream(Commands.Motion.IMU)
+        self.uart.motionStream(Commands.Motion.IMU)
 
     def do_streamQuat(self, args):
-        self.comm.motionStream(Commands.Motion.Quaternion)
+        self.uart.motionStream(Commands.Motion.Quaternion)
 
     def do_streamMAG(self, args):
-        self.comm.motionStream(Commands.Motion.MAG)
+        self.uart.motionStream(Commands.Motion.MAG)
 
     def do_streamForce(self, args):
-        self.comm.motionStream(Commands.Motion.ExtForce)
+        self.uart.motionStream(Commands.Motion.ExtForce)
 
     def do_streamRotation(self, args):
-        self.comm.motionStream(Commands.Motion.RotationInfo)
+        self.uart.motionStream(Commands.Motion.RotationInfo)
 
     def do_streamPedometer(self, args):
-        self.comm.motionStream(Commands.Motion.Pedometer)
+        self.uart.motionStream(Commands.Motion.Pedometer)
 
     def do_streamGesture(self, args):
-        self.comm.motionStream(Commands.Motion.FingerGesture)
+        self.uart.motionStream(Commands.Motion.FingerGesture)
 
     def do_streamTrajectory(self, args):
-        self.comm.sendCommand(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop, True) # start recording a reference orientation trajectory
-        packet = self.comm.waitForAck(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop)
+        self.uart.sendCommand(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop, True) # start recording a reference orientation trajectory
+        packet = self.uart.waitForAck(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop)
         print("Recording a reference trajectory...")
-        self.comm.motionStream(Commands.Motion.TrajectoryInfo)
+        self.uart.motionStream(Commands.Motion.TrajectoryInfo)
 
     def do_stopStreams(self, args):
-        self.comm.motionStopStreams()
+        self.uart.motionStopStreams()
 
     def do_resetTimestamp(self, args):
-        self.comm.motionResetTimestamp()
+        self.uart.motionResetTimestamp()
 
     def do_downsample(self, args):
         if(len(args) <= 0):
@@ -220,7 +222,7 @@ class StreamMenu(cmd.Cmd):
         if ((n % 20)!=0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
-        self.comm.motionSetDownsample(n)
+        self.uart.motionSetDownsample(n)
 
     def do_setAccFullScale(self, args):
         possibleFactors = [2,4,8,16]
@@ -231,7 +233,7 @@ class StreamMenu(cmd.Cmd):
         if(factor not in possibleFactors):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
             return
-        self.comm.motionSetAccFullScale(factor)
+        self.uart.motionSetAccFullScale(factor)
 
     def do_setled(self, args):
         arguments = args.split(' ')
@@ -243,12 +245,12 @@ class StreamMenu(cmd.Cmd):
         if(ledIndex < 0 or ledIndex > 1):
             print('Only led indices 0 or 1 are valid')
             return
-        self.comm.setLED(ledIndex, ledValue)
+        self.uart.setLED(ledIndex, ledValue)
 
     def do_flashState(self, args):
-        state = self.comm.flashGetState()
+        state = self.uart.flashGetState()
         print('State: {0}'.format(state))
-        sessions = self.comm.flashGetSessions()
+        sessions = self.uart.flashGetSessions()
         print('Num of sessions: {0}'.format(sessions))
 
     def do_flashSessionInfo(self, args):
@@ -256,7 +258,7 @@ class StreamMenu(cmd.Cmd):
             sessionID = 65535
         elif(len(args) > 0):
             sessionID = int(args)
-        info = self.comm.flashGetSessionInfo(sessionID)
+        info = self.uart.flashGetSessionInfo(sessionID)
         if(info == None):
             print('Session {0} does not exist on the flash'\
                 .format(sessionID))
@@ -265,7 +267,7 @@ class StreamMenu(cmd.Cmd):
             %(info[0], info[1]/18, info[1]) )
 
     def do_flashErase(self, args):
-        self.comm.flashErase()
+        self.uart.flashErase()
         print('Flash erase has completed successfully!')
 
     def do_flashRecordIMU(self, args):
@@ -273,31 +275,31 @@ class StreamMenu(cmd.Cmd):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.comm.flashRecord(numSamples, Commands.Motion.IMU)
+        self.uart.flashRecord(numSamples, Commands.Motion.IMU)
 
     def do_flashRecordEuler(self, args):
         if(len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.comm.flashRecord(numSamples, Commands.Motion.EulerAngle)
+        self.uart.flashRecord(numSamples, Commands.Motion.EulerAngle)
 
     def do_flashRecordQuaternion(self, args):
         if(len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.comm.flashRecord(numSamples, Commands.Motion.Quaternion)
+        self.uart.flashRecord(numSamples, Commands.Motion.Quaternion)
 
     def do_flashPlayback(self, args):
         if(len(args) <= 0):
             mySessionID = 65535
         elif(len(args) > 0):
             mySessionID = int(args)
-        self.comm.flashPlayback(mySessionID)
+        self.uart.flashPlayback(mySessionID)
 
     def do_versions(self, args):
-        versions = self.comm.debugFWVersions()
+        versions = self.uart.debugFWVersions()
         apiRelease = versions[0]
         mcuFWVersion = versions[1]
         bleFWVersion = versions[2]
@@ -325,7 +327,7 @@ class StreamMenu(cmd.Cmd):
         """Take care of any unfinished business.
            Despite the claims in the Cmd documentaion, Cmd.postloop() is not a stub.
         """
-        self.comm.close()
+        self.uart.close()
         cmd.Cmd.postloop(self)   ## Clean up command completion
         print ("Exiting...")
 
