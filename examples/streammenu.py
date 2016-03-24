@@ -35,7 +35,7 @@ import time
 import logging
 
 from neblina import *
-from neblinaAPI import NeblinaAPI
+from neblinaUART import NeblinaUART
 
 ###################################################################################
 
@@ -59,7 +59,7 @@ class StreamMenu(cmd.Cmd):
         with open(self.configFileName, 'r') as configFile:
                 comPortName = configFile.readline()
 
-        self.comm = NeblinaAPI(Interface.UART)
+        self.comm = NeblinaUART()
         self.comm.open(comPortName)
         print("Setting up the connection...")
         time.sleep(1)
@@ -68,9 +68,6 @@ class StreamMenu(cmd.Cmd):
         print('.')
         time.sleep(1)
         print('.')
-        # Make the module stream towards the UART instead of the default BLE
-        self.comm.setStreamingInterface(Interface.UART)
-        self.comm.motionStopStreams()
 
     # If the user exits with Ctrl-C, try switching the interface back to BLE
     def cmdloop(self, intro=None):
