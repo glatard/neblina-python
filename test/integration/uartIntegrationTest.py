@@ -155,30 +155,43 @@ class UARTIntegrationTest(unittest.TestCase):
     #         self.uart.EEPROMWrite(i, storeBytes)
     #         #logging.info("Got \'{0}\' at page #{1}".format(dataBytes, i))
     #
-    def testMotionDownsample(self):
-        numPacket = 1
-        for i in range(1, 51):
-            factor = i * 20
-            logging.info("Downsample factor : {0}".format(factor))
-            self.uart.motionSetDownsample(factor)
-            start = time.time()
-            self.uart.motionStream(Commands.Motion.IMU, numPacket)
-            end = time.time()
-            self.uart.motionStopStreams()
-            duration = end - start
-            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
-            desiredDuration = 1/(1000/factor)*numPacket
-            self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+    # def testMotionDownsample(self):
+    #     numPacket = 1
+    #     for i in range(1, 51):
+    #         factor = i * 20
+    #         logging.info("Downsample factor : {0}".format(factor))
+    #         self.uart.motionSetDownsample(factor)
+    #         start = time.time()
+    #         self.uart.motionStream(Commands.Motion.IMU, numPacket)
+    #         end = time.time()
+    #         self.uart.motionStopStreams()
+    #         duration = end - start
+    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+    #         desiredDuration = 1/(1000/factor)*numPacket
+    #         self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+    #
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.motionSetDownsample(1)
+    #         self.uart.motionSetDownsample(1001)
+    #
+    # def testMotionAccRange(self):
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.motionSetAccFullScale(-1)
+    #         self.uart.motionSetAccFullScale(17)
+    #     self.uart.motionSetAccFullScale(2)
+    #     self.uart.motionSetAccFullScale(4)
+    #     self.uart.motionSetAccFullScale(8)
+    #     self.uart.motionSetAccFullScale(16)
 
-        with self.assertRaises(AssertionError):
-            self.uart.motionSetDownsample(1)
-            self.uart.motionSetDownsample(1001)
-
-    def testMotionAccRange(self):
-        with self.assertRaises(AssertionError):
-            self.uart.motionSetAccFullScale(-1)
-            self.uart.motionSetAccFullScale(17)
-        self.uart.motionSetAccFullScale(2)
-        self.uart.motionSetAccFullScale(4)
-        self.uart.motionSetAccFullScale(8)
-        self.uart.motionSetAccFullScale(16)
+    def testMotionState(self):
+        self.uart.motionStopStreams()
+        motionState = self.uart.motionGetStates()
+        self.assertFalse(motionState.distance)
+        self.assertFalse(motionState.force)
+        self.assertFalse(motionState.euler)
+        self.assertFalse(motionState.quaternion)
+        self.assertFalse(motionState.imuData)
+        self.assertFalse(motionState.motion)
+        self.assertFalse(motionState.steps)
+        self.assertFalse(motionState.magData)
+        self.assertFalse(motionState.sitStand)

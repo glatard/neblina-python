@@ -165,9 +165,8 @@ class StreamMenu(cmd.Cmd):
     def do_motionState(self, args):
         states = self.comm.motionGetStates()
         print("Distance: {0}\nForce:{1}\nEuler:{2}\nQuaternion:{3}\nIMUData:{4}\nMotion:{5}\nSteps:{6}\nMAGData:{7}\nSitStand:{8}"\
-        .format(states[0], states[1], states[2], states[3],\
-                states[4], states[5], states[6], states[7], states[8])\
-        )
+        .format(states.distance, states.force, states.euler, states.quaternion,\
+                states.imuData, states.motion, states.steps, states.magData, states.sitStand))
 
     def do_getBatteryLevel(self, args):
         batteryLevel = self.comm.getBatteryLevel()
