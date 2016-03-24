@@ -284,17 +284,6 @@ class NeblinaAPI(object):
                          pageNumber=writePageNumber, dataBytes=dataString)
         packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
 
-    def getBatteryLevel(self):
-        if self.interface == Interface.BLE:
-            return self.api.getBatteryLevel()
-        elif self.interface == Interface.UART:
-            self.sendCommand(SubSystem.Power, Commands.Power.GetBatteryLevel, True)
-
-            # Drop all packets until you get an ack
-            packet = self.waitForAck(SubSystem.Power, Commands.Power.GetBatteryLevel)
-            packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetBatteryLevel)
-            return packet.data.batteryLevel
-
     def getTemperature(self):
         self.sendCommand(SubSystem.Power, Commands.Power.GetTemperature, True)
 

@@ -56,7 +56,7 @@ DebugResponses = {
     Commands.Debug.MotAndFlashRecState: MotAndFlashRecStateData,
     Commands.Debug.StartUnitTestMotion: BlankData,
     Commands.Debug.UnitTestMotionData: UnitTestMotionData,
-    Commands.Debug.FWVersions: FWVersionsData
+    Commands.Debug.FWVersions: FWVersionsData.decode
 
 }
 

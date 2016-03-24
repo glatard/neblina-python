@@ -34,7 +34,7 @@ import array
 import logging
 
 from neblina import *
-from neblinaAPI import NeblinaAPI
+from neblinaUART import NeblinaUART
 from test import neblinaTestUtilities
 
 ###################################################################################
@@ -58,60 +58,67 @@ class UARTIntegrationTest(unittest.TestCase):
         # Give it a break between each test
         time.sleep(1)
 
-        self.api = NeblinaAPI(Interface.UART)
-        self.api.open(self.comPort)
-        if not self.api.isOpened(self.comPort):
+        self.uart = NeblinaUART()
+        self.uart.open(self.comPort)
+        if not self.uart.isOpened(self.comPort):
             self.fail("Unable to connect to COM port.")
 
+        self.uart.setStreamingInterface(Interface.UART)
+        self.uart.stopAllStreams()
+
     def tearDown(self):
-        self.api.close()
+        self.uart.close()
 
-    def testStreamEuler(self):
-        self.api.motionStream(Commands.Motion.EulerAngle, 100)
-
-    def testStreamIMU(self):
-        self.api.motionStream(Commands.Motion.IMU, 100)
-
-    def testVersion(self):
-        versions = self.api.debugFWVersions()
-        logging.info(versions)
-        self.assertNotEqual(versions[2][0], 255)
-
-    def testMEMSComm(self):
-        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-        temp = self.api.getTemperature()
-        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-
-    def testPMICComm(self):
-        batteryLevel = self.api.getBatteryLevel()
-        logging.info("Board Battery: {0}\%".format(batteryLevel))
-
-    def testUARTPCLoopbackComm(self):
-        #dataString = "Test#1: Loopback test with KL26 by sending 1000 empty packets..."
-        for x in range(1, 1001):
-            #logging.debug('Loopback test packet %d\r' % (x), end="", flush=True)
-            self.api.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, True)
-            self.api.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
-
-    def testMotionEngine(self):
-        testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-        testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-        self.api.debugUnitTestEnable(True)
-        for idx,packetBytes in enumerate(testInputVectorPacketList):
-            # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-            packet = self.api.debugUnitTestSendBytes(packetBytes)
-            # self.api.comslip.sendPacketToStream(self.api.sc, packetBytes)
-            # packet = self.api.waitForPacket(PacketType.RegularResponse, \
-            #                                 SubSystem.Debug, Commands.Debug.UnitTestMotionData)
-            self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-            print("Sent %d testVectors out of %d\r" % (idx, len(testInputVectorPacketList)), end="", flush=True)
-        print("\r")
-        self.api.debugUnitTestEnable(False)
-
+    # def testMotionStreamEuler(self):
+    #     self.uart.motionStream(Commands.Motion.EulerAngle, 100)
+    #
+    # def testMotionStreamIMU(self):
+    #     self.uart.motionStream(Commands.Motion.IMU, 100)
+    #
+    # def testMotionStreamMAG(self):
+    #     self.uart.motionStream(Commands.Motion.MAG, 100)
+    #
+    # def testMotionStreamQuaternion(self):
+    #     self.uart.motionStream(Commands.Motion.Quaternion, 100)
+    #
+    # def testVersion(self):
+    #     versions = self.uart.debugFWVersions()
+    #     logging.info(versions)
+    #     self.assertEqual(versions.apiRelease, 1)
+    #     for i in range(0, 2):
+    #         self.assertNotEqual(versions.bleFWVersion[i], 255)
+    #         self.assertNotEqual(versions.mcuFWVersion[i], 255)
+    #
+    # def testMEMSComm(self):
+    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+    #     temp = self.uart.getTemperature()
+    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+    #
+    # def testPMICComm(self):
+    #     batteryLevel = self.uart.getBatteryLevel()
+    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
+    #
+    #
+    # def testMotionEngine(self):
+    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
+    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
+    #     self.uart.debugUnitTestEnable(True)
+    #     for idx,packetBytes in enumerate(testInputVectorPacketList):
+    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
+    #         packet = self.uart.debugUnitTestSendBytes(packetBytes)
+    #         # self.api.comslip.sendPacketToStream(self.api.sc, packetBytes)
+    #         # packet = self.api.waitForPacket(PacketType.RegularResponse, \
+    #         #                                 SubSystem.Debug, Commands.Debug.UnitTestMotionData)
+    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
+    #         print("Sent %d testVectors out of %d\r" % (idx+1, len(testInputVectorPacketList)), end="", flush=True)
+    #     print("\r")
+    #     self.uart.debugUnitTestEnable(False)
+    #
     def testLEDs(self):
         for i in range(0, 10):
-            self.api.setLED(i, 1)
-            #self.assertEqual(1, self.api.getLED(i))
+            self.uart.setLED(i, 1)
+            self.assertEqual(1, self.uart.getLED(i))
+        time.sleep(1)
         for i in range(0, 10):
-            self.api.setLED(i, 0)
+            self.uart.setLED(i, 0)
             #self.assertEqual(0, self.api.getLED(i))

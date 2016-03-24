@@ -4,9 +4,9 @@
 
 import os
 import unittest
-import slip
 import binascii
 import struct
+from pyslip import slip
 
 from neblina import *
 from neblinaError import *

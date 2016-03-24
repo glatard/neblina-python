@@ -25,6 +25,7 @@
 #
 ###################################################################################
 
+import binascii
 import struct
 
 from neblina import *
@@ -246,23 +247,42 @@ class FWVersionsData(object):
         - BLE Major/Minor/Build
         - Device ID
     """
-    def __init__(self, dataString):
-        self.mcuFWVersion = [0]*3
-        self.bleFWVersion = [0]*3
-        self.apiRelease,\
-        self.mcuFWVersion[0],self.mcuFWVersion[1],self.mcuFWVersion[2],\
-        self.bleFWVersion[0],self.bleFWVersion[1],self.bleFWVersion[2],\
-        self.deviceID,\
-        garbage = struct.unpack(Formatting.Data.FWVersions, dataString)
+    def __init__(self, deviceID, apiRelease, mcuFWVersion, bleFWVersion):
+        assert len(mcuFWVersion)==3
+        assert len(bleFWVersion)==3
+
+        self.deviceID = deviceID
+        self.apiRelease = apiRelease
+        self.mcuFWVersion = mcuFWVersion
+        self.bleFWVersion = bleFWVersion
 
     def __str__(self):
-        return "API Release: {0}\n\
-        MCU Version: {1}.{2}.{3}\n\
-        BLE Version: {4}.{5}.{6}\n\
-        Device ID: {7}".format(self.apiRelease,\
+        string = "API Release: {0}\n".format(self.apiRelease)
+        string += "BLE Version: {0}.{1}.{2}\n".format(self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2])
+        string += "MCU Version: {0}.{1}.{2}\n".format(self.mcuFWVersion[0], self.mcuFWVersion[1], self.mcuFWVersion[2])
+        string += "Device ID: {0}".format(binascii.hexlify(self.deviceID))
+        return string
+
+    @classmethod
+    def decode(cls, dataString):
+        mcuFWVersion = [0]*3
+        bleFWVersion = [0]*3
+
+        apiRelease,\
+        mcuFWVersion[0], mcuFWVersion[1], mcuFWVersion[2],\
+        bleFWVersion[0], bleFWVersion[1], bleFWVersion[2],\
+        deviceID,\
+        garbage = struct.unpack(Formatting.Data.FWVersions, dataString)
+
+        return cls(deviceID, apiRelease, mcuFWVersion, bleFWVersion)
+
+    def encode(self):
+        packetString = struct.pack(Formatting.Data.FWVersions, self.apiRelease, \
             self.mcuFWVersion[0], self.mcuFWVersion[1], self.mcuFWVersion[2],\
-            self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2],\
-            binascii.hexlify(self.deviceID))
+            self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2], self.deviceID)
+        return packetString
+
+
 
 ###################################################################################
 

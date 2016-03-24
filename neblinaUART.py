@@ -34,6 +34,7 @@ from pyslip import slip
 
 from neblina import *
 from neblinaAPIBase import NeblinaAPIBase
+from neblinaCommandPacket import NebCommandPacket
 from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
@@ -41,12 +42,12 @@ from neblinaResponsePacket import NebResponsePacket
 
 class NeblinaUART(NeblinaAPIBase):
     """
-        NeblinaUART serves as a UART communication protocol for NeblinaAPI.
+        NeblinaUART serves as the UART communication protocol.
 
         This supports only 1 UART COM port.
     """
     def __init__(self):
-        super(NeblinaUART, self).__init__()
+        NeblinaAPIBase.__init__(self)
         self.comslip = slip.slip()
         self.comPort = None
 
@@ -75,8 +76,12 @@ class NeblinaUART(NeblinaAPIBase):
         value = self.sc and self.sc.is_open
         return self.sc and self.sc.is_open
 
-    def sendCommand(self, packetString):
-        self.comslip.sendPacketToStream(self.sc, packetString)
+    def sendCommand(self, subSystem, command, enable=True, **kwargs):
+        commandPacket = NebCommandPacket(subSystem, command, enable, **kwargs)
+        self.sendCommandBytes(commandPacket.stringEncode())
+
+    def sendCommandBytes(self, bytes):
+        self.comslip.sendPacketToStream(self.sc, bytes)
 
     def receivePacket(self):
         bytes = self.comslip.receivePacketFromStream(self.sc)
@@ -84,4 +89,7 @@ class NeblinaUART(NeblinaAPIBase):
         return packet
 
     def getBatteryLevel(self):
-        raise AssertionError("Not required to use a non-standardize protocol")
+        self.sendCommand(SubSystem.Power, Commands.Power.GetBatteryLevel, True)
+        packet = self.waitForAck(SubSystem.Power, Commands.Power.GetBatteryLevel)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetBatteryLevel)
+        return packet.data.batteryLevel
