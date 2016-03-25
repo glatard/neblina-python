@@ -208,13 +208,14 @@ class FlashSessionInfoData(object):
         - Session ID
     """
     def __init__(self, dataString):
-        self.sessionLength,\
+        self.sessionLengthBytes,\
         self.sessionID,\
         garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
+        self.sessionLength = self.sessionLengthBytes / 18
 
     def __str__(self):
         return "Session {0}: {1} bytes"\
-        .format(self.sessionID, self.sessionLength)
+        .format(self.sessionID, self.sessionLengthBytes)
 
 ###################################################################################
 

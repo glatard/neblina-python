@@ -28,6 +28,7 @@
 import logging
 
 from neblina import *
+from neblinaData import *
 from neblinaError import *
 
 ###################################################################################
@@ -94,6 +95,13 @@ class NeblinaAPIBase(object):
         """
         self.motionStopStreams()
 
+    def isPacketError(self, packet):
+        error = False
+        if packet:
+            error |= packet.header.packetType == PacketType.ErrorLogResp
+            error |= packet.header.packetType == PacketType.ErrorLogResp
+        return error
+
     def isPacketValid(self, packet, packetType, subSystem, command):
         valid = (packet != None)
         if valid:
@@ -112,7 +120,8 @@ class NeblinaAPIBase(object):
 
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
-        while not self.isPacketValid(packet, packetType, subSystem, command):
+        while not self.isPacketValid(packet, packetType, subSystem, command) and \
+              not self.isPacketError(packet):
             try:
                 packet = self.receivePacket()
             except NotImplementedError as e:
@@ -263,6 +272,158 @@ class NeblinaAPIBase(object):
     def setLED(self, ledIndex, ledValue):
         ledValues = [(ledIndex, ledValue)]
         self.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
+
+    def flashGetState(self):
+        self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        self.waitForAck(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        return MotAndFlashRecStateData.recorderStatusStrings[packet.data.recorderStatus]
+
+    def flashErase(self):
+        # Step 1 - Initialization
+        self.sendCommand(SubSystem.Motion, Commands.Motion.IMU, True)
+        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
+
+        # Step 2 - wait for ack
+        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        logging.debug('Acknowledge packet was received!')
+
+        # Step 3 - erase the flash command
+        self.sendCommand(SubSystem.Storage, Commands.Storage.EraseAll, True)
+        logging.debug('Sent the EraseAll command, and waiting for a response...')
+
+        # Step 4 - wait for ack
+        self.waitForAck(SubSystem.Storage, Commands.Storage.EraseAll)
+        logging.debug("Acknowledge packet was received!")
+        logging.info("Started erasing... This takes about 3 minutes...")
+
+        # Step 5 - wait for the completion notice
+        self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll)
+
+    def flashRecord(self, numSamples, dataType):
+
+        # Step 1 - Initialization
+        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
+
+        # Step 2 - wait for ack
+        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        logging.debug('Acknowledge packet was received!')
+
+        # Step 3 - Start recording
+        self.sendCommand(SubSystem.Storage, Commands.Storage.Record, True)
+        logging.debug('Sending the command to start the flash recorder, and waiting for a response...')
+        # Step 4 - wait for ack and the session number
+        self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
+        logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
+        sessionID = packet.data.sessionID
+
+        # Step 5 - enable IMU streaming
+        self.sendCommand(SubSystem.Motion, dataType, True)
+        logging.debug('Sending the enable IMU streaming command, and waiting for a response...')
+
+        # Step 6 - wait for ack
+        self.waitForAck(SubSystem.Motion, dataType)
+        logging.debug('Acknowledge packet was received!')
+
+        # Step 7 Receive Packets
+        for x in range(1, numSamples + 1):
+            packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, dataType)
+            logging.debug('Recording {0} packets, current packet: {1}\r'.format(numSamples, x))
+
+        # Step 8 - Stop the streaming
+        self.sendCommand(SubSystem.Motion, dataType, False)
+        logging.debug('Sending the stop streaming command, and waiting for a response...')
+
+        # Step 9 - wait for ack
+        self.waitForAck(SubSystem.Motion, dataType)
+        logging.debug('Acknowledge packet was received!')
+
+        # Step 10 - Stop the recording
+        self.sendCommand(SubSystem.Storage, Commands.Storage.Record, False)
+        logging.debug('Sending the command to stop the flash recorder, and waiting for a response...')
+
+        # Step 11 - wait for ack and the closed session confirmation
+        self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
+        logging.debug("The acknowledge packet is received")
+        logging.info("Session {0} is closed successfully".format(sessionID))
+
+    def flashPlayback(self, pbSessionID, destinationFileName=None):
+        self.sendCommand(SubSystem.Storage, Commands.Storage.Playback, True, sessionID=pbSessionID)
+        logging.debug('Sent the start playback command, waiting for response...')
+        # wait for confirmation
+        self.waitForAck(SubSystem.Storage, Commands.Storage.Playback)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Playback)
+        if packet.header.packetType == PacketType.ErrorLogResp:
+            logging.error('Playback failed due to an invalid session number request!')
+            return 0
+        else:
+            pbSessionID = packet.data.sessionID
+            logging.info('Playback routine started from session number {0}'.format(pbSessionID))
+            packetList = self.storePacketsUntil(PacketType.RegularResponse, SubSystem.Storage,
+                                                Commands.Storage.Playback)
+            logging.info('Finished playback from session number {0}!'.format(pbSessionID))
+            if (destinationFileName != None):
+                thefile = open(destinationFileName, 'w')
+                for item in packetList:
+                    thefile.write("%s\n" % item.stringEncode())
+                thefile.close()
+            return len(packetList)
+
+    def flashGetSessions(self):
+        self.sendCommand(SubSystem.Storage, Commands.Storage.NumSessions)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.NumSessions)
+        return packet.data.numSessions
+
+    def flashGetSessionInfo(self, sessionID):
+        self.sendCommand(SubSystem.Storage, Commands.Storage.SessionInfo, sessionID=sessionID)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.SessionInfo)
+        if packet.data.sessionLength == 0xFFFFFFFF:
+            return None
+        else:
+            return packet.data
+
+    def storePacketsUntil(self, packetType, subSystem, command):
+        packetList = []
+        packetCounter = 0
+        packet = None
+        # logging.debug('waiting and got: {0}'.format(packet))
+        while (packet == None or \
+                           packet.header.packetType != packetType or \
+                           packet.header.subSystem != subSystem or \
+                           packet.header.command != command):
+            try:
+                if (packet != None and packet.header.subSystem != SubSystem.Debug):
+                    packetList.append(packet)
+                    print('Received {0} packets \r'.format(len(packetList)), end="", flush=True)
+                packet = self.receivePacket()
+                # logging.debug('waiting and got: {0}'.format(packet.data))
+            except NotImplementedError as e:
+                packet = None
+                logging.error("Dropped bad packet : " + str(e))
+                continue
+            except KeyError as e:
+                packet = None
+                logging.error("Tried creating a packet with an invalid subsystem or command : " + str(e))
+                continue
+            except CRCError as e:
+                packet = None
+                logging.error("CRCError : " + str(e))
+                continue
+            except Exception as e:
+                packet = None
+                logging.error("Exception : " + str(e))
+                continue
+            except:
+                packet = None
+                logging.error("Unexpected error : ", sys.exc_info()[0])
+                continue
+
+        logging.info('\nTotal IMU Packets Read: {0}'.format(len(packetList)))
+        return packetList
 
     def debugFWVersions(self):
         self.sendCommand(SubSystem.Debug, Commands.Debug.FWVersions)

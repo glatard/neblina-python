@@ -258,13 +258,13 @@ class StreamMenu(cmd.Cmd):
             sessionID = 65535
         elif(len(args) > 0):
             sessionID = int(args)
-        info = self.uart.flashGetSessionInfo(sessionID)
-        if(info == None):
+        packet = self.uart.flashGetSessionInfo(sessionID)
+        if(packet == None):
             print('Session {0} does not exist on the flash'\
                 .format(sessionID))
         else:
             print( "Session %d: %d packets (%d bytes)"\
-            %(info[0], info[1]/18, info[1]) )
+            %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
     def do_flashErase(self, args):
         self.uart.flashErase()
@@ -299,19 +299,12 @@ class StreamMenu(cmd.Cmd):
         self.uart.flashPlayback(mySessionID)
 
     def do_versions(self, args):
-        versions = self.uart.debugFWVersions()
-        apiRelease = versions[0]
-        mcuFWVersion = versions[1]
-        bleFWVersion = versions[2]
-        deviceID = versions[3]
-        print( "API Release: {0}\n\
-        MCU Version: {1}.{2}.{3}\n\
-        BLE Version: {4}.{5}.{6}\n\
-        Device ID: {7}".format(apiRelease,\
-            mcuFWVersion[0], mcuFWVersion[1], mcuFWVersion[2],\
-            bleFWVersion[0], bleFWVersion[1], bleFWVersion[2],\
-            binascii.hexlify(deviceID))
-        )
+        packet = self.uart.debugFWVersions()
+        apiRelease = packet.apiRelease
+        mcuFWVersion = packet.mcuFWVersion
+        bleFWVersion = packet.bleFWVersion
+        deviceID = packet.deviceID
+        print(packet)
 
     ## Override methods in Cmd object ##
     def preloop(self):
