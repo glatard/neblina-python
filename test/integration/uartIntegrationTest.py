@@ -133,7 +133,7 @@ class UARTIntegrationTest(unittest.TestCase):
             self.uart.setLEDs(([0, 0], [1, 0]))
             time.sleep(0.1)
             #self.assertEqual(0, self.uart.getLED(0))
-            #self.assertEqual(0, self.uart.getLED(1))git a
+            #self.assertEqual(0, self.uart.getLED(1))
 
     def testEEPROM(self):
         # Verify EEPROM Read/Write limit

@@ -30,7 +30,7 @@ import time
 import unittest
 
 from neblina import *
-from neblinaAPI import NeblinaAPI
+from neblinaBLE import NeblinaBLE
 from test import neblinaTestUtilities
 
 ###################################################################################
@@ -55,61 +55,123 @@ class BLEIntegrationTest(unittest.TestCase):
         # Give it a break between each test
         time.sleep(2)
 
-        self.api = NeblinaAPI(Interface.BLE)
-        self.api.open(self.deviceAddress)
-        if not self.api.isOpened():
+        self.ble = NeblinaBLE()
+        self.ble.open(self.deviceAddress)
+        if not self.ble.isOpened():
             self.fail("Unable to connect to BLE device.")
 
-    def tearDown(self):
-        self.api.close(self.deviceAddress)
+    # def tearDown(self):
+    #     self.ble.close(self.deviceAddress)
+    #
+    def testMotionStreamEuler(self):
+        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
 
-    # def testStreamEuler(self):
-    #     self.api.motionStream(Commands.Motion.EulerAngle, 100)
-    #
-    # def testStreamIMU(self):
-    #     self.api.motionStream(Commands.Motion.IMU, 100)
-    #
-    # def testMEMSComm(self):
-    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-    #     temp = self.api.getTemperature()
-    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-    #
-    # def testPMICComm(self):
-    #     batteryLevel = self.api.getBatteryLevel()
-    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
+    def testMotionStreamIMU(self):
+        self.ble.motionStream(Commands.Motion.IMU, 100)
+
+    def testMotionStreamMAG(self):
+        self.ble.motionStream(Commands.Motion.MAG, 100)
+
+    def testMotionStreamQuaternion(self):
+        self.ble.motionStream(Commands.Motion.Quaternion, 100)
+
+    def testVersion(self):
+        versions = self.ble.debugFWVersions()
+        logging.info(versions)
+        self.assertEqual(versions.apiRelease, 1)
+        for i in range(0, 2):
+            self.assertNotEqual(versions.bleFWVersion[i], 255)
+            self.assertNotEqual(versions.mcuFWVersion[i], 255)
+
+    def testMEMSComm(self):
+        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+        temp = self.ble.getTemperature()
+        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+
+    def testPMICComm(self):
+        batteryLevel = self.ble.getBatteryLevel()
+        logging.info("Board Battery: {0}\%".format(batteryLevel))
 
     def testLEDs(self):
         for i in range(0, 10):
-            self.api.setLED(i, 1)
-            self.assertEqual(1, self.api.getLED(i))
-    #     for i in range(0, 10):
-    #         self.api.setLED(i, 0)
-    #         self.assertEqual(0, self.api.getLED(i))
+            for j in range(0, 2):
+                self.ble.setLED(j, 1)
+                time.sleep(0.1)
+                #self.assertEqual(1, self.uart.getLED(i))
+            for j in range(0, 2):
+                self.ble.setLED(j, 0)
+                time.sleep(0.1)
+                #self.assertEqual(0, self.uart.getLED(i))
+        for i in range(0, 10):
+            self.ble.setLEDs(([0, 1], [1, 1]))
+            time.sleep(0.1)
+            #self.assertEqual(1, self.uart.getLED(0))
+            #self.assertEqual(1, self.uart.getLED(1))
+            self.ble.setLEDs(([0, 0], [1, 0]))
+            time.sleep(0.1)
+            #self.assertEqual(0, self.uart.getLED(0))
+            #self.assertEqual(0, self.uart.getLED(1))
 
-            #self.api.setLED([(i, 1)])
-            #self.api.getLEDs([i])
+    def testEEPROM(self):
+        # Verify EEPROM Read/Write limit
+        with self.assertRaises(AssertionError):
+            self.ble.EEPROMRead(-1)
+            self.ble.EEPROMRead(256)
+            self.ble.EEPROMWrite(-1, "0xFF")
+            self.ble.EEPROMWrite(256, "0xFF")
 
-    #
-    # def testUARTPCLoopbackComm(self):
-    #     #dataString = "Test#1: Loopback test with KL26 by sending 1000 empty packets..."
-    #     for x in range(1, 1001):
-    #         logging.debug('Loopback test packet %d\r' % (x), end="", flush=True)
-    #         self.api.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, True)
-    #         self.api.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
-    #
-    # def testMotionEngine(self):
-    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-    #     self.api.debugUnitTestEnable(True)
-    #     time.sleep(1)
-    #     for idx,packetBytes in enumerate(testInputVectorPacketList):
-    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-    #         packet = self.api.debugUnitTestSendBytes(packetBytes)
-    #         # self.api.comslip.sendPacketToStream(self.api.sc, packetBytes)
-    #         # packet = self.api.waitForPacket(PacketType.RegularResponse, \
-    #         #                                 SubSystem.Debug, Commands.Debug.UnitTestMotionData)
-    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-    #         print("Sent %d testVectors out of %d\r" % (idx, len(testInputVectorPacketList)), end="", flush=True)
-    #     print("\r")
-    #     self.api.debugUnitTestEnable(False)
+        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+        for i in range(0, 256):
+            storeBytes = self.ble.EEPROMRead(i)
+            dataBytes = bytes([i, i, i, i, i, i, i, i])
+            self.ble.EEPROMWrite(i, dataBytes)
+            time.sleep(0.01)
+            dataBytes = self.ble.EEPROMRead(i)
+            for j in range(0, 8):
+                self.assertEqual(dataBytes[j], i)
+            self.ble.EEPROMWrite(i, storeBytes)
+            logging.info("Got \'{0}\' at page #{1}".format(dataBytes, i))
 
+    def testMotionDownsample(self):
+        numPacket = 2
+        for i in range(1, 51):
+            factor = i * 20
+            logging.info("Downsample factor : {0}".format(factor))
+            self.ble.motionSetDownsample(factor)
+            start = time.time()
+            self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
+            end = time.time()
+            self.ble.motionStopStreams()
+            duration = end - start
+            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+            desiredDuration = 1/(1000/factor)*numPacket
+            #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+            time.sleep(0.1)
+
+        with self.assertRaises(AssertionError):
+            self.ble.motionSetDownsample(1)
+            self.ble.motionSetDownsample(1001)
+        self.ble.motionSetDownsample(20)  # Reset to default
+
+    def testMotionAccRange(self):
+        with self.assertRaises(AssertionError):
+            self.ble.motionSetAccFullScale(-1)
+            self.ble.motionSetAccFullScale(17)
+        self.ble.motionSetAccFullScale(2)
+        self.ble.motionSetAccFullScale(4)
+        self.ble.motionSetAccFullScale(8)
+        self.ble.motionSetAccFullScale(16)
+        self.ble.motionSetAccFullScale(8)   # Reset to default
+
+    def testMotionState(self):
+        self.ble.motionStopStreams()
+        motionState = self.ble.motionGetStates()
+        self.assertFalse(motionState.distance)
+        self.assertFalse(motionState.force)
+        self.assertFalse(motionState.euler)
+        self.assertFalse(motionState.quaternion)
+        self.assertFalse(motionState.imuData)
+        self.assertFalse(motionState.motion)
+        self.assertFalse(motionState.steps)
+        self.assertFalse(motionState.magData)
+        self.assertFalse(motionState.sitStand)

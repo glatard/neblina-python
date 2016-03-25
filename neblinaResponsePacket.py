@@ -57,7 +57,6 @@ DebugResponses = {
     Commands.Debug.StartUnitTestMotion: BlankData,
     Commands.Debug.UnitTestMotionData: UnitTestMotionData,
     Commands.Debug.FWVersions: FWVersionsData.decode
-
 }
 
 StorageResponses = {

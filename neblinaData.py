@@ -33,7 +33,6 @@ from neblinaUtilities import NebUtilities as nebUtilities
 
 ###################################################################################
 
-
 class BlankData(object):
     """ This object is for packet data
         containing no meaningful info in it.

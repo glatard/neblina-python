@@ -34,6 +34,7 @@ except ImportError:
 
 from neblina import *
 from neblinaAPIBase import NeblinaAPIBase
+from neblinaCommandPacket import NebCommandPacket
 from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
@@ -127,8 +128,9 @@ class NeblinaBLE(NeblinaAPIBase):
     """
 
     def __init__(self):
-        super(NeblinaBLE, self).__init__()
+        NeblinaAPIBase.__init__(self)
         self.devices = []
+        self.defaultDevice = None
 
     def close(self, deviceAddress=None):
         logging.info("Disconnected from BLE device : " + deviceAddress)
@@ -140,6 +142,8 @@ class NeblinaBLE(NeblinaAPIBase):
         if device.connected:
             logging.info("Successfully connected to BLE device : " + deviceAddress)
             self.devices.append(device)
+            if len(self.devices) == 1:
+                self.defaultDevice = device
         else:
             logging.warning("Unable to connect to BLE Device : " + deviceAddress)
 
@@ -155,28 +159,30 @@ class NeblinaBLE(NeblinaAPIBase):
             logging.warning("Device not found : " + deviceAddress)
             return None
         else:
-            for device in self.devices:
-                if device.connected:
-                    return device
-            logging.warning("No device is connected.")
-            return None
+            return self.defaultDevice
+
+    def setDefaultDevice(self, deviceAddress):
+        device = self.getDevice(deviceAddress)
+        if device:
+            self.defaultDevice = device
 
     def isOpened(self, deviceAddress=None):
-        device = self.getDevice(deviceAddress)
-        return device and device.connected
+        return self.defaultDevice and self.defaultDevice.connected
 
-    def sendCommand(self, packetString):
-        device = self.getDevice()
-        if device and device.connected:
-            device.writeNeblina(packetString)
+    def sendCommand(self, subSystem, command, enable=True, **kwargs):
+        if self.defaultDevice and self.defaultDevice.connected:
+            commandPacket = NebCommandPacket(subSystem, command, enable, **kwargs)
+            self.defaultDevice.writeNeblina(commandPacket.stringEncode())
 
     def receivePacket(self):
-        device = self.getDevice()
-        if device and device.connected:
-            bytes = device.readNeblina()
+        if self.defaultDevice and self.defaultDevice.connected:
+            bytes = self.defaultDevice.readNeblina()
             packet = NebResponsePacket(bytes)
             return packet
         return None
+
+    def waitForAck(self, subSystem, command):
+        return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
 
     def getBatteryLevel(self):
         device = self.getDevice()
