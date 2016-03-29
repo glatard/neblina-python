@@ -55,7 +55,6 @@ class NeblinaDelegate(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
-        print("handleNotification")
         pass
 
 ###################################################################################
@@ -84,7 +83,6 @@ class NeblinaDevice(object):
 
         if connected:
             self.peripheral = peripheral
-            self.peripheral.setDelegate(NeblinaDelegate())
             self.connected = True
 
             self.serviceBattery = self.peripheral.getServiceByUUID(ServiceBatteryUUID)
@@ -97,6 +95,9 @@ class NeblinaDevice(object):
     def disconnect(self):
         if self.connected:
             self.peripheral.disconnect()
+
+    def setDelegate(self, delegate):
+        self.peripheral.setDelegate(delegate)
 
     def printInfo(self, peripheral):
         print("Printing peripheral information.")
@@ -113,11 +114,17 @@ class NeblinaDevice(object):
         batteryLevel = self.readBatteryCh.read()
         return struct.unpack("<B", batteryLevel)[0]
 
+    def setNeblinaNotification(self):
+        self.peripheral.writeCharacteristic(self.readNeblinaCh.handle+2, struct.pack('<bb', 0x01, 0x00))
+
     def readNeblina(self):
         return self.readNeblinaCh.read()
 
     def writeNeblina(self, string):
         self.writeNeblinaCh.write(string)
+
+    def waitForNotification(self, timeout):
+        return self.peripheral.waitForNotifications(timeout)
 
 ###################################################################################
 
@@ -166,6 +173,13 @@ class NeblinaBLE(NeblinaAPIBase):
         if device:
             self.defaultDevice = device
 
+    def setDelegate(self, deviceAddress, delegate):
+        if not isinstance(delegate, NeblinaDelegate):
+            logging.error("Invalid Delegate.")
+        device = self.getDevice(deviceAddress)
+        device.setDelegate(delegate)
+        device.setNeblinaNotification()
+
     def isOpened(self, deviceAddress=None):
         return self.defaultDevice and self.defaultDevice.connected
 
@@ -191,3 +205,16 @@ class NeblinaBLE(NeblinaAPIBase):
             return bytes
         return None
 
+    def motionStreamWithDelegate(self, streamingType, numPackets=None):
+        self.motionStartStreams(streamingType)
+
+        keepStreaming = not numPackets or numPackets > 0
+        while(keepStreaming):
+            if not self.defaultDevice.waitForNotification(10.0):
+                logging.error("Failed to notify delegate. Stopping motion streaming.")
+                break
+            if numPackets != None:
+                numPackets -= 1
+            keepStreaming = not numPackets or numPackets > 0
+
+        self.motionStopStreams()

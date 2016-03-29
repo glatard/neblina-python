@@ -210,7 +210,10 @@ class FlashSessionInfoData(object):
         self.sessionLengthBytes,\
         self.sessionID,\
         garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
-        self.sessionLength = self.sessionLengthBytes / 18
+        if self.sessionLengthBytes > 0:
+            self.sessionLength = self.sessionLengthBytes / 18
+        else:
+            self.sessionLength = self.sessionLengthBytes
 
     def __str__(self):
         return "Session {0}: {1} bytes"\

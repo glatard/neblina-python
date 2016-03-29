@@ -71,6 +71,7 @@ class NeblinaUART(NeblinaAPIBase):
                 time.sleep(1)
 
         self.sc.flushInput()
+        self.stopAllStreams(True)
 
     def isOpened(self, port=None):
         value = self.sc and self.sc.is_open

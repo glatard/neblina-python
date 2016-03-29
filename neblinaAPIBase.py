@@ -86,19 +86,18 @@ class NeblinaAPIBase(object):
             self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
             packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
 
-    def stopAllStreams(self):
+    def stopAllStreams(self, noack=False):
         """
             Stop all streams.
             For now, calls motionStopStreams which stop all motion streams.
             In the future, this function will stop all streams which are not associated with motion.
             This could be done with a single new commands or multiple separate commands.
         """
-        self.motionStopStreams()
+        self.motionStopStreams(noack)
 
     def isPacketError(self, packet):
         error = False
         if packet:
-            error |= packet.header.packetType == PacketType.ErrorLogResp
             error |= packet.header.packetType == PacketType.ErrorLogResp
         return error
 
@@ -120,8 +119,8 @@ class NeblinaAPIBase(object):
 
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
-        while not self.isPacketValid(packet, packetType, subSystem, command) and \
-              not self.isPacketError(packet):
+        while not self.isPacketValid(packet, packetType, subSystem, command) or \
+              self.isPacketError(packet):
             try:
                 packet = self.receivePacket()
             except NotImplementedError as e:
@@ -176,28 +175,32 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
-    def motionStopStreams(self):
+    def motionStopStreams(self, noack=False):
         self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
-        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        if not noack:
+            self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
 
-        # Motine Engine commands
-    def motionStream(self, streamingType, numPackets=None):
-        errorList = []
+    def motionStartStreams(self, streamingType):
         # Send command to start streaming
         self.sendCommand(SubSystem.Motion, streamingType, True)
         packet = self.waitForAck(SubSystem.Motion, streamingType)
 
+    # Motine Engine commands
+    def motionStream(self, streamingType, numPackets=None):
+        errorList = []
+        self.motionStartStreams(streamingType)
+
         # Timeout mechanism.
-        numTries = 0
-        while (packet == None):
-            logging.warning('Timed out. Trying again.')
-            self.sendCommand(SubSystem.Motion, streamingType, True)
-            packet = self.waitForAck(SubSystem.Motion, streamingType)
-            numTries += 1
-            if numTries > 5:
-                logging.error('Tried {0} times and it doesn\'t respond. Exiting.'.format(numTries))
-                exit()
-        numTries = 0
+        # numTries = 0
+        # while (packet == None):
+        #     logging.warning('Timed out. Trying again.')
+        #     self.sendCommand(SubSystem.Motion, streamingType, True)
+        #     packet = self.waitForAck(SubSystem.Motion, streamingType)
+        #     numTries += 1
+        #     if numTries > 5:
+        #         logging.error('Tried {0} times and it doesn\'t respond. Exiting.'.format(numTries))
+        #         exit()
+        # numTries = 0
 
         # Stream forever if the number of packets is unspecified (None)
         keepStreaming = (numPackets == None or numPackets > 0)
@@ -281,7 +284,6 @@ class NeblinaAPIBase(object):
 
     def flashErase(self):
         # Step 1 - Initialization
-        self.sendCommand(SubSystem.Motion, Commands.Motion.IMU, True)
         self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
 
@@ -300,6 +302,7 @@ class NeblinaAPIBase(object):
 
         # Step 5 - wait for the completion notice
         self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll)
+        logging.info('Flash erase has completed successfully!')
 
     def flashRecord(self, numSamples, dataType):
 
@@ -320,9 +323,9 @@ class NeblinaAPIBase(object):
         logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
         sessionID = packet.data.sessionID
 
-        # Step 5 - enable IMU streaming
+        # Step 5 - enable streaming
         self.sendCommand(SubSystem.Motion, dataType, True)
-        logging.debug('Sending the enable IMU streaming command, and waiting for a response...')
+        logging.debug('Sending the enable streaming command, and waiting for a response...')
 
         # Step 6 - wait for ack
         self.waitForAck(SubSystem.Motion, dataType)
@@ -347,8 +350,8 @@ class NeblinaAPIBase(object):
 
         # Step 11 - wait for ack and the closed session confirmation
         self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
-        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
         logging.debug("The acknowledge packet is received")
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
         logging.info("Session {0} is closed successfully".format(sessionID))
 
     def flashPlayback(self, pbSessionID, destinationFileName=None):
@@ -380,6 +383,7 @@ class NeblinaAPIBase(object):
 
     def flashGetSessionInfo(self, sessionID):
         self.sendCommand(SubSystem.Storage, Commands.Storage.SessionInfo, sessionID=sessionID)
+        self.waitForAck(SubSystem.Storage, Commands.Storage.SessionInfo)
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.SessionInfo)
         if packet.data.sessionLength == 0xFFFFFFFF:
             return None
