@@ -119,5 +119,6 @@ def main( argv ):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format='%(message)s')
-    main( sys.argv[1:])
+    #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s')
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s', filename='neblinaTest.log')
+    main(sys.argv[1:])
