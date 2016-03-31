@@ -355,6 +355,18 @@ class NeblinaAPIBase(object):
         logging.info("Session {0} is closed successfully".format(sessionID))
 
     def flashPlayback(self, pbSessionID, destinationFileName=None):
+        # TODO : Stop playback
+        # self.sendCommand(SubSystem.Storage, Commands.Storage.Playback, False, sessionID=pbSessionID)
+        # logging.debug('Sent the stop playback command, waiting for response...')
+        # self.waitForAck(SubSystem.Storage, Commands.Storage.Playback)
+        # packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Playback)
+        # if packet.header.packetType == PacketType.ErrorLogResp:
+        #     logging.error('Playback failed to stop.')
+        #     return 0
+
+
+        # TODO: Stop streaming
+
         self.sendCommand(SubSystem.Storage, Commands.Storage.Playback, True, sessionID=pbSessionID)
         logging.debug('Sent the start playback command, waiting for response...')
         # wait for confirmation
@@ -395,8 +407,9 @@ class NeblinaAPIBase(object):
         packetCounter = 0
         packet = None
         # logging.debug('waiting and got: {0}'.format(packet))
+        # TODO: replace while
         while (packet == None or \
-                           packet.header.packetType != packetType or \
+                         packet.header.packetType != packetType or \
                            packet.header.subSystem != subSystem or \
                            packet.header.command != command):
             try:

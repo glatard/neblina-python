@@ -197,58 +197,58 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
 
-    def testFlashErase(self):
-        self.uart.flashErase()
-        num = self.uart.flashGetSessions()
-        self.assertEqual(num, 0)
-
-    def testFlashRecord(self):
-        self.uart.flashRecord(198, Commands.Motion.Quaternion)
-        time.sleep(1)
-
-        self.uart.flashRecord(199, Commands.Motion.IMU)
-        time.sleep(1)
-
-        self.uart.flashRecord(200, Commands.Motion.MAG)
-        time.sleep(1)
-
-        self.uart.flashRecord(201, Commands.Motion.MAG)
-        time.sleep(1)
-
-    def testFlashSessionInfo(self):
-        packet = self.uart.flashGetSessionInfo(0)
-        self.assertEqual(packet.sessionLength, 198)
-
-        packet = self.uart.flashGetSessionInfo(1)
-        self.assertEqual(packet.sessionLength, 199)
-
-        packet = self.uart.flashGetSessionInfo(2)
-        self.assertEqual(packet.sessionLength, 200)
-
-        packet = self.uart.flashGetSessionInfo(3)
-        self.assertEqual(packet.sessionLength, 201)
-
-    def testFlashSessionPlayback(self):
-        num = self.uart.flashPlayback(0)
-        self.assertEqual(num, 198)
-
-        num = self.uart.flashPlayback(1)
-        self.assertEqual(num, 199)
-
-        num = self.uart.flashPlayback(2)
-        self.assertEqual(num, 200)
-
-        num = self.uart.flashPlayback(3)
-        self.assertEqual(num, 201)
+    # def testFlashErase(self):
+    #     self.uart.flashErase()
+    #     num = self.uart.flashGetSessions()
+    #     self.assertEqual(num, 0)
+    #
+    # def testFlashRecord(self):
+    #     self.uart.flashRecord(198, Commands.Motion.Quaternion)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(199, Commands.Motion.IMU)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(200, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(201, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    # def testFlashSessionInfo(self):
+    #     packet = self.uart.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, 198)
+    #
+    #     packet = self.uart.flashGetSessionInfo(1)
+    #     self.assertEqual(packet.sessionLength, 199)
+    #
+    #     packet = self.uart.flashGetSessionInfo(2)
+    #     self.assertEqual(packet.sessionLength, 200)
+    #
+    #     packet = self.uart.flashGetSessionInfo(3)
+    #     self.assertEqual(packet.sessionLength, 201)
+    #
+    # def testFlashSessionPlayback(self):
+    #     num = self.uart.flashPlayback(0)
+    #     self.assertEqual(num, 198)
+    #
+    #     num = self.uart.flashPlayback(1)
+    #     self.assertEqual(num, 199)
+    #
+    #     num = self.uart.flashPlayback(2)
+    #     self.assertEqual(num, 200)
+    #
+    #     num = self.uart.flashPlayback(3)
+    #     self.assertEqual(num, 201)
 
     def testFlashXtreme(self):
-        self.uart.flashErase()
-        self.uart.flashRecord(100, Commands.Motion.Quaternion)
-        self.uart.flashRecord(932000, Commands.Motion.Quaternion)
-        #self.uart.flashRecord(100, Commands.Motion.IMU)
+        # self.uart.flashErase()
+        # self.uart.flashRecord(100, Commands.Motion.Quaternion)
+        # self.uart.flashRecord(932000, Commands.Motion.Quaternion)
+        # #self.uart.flashRecord(100, Commands.Motion.IMU)
 
         num = self.uart.flashGetSessions()
-        logging.warn("--There is {0} recorded sessions.")
+        logging.warn("--There is {0} recorded sessions.".format(num))
 
         num = self.uart.flashPlayback(0)
         logging.warn("--First record : {0} packets".format(num))
