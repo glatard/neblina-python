@@ -242,20 +242,22 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertEqual(num, 201)
 
     def testFlashXtreme(self):
-        # self.uart.flashErase()
-        # self.uart.flashRecord(100, Commands.Motion.Quaternion)
-        # self.uart.flashRecord(932000, Commands.Motion.Quaternion)
-        # #self.uart.flashRecord(100, Commands.Motion.IMU)
+        first = 100
+        second = 100  # 932000
+
+        self.uart.flashErase()
+        self.uart.flashRecord(first, Commands.Motion.Quaternion)
+        self.uart.flashRecord(second, Commands.Motion.IMU)
 
         num = self.uart.flashGetSessions()
-        logging.warn("--There is {0} recorded sessions.".format(num))
+        self.assertEqual(num, 2)
 
         num = self.uart.flashPlayback(0)
-        logging.warn("--First record : {0} packets".format(num))
+        self.assertEqual(num, first)
         num = self.uart.flashPlayback(1)
-        logging.warn("--Second record : {0} packets".format(num))
+        self.assertEqual(num, second)
 
         packet = self.uart.flashGetSessionInfo(0)
-        logging.warn("--First record : session length of {0}".format(packet.sessionLength))
+        self.assertEqual(packet.sessionLength, first)
         packet = self.uart.flashGetSessionInfo(1)
-        logging.warn("--Second record : session length of {0}".format(packet.sessionLength))
+        self.assertEqual(packet.sessionLength, second)
