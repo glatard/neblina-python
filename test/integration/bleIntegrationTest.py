@@ -51,6 +51,7 @@ class MotionStreamDelegate(NeblinaDelegate):
         NeblinaDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
+        packet = None
         try:
             packet = NebResponsePacket(data)
         except KeyError as e:
@@ -62,14 +63,15 @@ class MotionStreamDelegate(NeblinaDelegate):
         except InvalidPacketFormatError as e:
             print("InvalidPacketFormatError : " + str(e))
 
-        if packet.header.subSystem == SubSystem.Motion:
-            if packet.header.command == Commands.Motion.EulerAngle:
-                yaw = packet.data.yaw
-                roll = packet.data.roll
-                pitch = packet.data.pitch
-                logging.info("Yaw : {0}, Pitch : {1}, Roll : {2}".format(yaw, pitch, roll))
-        else:
-            logging.error("Wrong subsystem.")
+        if packet:
+            if packet.header.subSystem == SubSystem.Motion:
+                if packet.header.command == Commands.Motion.EulerAngle:
+                    yaw = packet.data.yaw
+                    roll = packet.data.roll
+                    pitch = packet.data.pitch
+                    logging.info("Yaw : {0}, Pitch : {1}, Roll : {2}".format(yaw, pitch, roll))
+            else:
+                logging.error("Wrong subsystem.")
 
 ###################################################################################
 
@@ -91,6 +93,8 @@ class BLEIntegrationTest(unittest.TestCase):
         if not self.ble.isOpened():
             self.fail("Unable to connect to BLE device.")
 
+        self.ble.setStreamingInterface(Interface.BLE)
+
     def tearDown(self):
         self.ble.close(self.deviceAddress)
     #
@@ -106,7 +110,7 @@ class BLEIntegrationTest(unittest.TestCase):
     # def testMotionStreamQuaternion(self):
     #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
     #
-    def testMotionStreamDelegateEuler(self):
+    def testMotionStreamEulerDelegate(self):
         self.ble.setDelegate(self.deviceAddress, MotionStreamDelegate())
         self.ble.motionStreamWithDelegate(Commands.Motion.EulerAngle, 100)
 

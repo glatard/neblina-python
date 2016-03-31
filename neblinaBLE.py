@@ -55,7 +55,7 @@ class NeblinaDelegate(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
-        pass
+        raise NotImplementedError("handleNotification is not override by child.")
 
 ###################################################################################
 
