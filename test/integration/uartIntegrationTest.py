@@ -114,25 +114,25 @@ class UARTIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.uart.debugUnitTestEnable(False)
     #
-    # def testLEDs(self):
-    #     for i in range(0, 10):
-    #         for j in range(0, 2):
-    #             self.uart.setLED(j, 1)
-    #             time.sleep(0.1)
-    #             #self.assertEqual(1, self.uart.getLED(i))
-    #         for j in range(0, 2):
-    #             self.uart.setLED(j, 0)
-    #             time.sleep(0.1)
-    #             #self.assertEqual(0, self.uart.getLED(i))
-    #     for i in range(0, 10):
-    #         self.uart.setLEDs(([0, 1], [1, 1]))
-    #         time.sleep(0.1)
-    #         #self.assertEqual(1, self.uart.getLED(0))
-    #         #self.assertEqual(1, self.uart.getLED(1))
-    #         self.uart.setLEDs(([0, 0], [1, 0]))
-    #         time.sleep(0.1)
-    #         #self.assertEqual(0, self.uart.getLED(0))
-    #         #self.assertEqual(0, self.uart.getLED(1))
+    def testLEDs(self):
+        for i in range(0, 10):
+            for j in range(0, 2):
+                self.uart.setLED(j, 1)
+                time.sleep(0.1)
+                #self.assertEqual(1, self.uart.getLED(i))
+            for j in range(0, 2):
+                self.uart.setLED(j, 0)
+                time.sleep(0.1)
+                #self.assertEqual(0, self.uart.getLED(i))
+        for i in range(0, 10):
+            self.uart.setLEDs(([0, 1], [1, 1]))
+            time.sleep(0.1)
+            #self.assertEqual(1, self.uart.getLED(0))
+            #self.assertEqual(1, self.uart.getLED(1))
+            self.uart.setLEDs(([0, 0], [1, 0]))
+            time.sleep(0.1)
+            #self.assertEqual(0, self.uart.getLED(0))
+            #self.assertEqual(0, self.uart.getLED(1))
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
@@ -241,23 +241,23 @@ class UARTIntegrationTest(unittest.TestCase):
     #     num = self.uart.flashPlayback(3)
     #     self.assertEqual(num, 201)
 
-    def testFlashXtreme(self):
-        first = 100
-        second = 932000
-
-        self.uart.flashErase(Erase.Mass)
-        self.uart.flashRecord(first, Commands.Motion.Quaternion)
-        self.uart.flashRecord(second, Commands.Motion.IMU)
-
-        num = self.uart.flashGetSessions()
-        self.assertEqual(num, 2)
-
-        num = self.uart.flashPlayback(0)
-        self.assertEqual(num, first)
-        num = self.uart.flashPlayback(1)
-        self.assertEqual(num, second)
-
-        packet = self.uart.flashGetSessionInfo(0)
-        self.assertEqual(packet.sessionLength, first)
-        packet = self.uart.flashGetSessionInfo(1)
-        self.assertEqual(packet.sessionLength, second)
+    # def testFlashXtreme(self):
+    #     first = 100
+    #     second = 932000
+    #
+    #     self.uart.flashErase(Erase.Mass)
+    #     self.uart.flashRecord(first, Commands.Motion.Quaternion)
+    #     self.uart.flashRecord(second, Commands.Motion.IMU)
+    #
+    #     num = self.uart.flashGetSessions()
+    #     self.assertEqual(num, 2)
+    #
+    #     num = self.uart.flashPlayback(0)
+    #     self.assertEqual(num, first)
+    #     num = self.uart.flashPlayback(1)
+    #     self.assertEqual(num, second)
+    #
+    #     packet = self.uart.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, first)
+    #     packet = self.uart.flashGetSessionInfo(1)
+    #     self.assertEqual(packet.sessionLength, second)

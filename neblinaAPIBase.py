@@ -184,23 +184,24 @@ class NeblinaAPIBase(object):
         # Send command to start streaming
         self.sendCommand(SubSystem.Motion, streamingType, True)
         packet = self.waitForAck(SubSystem.Motion, streamingType)
+        return packet
 
     # Motine Engine commands
     def motionStream(self, streamingType, numPackets=None):
         errorList = []
-        self.motionStartStreams(streamingType)
+        packet = self.motionStartStreams(streamingType)
 
         # Timeout mechanism.
-        # numTries = 0
-        # while (packet == None):
-        #     logging.warning('Timed out. Trying again.')
-        #     self.sendCommand(SubSystem.Motion, streamingType, True)
-        #     packet = self.waitForAck(SubSystem.Motion, streamingType)
-        #     numTries += 1
-        #     if numTries > 5:
-        #         logging.error('Tried {0} times and it doesn\'t respond. Exiting.'.format(numTries))
-        #         exit()
-        # numTries = 0
+        numTries = 0
+        while (packet == None):
+            logging.warning('Timed out. Trying again.')
+            self.sendCommand(SubSystem.Motion, streamingType, True)
+            packet = self.waitForAck(SubSystem.Motion, streamingType)
+            numTries += 1
+            if numTries > 5:
+                logging.error('Tried {0} times and it doesn\'t respond. Exiting.'.format(numTries))
+                exit()
+        numTries = 0
 
         # Stream forever if the number of packets is unspecified (None)
         keepStreaming = (numPackets == None or numPackets > 0)
@@ -271,10 +272,15 @@ class NeblinaAPIBase(object):
             logging.warning("Use this function with a list of tuples as an argument.")
             return
         self.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
+        self.waitForAck(SubSystem.LED, Commands.LED.SetVal)
 
     def setLED(self, ledIndex, ledValue):
         ledValues = [(ledIndex, ledValue)]
+        logging.info("Send command")
         self.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
+        logging.info("Command Sent")
+        self.waitForAck(SubSystem.LED, Commands.LED.SetVal)
+        logging.info("Ack received")
 
     def flashGetState(self):
         self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)

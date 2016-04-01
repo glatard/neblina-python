@@ -76,6 +76,37 @@ class MotionStreamDelegate(NeblinaDelegate):
 ###################################################################################
 
 
+# class EEPROMDelegate(NeblinaDelegate):
+#     def __init__(self):
+#         NeblinaDelegate.__init__(self)
+#
+#     def handleNotification(self, cHandle, data):
+#         packet = None
+#         try:
+#             packet = NebResponsePacket(data)
+#         except KeyError as e:
+#             print("KeyError : " + str(e))
+#         except NotImplementedError as e:
+#             print("NotImplementedError : " + str(e))
+#         except CRCError as e:
+#             print("CRCError : " + str(e))
+#         except InvalidPacketFormatError as e:
+#             print("InvalidPacketFormatError : " + str(e))
+#         except:
+#             print("Whut ?")
+#
+#         if packet:
+#             if packet.header.packetType == PacketType.RegularResponse:
+#                 if packet.header.subSystem == SubSystem.EEPROM:
+#                     logging.info("Got \'{0}\'".format(data))
+#                 else:
+#                     logging.error("Wrong subsystem.")
+#
+#         # logging.info("Got \'{0}\'".format(data))
+
+###################################################################################
+
+
 class BLEIntegrationTest(unittest.TestCase):
     setupHasAlreadyRun = False
     deviceAddress = None
@@ -97,7 +128,7 @@ class BLEIntegrationTest(unittest.TestCase):
 
     def tearDown(self):
         self.ble.close(self.deviceAddress)
-    #
+
     # def testMotionStreamEuler(self):
     #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
     #
@@ -110,10 +141,6 @@ class BLEIntegrationTest(unittest.TestCase):
     # def testMotionStreamQuaternion(self):
     #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
     #
-    def testMotionStreamEulerDelegate(self):
-        self.ble.setDelegate(self.deviceAddress, MotionStreamDelegate())
-        self.ble.motionStreamWithDelegate(Commands.Motion.EulerAngle, 100)
-
     # def testVersion(self):
     #     versions = self.ble.debugFWVersions()
     #     logging.info(versions)
@@ -127,29 +154,23 @@ class BLEIntegrationTest(unittest.TestCase):
     #     temp = self.ble.getTemperature()
     #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
     #
-    # def testPMICComm(self):
+    # def testBattery(self):
     #     batteryLevel = self.ble.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
     #
-    # def testLEDs(self):
-    #     for i in range(0, 10):
-    #         for j in range(0, 2):
-    #             self.ble.setLED(j, 1)
-    #             time.sleep(0.1)
-    #             #self.assertEqual(1, self.uart.getLED(i))
-    #         for j in range(0, 2):
-    #             self.ble.setLED(j, 0)
-    #             time.sleep(0.1)
-    #             #self.assertEqual(0, self.uart.getLED(i))
-    #     for i in range(0, 10):
-    #         self.ble.setLEDs(([0, 1], [1, 1]))
-    #         time.sleep(0.1)
-    #         #self.assertEqual(1, self.uart.getLED(0))
-    #         #self.assertEqual(1, self.uart.getLED(1))
-    #         self.ble.setLEDs(([0, 0], [1, 0]))
-    #         time.sleep(0.1)
-    #         #self.assertEqual(0, self.uart.getLED(0))
-    #         #self.assertEqual(0, self.uart.getLED(1))
+    def testLEDs(self):
+        for i in range(0, 10):
+            for j in range(0, 2):
+                self.ble.setLED(j, 1)
+                time.sleep(0.1)
+            for j in range(0, 2):
+                self.ble.setLED(j, 0)
+                time.sleep(0.1)
+        for i in range(0, 10):
+            self.ble.setLEDs(([0, 1], [1, 1]))
+            time.sleep(0.1)
+            self.ble.setLEDs(([0, 0], [1, 0]))
+            time.sleep(0.1)
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
@@ -160,16 +181,27 @@ class BLEIntegrationTest(unittest.TestCase):
     #         self.ble.EEPROMWrite(256, "0xFF")
     #
     #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-    #     for i in range(0, 256):
-    #         storeBytes = self.ble.EEPROMRead(i)
-    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
-    #         self.ble.EEPROMWrite(i, dataBytes)
-    #         time.sleep(1)
+    #     num = 256
+    #     storeBytes = []
+    #     # Store EEPROM state
+    #     for i in range(0, num):
     #         dataBytes = self.ble.EEPROMRead(i)
+    #         storeBytes.append(dataBytes)
+    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+    #     # Test write/read
+    #     for i in range(0, num):
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+    #         self.ble.EEPROMWrite(i, dataBytes)
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.EEPROMRead(i)
+    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
     #         for j in range(0, 8):
     #             self.assertEqual(dataBytes[j], i)
-    #         self.ble.EEPROMWrite(i, storeBytes)
-    #         logging.info("Got \'{0}\' at page #{1}".format(dataBytes, i))
+    #     for i in range(0, num):
+    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+    #         self.ble.EEPROMWrite(i, storeBytes[i])
+
     #
     # def testMotionDownsample(self):
     #     numPacket = 2

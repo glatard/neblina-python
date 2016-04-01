@@ -148,6 +148,9 @@ class Commands:
         GetVal = 0x02
         Config = 0x03
 
+    class BLE:
+        Receive = 0x01
+
 CommandStrings = {
     (SubSystem.Debug, Commands.Debug.SetInterface): 'Set Interface',
     (SubSystem.Debug, Commands.Debug.MotAndFlashRecState): 'Check Motion and Flash Recorder States',

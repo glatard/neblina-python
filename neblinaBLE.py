@@ -35,6 +35,7 @@ except ImportError:
 from neblina import *
 from neblinaAPIBase import NeblinaAPIBase
 from neblinaCommandPacket import NebCommandPacket
+from neblinaError import *
 from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
@@ -51,11 +52,38 @@ ServiceNeblinaDataUUID = "0DF9F022-1532-11E5-8960-0002A5D5C51B"
 
 class NeblinaDelegate(DefaultDelegate):
 
-    def __init__(self):
+    def __init__(self, device):
         DefaultDelegate.__init__(self)
+        self.device = device
+        self.packet = None
 
     def handleNotification(self, cHandle, data):
-        raise NotImplementedError("handleNotification is not override by child.")
+        #raise NotImplementedError("handleNotification is not override by child.")
+
+        packet = None
+        try:
+            packet = NebResponsePacket(data)
+        except KeyError as e:
+            print("KeyError : " + str(e))
+        except NotImplementedError as e:
+            print("NotImplementedError : " + str(e))
+        except CRCError as e:
+            print("CRCError : " + str(e))
+        except InvalidPacketFormatError as e:
+            print("InvalidPacketFormatError : " + str(e))
+        except:
+            logging.error("Unexpected error : ", exc_info=True)
+
+        # if packet:
+        #     if packet.header.packetType == PacketType.RegularResponse:
+        #         if packet.header.subSystem == SubSystem.EEPROM:
+        #             logging.info("Got \'{0}\'".format(data))
+        #         else:
+        #             logging.error("Wrong subsystem.")
+
+        self.packet = packet
+
+        # logging.info("Got \'{0}\'".format(data))
 
 ###################################################################################
 
@@ -65,13 +93,15 @@ class NeblinaDevice(object):
     def __init__(self, address):
         self.address = address
         self.connected = False
+        self.delegate = NeblinaDelegate(self)
+
         self.connect(self.address)
 
     def connect(self, deviceAddress):
         connected = False
         peripheral = None
         count = 0
-        while(not connected and count < 5):
+        while not connected and count < 5:
             count += 1
             try:
                 peripheral = Peripheral(deviceAddress, "random")
@@ -92,12 +122,12 @@ class NeblinaDevice(object):
             self.writeNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaCtrlUUID)[0]
             self.readNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaDataUUID)[0]
 
+            self.peripheral.setDelegate(self.delegate)
+            self.enableNeblinaNotification()
+
     def disconnect(self):
         if self.connected:
             self.peripheral.disconnect()
-
-    def setDelegate(self, delegate):
-        self.peripheral.setDelegate(delegate)
 
     def printInfo(self, peripheral):
         print("Printing peripheral information.")
@@ -114,8 +144,11 @@ class NeblinaDevice(object):
         batteryLevel = self.readBatteryCh.read()
         return struct.unpack("<B", batteryLevel)[0]
 
-    def setNeblinaNotification(self):
+    def enableNeblinaNotification(self):
         self.peripheral.writeCharacteristic(self.readNeblinaCh.handle+2, struct.pack('<bb', 0x01, 0x00))
+
+    def disableNeblinaNotification(self):
+        self.peripheral.writeCharacteristic(self.readNeblinaCh.handle+2, struct.pack('<bb', 0x00, 0x00))
 
     def readNeblina(self):
         return self.readNeblinaCh.read()
@@ -173,12 +206,12 @@ class NeblinaBLE(NeblinaAPIBase):
         if device:
             self.defaultDevice = device
 
-    def setDelegate(self, deviceAddress, delegate):
-        if not isinstance(delegate, NeblinaDelegate):
-            logging.error("Invalid Delegate.")
-        device = self.getDevice(deviceAddress)
-        device.setDelegate(delegate)
-        device.setNeblinaNotification()
+    # def setDelegate(self, deviceAddress, delegate):
+    #     if not isinstance(delegate, NeblinaDelegate):
+    #         logging.error("Invalid Delegate.")
+    #     device = self.getDevice(deviceAddress)
+    #     device.setDelegate(delegate)
+    #     device.setNeblinaNotification()
 
     def isOpened(self, deviceAddress=None):
         return self.defaultDevice and self.defaultDevice.connected
@@ -189,21 +222,22 @@ class NeblinaBLE(NeblinaAPIBase):
             self.defaultDevice.writeNeblina(commandPacket.stringEncode())
 
     def receivePacket(self):
-        if self.defaultDevice and self.defaultDevice.connected:
-            bytes = self.defaultDevice.readNeblina()
-            packet = NebResponsePacket(bytes)
-            return packet
-        return None
-
-    def waitForAck(self, subSystem, command):
-        return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
+        if not self.defaultDevice.waitForNotification(1000.0):
+            logging.error("Failed to notify delegate.")
+        return self.defaultDevice.delegate.packet
 
     def getBatteryLevel(self):
-        device = self.getDevice()
-        if device and device.connected:
-            bytes = device.readBattery()
+        if self.defaultDevice and self.defaultDevice.connected:
+            bytes = self.defaultDevice.readBattery()
             return bytes
         return None
+
+    def motionStream(self, streamingType, numPackets=None):
+        """ Stream a specified motion packet.
+            WARNING: This is not the preferred way to retrieve streaming data.
+                     This will work at a slower speed then 'motionStreamWithDelegate'.
+        """
+        NeblinaAPIBase.motionStream(self, streamingType, numPackets)
 
     def motionStreamWithDelegate(self, streamingType, numPackets=None):
         self.motionStartStreams(streamingType)
@@ -218,3 +252,14 @@ class NeblinaBLE(NeblinaAPIBase):
             keepStreaming = not numPackets or numPackets > 0
 
         self.motionStopStreams()
+
+    # def EEPROMWrite(self, writePageNumber, dataString):
+    #     assert 0 <= writePageNumber <= 255
+    #     self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Write, pageNumber=writePageNumber, dataBytes=dataString)
+    #     self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
+    #
+    # def EEPROMRead(self, readPageNumber):
+    #     assert 0 <= readPageNumber <= 255
+    #     self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
+    #     self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Read)
+    #     self.waitForPacket
