@@ -243,9 +243,9 @@ class UARTIntegrationTest(unittest.TestCase):
 
     def testFlashXtreme(self):
         first = 100
-        second = 100  # 932000
+        second = 932000
 
-        self.uart.flashErase()
+        self.uart.flashErase(Erase.Mass)
         self.uart.flashRecord(first, Commands.Motion.Quaternion)
         self.uart.flashRecord(second, Commands.Motion.IMU)
 

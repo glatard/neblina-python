@@ -119,8 +119,8 @@ class NeblinaAPIBase(object):
 
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
-        while not self.isPacketValid(packet, packetType, subSystem, command) or \
-              self.isPacketError(packet):
+        while not self.isPacketValid(packet, packetType, subSystem, command) and \
+              not self.isPacketError(packet):
             try:
                 packet = self.receivePacket()
             except NotImplementedError as e:
@@ -319,7 +319,10 @@ class NeblinaAPIBase(object):
         # Step 4 - wait for ack and the session number
         self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
-        logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
+        if packet.header.packetType == PacketType.ErrorLogResp:
+            logging.warn("Flash is full, not recording.")
+        else:
+            logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
         sessionID = packet.data.sessionID
 
         # Step 5 - enable streaming
