@@ -58,8 +58,6 @@ class NeblinaDelegate(DefaultDelegate):
         self.packet = None
 
     def handleNotification(self, cHandle, data):
-        #raise NotImplementedError("handleNotification is not override by child.")
-
         packet = None
         try:
             packet = NebResponsePacket(data)
@@ -74,16 +72,7 @@ class NeblinaDelegate(DefaultDelegate):
         except:
             logging.error("Unexpected error : ", exc_info=True)
 
-        # if packet:
-        #     if packet.header.packetType == PacketType.RegularResponse:
-        #         if packet.header.subSystem == SubSystem.EEPROM:
-        #             logging.info("Got \'{0}\'".format(data))
-        #         else:
-        #             logging.error("Wrong subsystem.")
-
         self.packet = packet
-
-        # logging.info("Got \'{0}\'".format(data))
 
 ###################################################################################
 
@@ -206,13 +195,6 @@ class NeblinaBLE(NeblinaAPIBase):
         if device:
             self.defaultDevice = device
 
-    # def setDelegate(self, deviceAddress, delegate):
-    #     if not isinstance(delegate, NeblinaDelegate):
-    #         logging.error("Invalid Delegate.")
-    #     device = self.getDevice(deviceAddress)
-    #     device.setDelegate(delegate)
-    #     device.setNeblinaNotification()
-
     def isOpened(self, deviceAddress=None):
         return self.defaultDevice and self.defaultDevice.connected
 
@@ -231,35 +213,3 @@ class NeblinaBLE(NeblinaAPIBase):
             bytes = self.defaultDevice.readBattery()
             return bytes
         return None
-
-    def motionStream(self, streamingType, numPackets=None):
-        """ Stream a specified motion packet.
-            WARNING: This is not the preferred way to retrieve streaming data.
-                     This will work at a slower speed then 'motionStreamWithDelegate'.
-        """
-        NeblinaAPIBase.motionStream(self, streamingType, numPackets)
-
-    def motionStreamWithDelegate(self, streamingType, numPackets=None):
-        self.motionStartStreams(streamingType)
-
-        keepStreaming = not numPackets or numPackets > 0
-        while(keepStreaming):
-            if not self.defaultDevice.waitForNotification(10.0):
-                logging.error("Failed to notify delegate. Stopping motion streaming.")
-                break
-            if numPackets != None:
-                numPackets -= 1
-            keepStreaming = not numPackets or numPackets > 0
-
-        self.motionStopStreams()
-
-    # def EEPROMWrite(self, writePageNumber, dataString):
-    #     assert 0 <= writePageNumber <= 255
-    #     self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Write, pageNumber=writePageNumber, dataBytes=dataString)
-    #     self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
-    #
-    # def EEPROMRead(self, readPageNumber):
-    #     assert 0 <= readPageNumber <= 255
-    #     self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
-    #     self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Read)
-    #     self.waitForPacket

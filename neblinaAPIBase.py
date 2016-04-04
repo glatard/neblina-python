@@ -276,11 +276,8 @@ class NeblinaAPIBase(object):
 
     def setLED(self, ledIndex, ledValue):
         ledValues = [(ledIndex, ledValue)]
-        logging.info("Send command")
         self.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
-        logging.info("Command Sent")
         self.waitForAck(SubSystem.LED, Commands.LED.SetVal)
-        logging.info("Ack received")
 
     def flashGetState(self):
         self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)

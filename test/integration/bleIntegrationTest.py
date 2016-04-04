@@ -33,7 +33,6 @@ from neblina import *
 from neblinaBLE import NeblinaBLE, NeblinaDelegate
 from neblinaError import *
 from neblinaResponsePacket import NebResponsePacket
-from test import neblinaTestUtilities
 
 ###################################################################################
 
@@ -41,68 +40,6 @@ from test import neblinaTestUtilities
 def getSuite(deviceAddress):
     BLEIntegrationTest.deviceAddress = deviceAddress
     return unittest.TestLoader().loadTestsFromTestCase(BLEIntegrationTest)
-
-###################################################################################
-
-
-class MotionStreamDelegate(NeblinaDelegate):
-
-    def __init__(self):
-        NeblinaDelegate.__init__(self)
-
-    def handleNotification(self, cHandle, data):
-        packet = None
-        try:
-            packet = NebResponsePacket(data)
-        except KeyError as e:
-            print("KeyError : " + str(e))
-        except NotImplementedError as e:
-            print("NotImplementedError : " + str(e))
-        except CRCError as e:
-            print("CRCError : " + str(e))
-        except InvalidPacketFormatError as e:
-            print("InvalidPacketFormatError : " + str(e))
-
-        if packet:
-            if packet.header.subSystem == SubSystem.Motion:
-                if packet.header.command == Commands.Motion.EulerAngle:
-                    yaw = packet.data.yaw
-                    roll = packet.data.roll
-                    pitch = packet.data.pitch
-                    logging.info("Yaw : {0}, Pitch : {1}, Roll : {2}".format(yaw, pitch, roll))
-            else:
-                logging.error("Wrong subsystem.")
-
-###################################################################################
-
-
-# class EEPROMDelegate(NeblinaDelegate):
-#     def __init__(self):
-#         NeblinaDelegate.__init__(self)
-#
-#     def handleNotification(self, cHandle, data):
-#         packet = None
-#         try:
-#             packet = NebResponsePacket(data)
-#         except KeyError as e:
-#             print("KeyError : " + str(e))
-#         except NotImplementedError as e:
-#             print("NotImplementedError : " + str(e))
-#         except CRCError as e:
-#             print("CRCError : " + str(e))
-#         except InvalidPacketFormatError as e:
-#             print("InvalidPacketFormatError : " + str(e))
-#         except:
-#             print("Whut ?")
-#
-#         if packet:
-#             if packet.header.packetType == PacketType.RegularResponse:
-#                 if packet.header.subSystem == SubSystem.EEPROM:
-#                     logging.info("Got \'{0}\'".format(data))
-#                 else:
-#                     logging.error("Wrong subsystem.")
-#
-#         # logging.info("Got \'{0}\'".format(data))
 
 ###################################################################################
 
@@ -128,7 +65,7 @@ class BLEIntegrationTest(unittest.TestCase):
 
     def tearDown(self):
         self.ble.close(self.deviceAddress)
-
+    #
     # def testMotionStreamEuler(self):
     #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
     #
@@ -158,19 +95,14 @@ class BLEIntegrationTest(unittest.TestCase):
     #     batteryLevel = self.ble.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
     #
-    def testLEDs(self):
-        for i in range(0, 10):
-            for j in range(0, 2):
-                self.ble.setLED(j, 1)
-                time.sleep(0.1)
-            for j in range(0, 2):
-                self.ble.setLED(j, 0)
-                time.sleep(0.1)
-        for i in range(0, 10):
-            self.ble.setLEDs(([0, 1], [1, 1]))
-            time.sleep(0.1)
-            self.ble.setLEDs(([0, 0], [1, 0]))
-            time.sleep(0.1)
+    #
+    # def testLEDs(self):
+    #     for i in range(0, 100):
+    #         self.ble.setLEDs(([0, 1], [1, 0]))
+    #         self.ble.setLEDs(([0, 0], [1, 1]))
+    #     for i in range(0, 10):
+    #         self.ble.setLEDs(([0, 1], [1, 1]))
+    #         self.ble.setLEDs(([0, 0], [1, 0]))
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
@@ -201,7 +133,6 @@ class BLEIntegrationTest(unittest.TestCase):
     #     for i in range(0, num):
     #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
     #         self.ble.EEPROMWrite(i, storeBytes[i])
-
     #
     # def testMotionDownsample(self):
     #     numPacket = 2
@@ -217,7 +148,6 @@ class BLEIntegrationTest(unittest.TestCase):
     #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
     #         desiredDuration = 1/(1000/factor)*numPacket
     #         #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
-    #         time.sleep(0.1)
     #
     #     with self.assertRaises(AssertionError):
     #         self.ble.motionSetDownsample(1)
@@ -246,3 +176,56 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.steps)
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
+    #     self.assertFalse(motionState.sitStand)
+
+    def testFlashErase(self):
+        self.ble.flashErase()
+        num = self.ble.flashGetSessions()
+        self.assertEqual(num, 0)
+
+    def testFlashRecord(self):
+        self.ble.flashRecord(198, Commands.Motion.Quaternion)
+        self.ble.flashRecord(199, Commands.Motion.IMU)
+        self.ble.flashRecord(200, Commands.Motion.MAG)
+        self.ble.flashRecord(201, Commands.Motion.MAG)
+
+    def testFlashSessionInfo(self):
+        packet = self.ble.flashGetSessionInfo(0)
+        self.assertEqual(packet.sessionLength, 198)
+        packet = self.ble.flashGetSessionInfo(1)
+        self.assertEqual(packet.sessionLength, 199)
+        packet = self.ble.flashGetSessionInfo(2)
+        self.assertEqual(packet.sessionLength, 200)
+        packet = self.ble.flashGetSessionInfo(3)
+        self.assertEqual(packet.sessionLength, 201)
+
+    # def testFlashSessionPlayback(self):
+    #     num = self.ble.flashPlayback(0)
+    #     self.assertEqual(num, 198)
+    #     num = self.ble.flashPlayback(1)
+    #     self.assertEqual(num, 199)
+    #     num = self.ble.flashPlayback(2)
+    #     self.assertEqual(num, 200)
+    #     num = self.ble.flashPlayback(3)
+    #     self.assertEqual(num, 201)
+
+    # def testFlashXtreme(self):
+    #     first = 100
+    #     second = 932000
+    #
+    #     self.ble.flashErase(Erase.Mass)
+    #     self.ble.flashRecord(first, Commands.Motion.Quaternion)
+    #     self.ble.flashRecord(second, Commands.Motion.IMU)
+    #
+    #     num = self.ble.flashGetSessions()
+    #     self.assertEqual(num, 2)
+    #
+    #     num = self.ble.flashPlayback(0)
+    #     self.assertEqual(num, first)
+    #     num = self.ble.flashPlayback(1)
+    #     self.assertEqual(num, second)
+    #
+    #     packet = self.ble.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, first)
+    #     packet = self.ble.flashGetSessionInfo(1)
+    #     self.assertEqual(packet.sessionLength, second)
