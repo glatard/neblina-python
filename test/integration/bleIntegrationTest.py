@@ -65,7 +65,7 @@ class BLEIntegrationTest(unittest.TestCase):
 
     def tearDown(self):
         self.ble.close(self.deviceAddress)
-    #
+
     # def testMotionStreamEuler(self):
     #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
     #
@@ -177,37 +177,39 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
     #     self.assertFalse(motionState.sitStand)
-
+    #
     def testFlashErase(self):
         self.ble.flashErase()
         num = self.ble.flashGetSessions()
         self.assertEqual(num, 0)
+        logging.debug("testFlashErase done")
 
     def testFlashRecord(self):
+        self.ble.motionSetDownsample(20)
         self.ble.flashRecord(198, Commands.Motion.Quaternion)
-        self.ble.flashRecord(199, Commands.Motion.IMU)
-        self.ble.flashRecord(200, Commands.Motion.MAG)
-        self.ble.flashRecord(201, Commands.Motion.MAG)
+        # self.ble.flashRecord(199, Commands.Motion.IMU)
+        # self.ble.flashRecord(200, Commands.Motion.MAG)
+        # self.ble.flashRecord(201, Commands.Motion.MAG)
 
     def testFlashSessionInfo(self):
         packet = self.ble.flashGetSessionInfo(0)
         self.assertEqual(packet.sessionLength, 198)
-        packet = self.ble.flashGetSessionInfo(1)
-        self.assertEqual(packet.sessionLength, 199)
-        packet = self.ble.flashGetSessionInfo(2)
-        self.assertEqual(packet.sessionLength, 200)
-        packet = self.ble.flashGetSessionInfo(3)
-        self.assertEqual(packet.sessionLength, 201)
+        # packet = self.ble.flashGetSessionInfo(1)
+        # self.assertEqual(packet.sessionLength, 199)
+        # packet = self.ble.flashGetSessionInfo(2)
+        # self.assertEqual(packet.sessionLength, 200)
+        # packet = self.ble.flashGetSessionInfo(3)
+        # self.assertEqual(packet.sessionLength, 201)
 
     # def testFlashSessionPlayback(self):
     #     num = self.ble.flashPlayback(0)
     #     self.assertEqual(num, 198)
-    #     num = self.ble.flashPlayback(1)
-    #     self.assertEqual(num, 199)
-    #     num = self.ble.flashPlayback(2)
-    #     self.assertEqual(num, 200)
-    #     num = self.ble.flashPlayback(3)
-    #     self.assertEqual(num, 201)
+    #     # num = self.ble.flashPlayback(1)
+    #     # self.assertEqual(num, 199)
+    #     # num = self.ble.flashPlayback(2)
+    #     # self.assertEqual(num, 200)
+    #     # num = self.ble.flashPlayback(3)
+    #     # self.assertEqual(num, 201)
 
     # def testFlashXtreme(self):
     #     first = 100

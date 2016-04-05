@@ -383,6 +383,7 @@ class NeblinaAPIBase(object):
 
     def flashGetSessions(self):
         self.sendCommand(SubSystem.Storage, Commands.Storage.NumSessions)
+        packet = self.waitForAck(SubSystem.Storage, Commands.Storage.NumSessions)
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.NumSessions)
         return packet.data.numSessions
 

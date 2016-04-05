@@ -26,6 +26,8 @@
 ###################################################################################
 
 import logging
+import queue
+import threading
 
 try:
     from bluepy.btle import *
@@ -55,24 +57,27 @@ class NeblinaDelegate(DefaultDelegate):
     def __init__(self, device):
         DefaultDelegate.__init__(self)
         self.device = device
-        self.packet = None
+        self.packets = queue.Queue()
 
     def handleNotification(self, cHandle, data):
-        packet = None
-        try:
-            packet = NebResponsePacket(data)
-        except KeyError as e:
-            print("KeyError : " + str(e))
-        except NotImplementedError as e:
-            print("NotImplementedError : " + str(e))
-        except CRCError as e:
-            print("CRCError : " + str(e))
-        except InvalidPacketFormatError as e:
-            print("InvalidPacketFormatError : " + str(e))
-        except:
-            logging.error("Unexpected error : ", exc_info=True)
+        self.packets.put(data)
+        logging.debug("Delegate - Received packet : {0}".format(data))
 
-        self.packet = packet
+        # try:
+        #     packet = NebResponsePacket(data)
+        # except KeyError as e:
+        #     print("KeyError : " + str(e))
+        # except NotImplementedError as e:
+        #     print("NotImplementedError : " + str(e))
+        # except CRCError as e:
+        #     print("CRCError : " + str(e))
+        # except InvalidPacketFormatError as e:
+        #     print("InvalidPacketFormatError : " + str(e))
+        # except:
+        #     logging.error("Unexpected error : ", exc_info=True)
+        #
+        # self.packet = packet
+        # logging.debug("Delegate - Received packet : {0}".format(packet.data))
 
 ###################################################################################
 
@@ -84,16 +89,14 @@ class NeblinaDevice(object):
         self.connected = False
         self.delegate = NeblinaDelegate(self)
 
-        self.connect(self.address)
-
-    def connect(self, deviceAddress):
+    def connect(self):
         connected = False
         peripheral = None
         count = 0
         while not connected and count < 5:
             count += 1
             try:
-                peripheral = Peripheral(deviceAddress, "random")
+                peripheral = Peripheral(self.address, "random")
                 connected = True
                 break
             except BTLEException as e:
@@ -151,6 +154,33 @@ class NeblinaDevice(object):
 ###################################################################################
 
 
+class NeblinaCtrl(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.device = None
+        self.stopRequested = False
+
+    def run(self):
+        if not self.device:
+            return
+
+        while not self.stopRequested:
+            self.device.waitForNotification(1)
+
+    def stop(self):
+        self.stopRequested = True
+        self.join()
+        self.device.disconnect()
+
+    def setDevice(self, device):
+        self.device = device
+
+    def sendCommand(self, string):
+        self.device.writeNeblina(string)
+
+###################################################################################
+
+
 class NeblinaBLE(NeblinaAPIBase):
     """
         NeblinaBLE is the Neblina Bluetooth Low Energy (BLE) Application Program Interface (API)
@@ -158,58 +188,54 @@ class NeblinaBLE(NeblinaAPIBase):
 
     def __init__(self):
         NeblinaAPIBase.__init__(self)
-        self.devices = []
-        self.defaultDevice = None
+        self.ctrl = NeblinaCtrl()
 
     def close(self, deviceAddress=None):
         logging.info("Disconnected from BLE device : " + deviceAddress)
-        device = self.getDevice(deviceAddress)
-        device.disconnect()
+        self.ctrl.stop()
 
     def open(self, deviceAddress):
         device = NeblinaDevice(deviceAddress)
+        device.connect()
+        self.ctrl.setDevice(device)
+        self.ctrl.start()
         if device.connected:
             logging.info("Successfully connected to BLE device : " + deviceAddress)
-            self.devices.append(device)
-            if len(self.devices) == 1:
-                self.defaultDevice = device
+            self.ctrl.setDevice(device)
         else:
             logging.warning("Unable to connect to BLE Device : " + deviceAddress)
 
-    def closeAll(self):
-        for device in self.devices:
-            self.close(device.address)
-
-    def getDevice(self, deviceAddress=None):
-        if deviceAddress:
-            for device in self.devices:
-                if device.address == deviceAddress:
-                    return device
-            logging.warning("Device not found : " + deviceAddress)
-            return None
-        else:
-            return self.defaultDevice
-
-    def setDefaultDevice(self, deviceAddress):
-        device = self.getDevice(deviceAddress)
-        if device:
-            self.defaultDevice = device
-
-    def isOpened(self, deviceAddress=None):
-        return self.defaultDevice and self.defaultDevice.connected
+    def isOpened(self, port=None):
+        return self.ctrl.device and self.ctrl.device.connected
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):
-        if self.defaultDevice and self.defaultDevice.connected:
+        if self.ctrl.device and self.ctrl.device.connected:
             commandPacket = NebCommandPacket(subSystem, command, enable, **kwargs)
-            self.defaultDevice.writeNeblina(commandPacket.stringEncode())
+            self.ctrl.sendCommand(commandPacket.stringEncode())
 
     def receivePacket(self):
-        if not self.defaultDevice.waitForNotification(1000.0):
-            logging.error("Failed to notify delegate.")
-        return self.defaultDevice.delegate.packet
+        # if not self.ctrl.device.waitForNotification(1000.0):
+        #     logging.error("Failed to notify delegate.")
+        data = self.ctrl.device.delegate.packets.get()
+
+        packet = None
+        try:
+            packet = NebResponsePacket(data)
+        except KeyError as e:
+            print("KeyError : " + str(e))
+        except NotImplementedError as e:
+            print("NotImplementedError : " + str(e))
+        except CRCError as e:
+            print("CRCError : " + str(e))
+        except InvalidPacketFormatError as e:
+            print("InvalidPacketFormatError : " + str(e))
+        except:
+            logging.error("Unexpected error : ", exc_info=True)
+
+        return packet
 
     def getBatteryLevel(self):
-        if self.defaultDevice and self.defaultDevice.connected:
-            bytes = self.defaultDevice.readBattery()
+        if self.ctrl.device and self.ctrl.device.connected:
+            bytes = self.ctrl.device.readBattery()
             return bytes
         return None
