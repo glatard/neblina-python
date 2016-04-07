@@ -114,25 +114,19 @@ class UARTIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.uart.debugUnitTestEnable(False)
     #
-    def testLEDs(self):
-        for i in range(0, 10):
-            for j in range(0, 2):
-                self.uart.setLED(j, 1)
-                time.sleep(0.1)
-                #self.assertEqual(1, self.uart.getLED(i))
-            for j in range(0, 2):
-                self.uart.setLED(j, 0)
-                time.sleep(0.1)
-                #self.assertEqual(0, self.uart.getLED(i))
-        for i in range(0, 10):
-            self.uart.setLEDs(([0, 1], [1, 1]))
-            time.sleep(0.1)
-            #self.assertEqual(1, self.uart.getLED(0))
-            #self.assertEqual(1, self.uart.getLED(1))
-            self.uart.setLEDs(([0, 0], [1, 0]))
-            time.sleep(0.1)
-            #self.assertEqual(0, self.uart.getLED(0))
-            #self.assertEqual(0, self.uart.getLED(1))
+    # def testLEDs(self):
+    #     for i in range(0, 10):
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 1)
+    #             time.sleep(0.1)
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 0)
+    #             time.sleep(0.1)
+    #     for i in range(0, 10):
+    #         self.uart.setLEDs(([0, 1], [1, 1]))
+    #         time.sleep(0.1)
+    #         self.uart.setLEDs(([0, 0], [1, 0]))
+    #         time.sleep(0.1)
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
@@ -197,10 +191,10 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
 
-    # def testFlashErase(self):
-    #     self.uart.flashErase()
-    #     num = self.uart.flashGetSessions()
-    #     self.assertEqual(num, 0)
+    def testFlashErase(self):
+        self.uart.flashErase()
+        num = self.uart.flashGetSessions()
+        self.assertEqual(num, 0)
     #
     # def testFlashRecord(self):
     #     self.uart.flashRecord(198, Commands.Motion.Quaternion)

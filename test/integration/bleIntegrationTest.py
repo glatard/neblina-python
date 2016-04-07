@@ -68,7 +68,7 @@ class BLEIntegrationTest(unittest.TestCase):
 
     # def testMotionStreamEuler(self):
     #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
-    #
+
     # def testMotionStreamIMU(self):
     #     self.ble.motionStream(Commands.Motion.IMU, 100)
     #
@@ -182,18 +182,31 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.flashErase()
         num = self.ble.flashGetSessions()
         self.assertEqual(num, 0)
-        logging.debug("testFlashErase done")
 
     def testFlashRecord(self):
-        self.ble.motionSetDownsample(20)
-        self.ble.flashRecord(198, Commands.Motion.Quaternion)
+        with self.assertRaises(AssertionError):
+            self.ble.flashRecord(1, Commands.Motion.Quaternion)
+
+        self.ble.motionStopStreams()
+        # time.sleep(0.1)
+        self.ble.motionStartStreams(Commands.Motion.IMU)
+        # time.sleep(0.1)
+        self.ble.motionStartStreams(Commands.Motion.MAG)
+        # time.sleep(0.1)
+        self.ble.motionStartStreams(Commands.Motion.Quaternion)
+        # time.sleep(0.1)
+        self.ble.flashRecordStart()
+        # time.sleep(1)
+        self.ble.flashRecordStop()
+        # time.sleep(0.1)
+        self.ble.motionStopStreams()
         # self.ble.flashRecord(199, Commands.Motion.IMU)
         # self.ble.flashRecord(200, Commands.Motion.MAG)
         # self.ble.flashRecord(201, Commands.Motion.MAG)
-
-    def testFlashSessionInfo(self):
-        packet = self.ble.flashGetSessionInfo(0)
-        self.assertEqual(packet.sessionLength, 198)
+    #
+    # def testFlashSessionInfo(self):
+    #     packet = self.ble.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, 198)
         # packet = self.ble.flashGetSessionInfo(1)
         # self.assertEqual(packet.sessionLength, 199)
         # packet = self.ble.flashGetSessionInfo(2)

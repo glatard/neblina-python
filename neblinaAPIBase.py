@@ -86,6 +86,10 @@ class NeblinaAPIBase(object):
             self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
             packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
 
+    def stopEverything(self, noack=False):
+        self.stopAllStreams(noack)
+        self.flashRecordStop()
+
     def stopAllStreams(self, noack=False):
         """
             Stop all streams.
@@ -183,7 +187,9 @@ class NeblinaAPIBase(object):
     def motionStartStreams(self, streamingType):
         # Send command to start streaming
         self.sendCommand(SubSystem.Motion, streamingType, True)
+        logging.debug("Sending start motion command. Waiting for acknowledge.")
         packet = self.waitForAck(SubSystem.Motion, streamingType)
+        logging.debug("Acknowledgment received.")
         return packet
 
     # Motine Engine commands
@@ -307,20 +313,29 @@ class NeblinaAPIBase(object):
         self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll)
         logging.info('Flash erase has completed successfully!')
 
-    def flashRecord(self, numSamples, dataType):
+    def flashRecordStart(self, streamingType=None):
+        if streamingType:
+            self.sendCommand(SubSystem.Motion, streamingType, False)
+            logging.debug('Sending the stop streaming command, and waiting for a response...')
+
+            self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+            logging.debug('Acknowledge packet was received!')
+
         # Step 1 - Initialization
-        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
-        logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
+        # self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        # logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
 
         # Step 2 - wait for ack
-        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
-        logging.debug('Acknowledge packet was received!')
+        # self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        # logging.debug('Acknowledge packet was received!')
 
         # Step 3 - Start recording
         self.sendCommand(SubSystem.Storage, Commands.Storage.Record, True)
         logging.debug('Sending the command to start the flash recorder, and waiting for a response...')
+
         # Step 4 - wait for ack and the session number
         self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
+        logging.debug("Acknowledge received.")
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
         if packet.header.packetType == PacketType.ErrorLogResp:
             logging.warn("Flash is full, not recording.")
@@ -329,25 +344,23 @@ class NeblinaAPIBase(object):
         sessionID = packet.data.sessionID
 
         # Step 5 - enable streaming
-        self.sendCommand(SubSystem.Motion, dataType, True)
-        logging.debug('Sending the enable streaming command, and waiting for a response...')
+        # self.sendCommand(SubSystem.Motion, streamingType, True)
+        # logging.debug('Sending the enable streaming command, and waiting for a response...')
 
         # Step 6 - wait for ack
-        self.waitForAck(SubSystem.Motion, dataType)
-        logging.debug('Acknowledge packet was received!')
+        # self.waitForAck(SubSystem.Motion, streamingType)
+        # logging.debug('Acknowledge packet was received!')
 
-        # Step 7 Receive Packets
-        for x in range(1, numSamples + 1):
-            packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, dataType)
-            print('Recording {0} packets, current packet: {1}'.format(numSamples, x), end="\r", flush=True)
+        return sessionID
 
+    def flashRecordStop(self, streamingType=None):
         # Step 8 - Stop the streaming
-        self.sendCommand(SubSystem.Motion, dataType, False)
-        logging.debug('Sending the stop streaming command, and waiting for a response...')
+        #self.sendCommand(SubSystem.Motion, dataType, False)
+        #logging.debug('Sending the stop streaming command, and waiting for a response...')
 
         # Step 9 - wait for ack
-        self.waitForAck(SubSystem.Motion, dataType)
-        logging.debug('Acknowledge packet was received!')
+        #self.waitForAck(SubSystem.Motion, dataType)
+        #logging.debug('Acknowledge packet was received!')
 
         # Step 10 - Stop the recording
         self.sendCommand(SubSystem.Storage, Commands.Storage.Record, False)
@@ -357,6 +370,19 @@ class NeblinaAPIBase(object):
         self.waitForAck(SubSystem.Storage, Commands.Storage.Record)
         logging.debug("The acknowledge packet is received")
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
+
+        return packet.data.sessionID
+
+    def flashRecord(self, numSamples, streamingType):
+        sessionID = self.flashRecordStart(streamingType)
+
+        # Step 7 Receive Packets
+        for x in range(1, numSamples + 1):
+            packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, streamingType)
+            print('Recording {0} packets, current packet: {1}'.format(numSamples, x), end="\r", flush=True)
+
+        self.flashRecordStop(streamingType)
+
         logging.info("Session {0} is closed successfully".format(sessionID))
 
     def flashPlayback(self, pbSessionID, destinationFileName=None):

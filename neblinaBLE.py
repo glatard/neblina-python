@@ -28,6 +28,7 @@
 import logging
 import queue
 import threading
+import socket
 
 try:
     from bluepy.btle import *
@@ -114,7 +115,7 @@ class NeblinaDevice(object):
             self.writeNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaCtrlUUID)[0]
             self.readNeblinaCh = self.serviceNeblina.getCharacteristics(ServiceNeblinaDataUUID)[0]
 
-            self.peripheral.setDelegate(self.delegate)
+            self.peripheral.withDelegate(self.delegate)
             self.enableNeblinaNotification()
 
     def disconnect(self):
@@ -159,13 +160,17 @@ class NeblinaCtrl(threading.Thread):
         threading.Thread.__init__(self)
         self.device = None
         self.stopRequested = False
+        self.commandToSend = queue.Queue()
 
     def run(self):
         if not self.device:
             return
 
         while not self.stopRequested:
-            self.device.waitForNotification(1)
+            while not self.commandToSend.empty():
+                command = self.commandToSend.get()
+                self.device.writeNeblina(command)
+            self.device.waitForNotification(0.01)
 
     def stop(self):
         self.stopRequested = True
@@ -176,7 +181,7 @@ class NeblinaCtrl(threading.Thread):
         self.device = device
 
     def sendCommand(self, string):
-        self.device.writeNeblina(string)
+        self.commandToSend.put(string)
 
 ###################################################################################
 
@@ -191,8 +196,9 @@ class NeblinaBLE(NeblinaAPIBase):
         self.ctrl = NeblinaCtrl()
 
     def close(self, deviceAddress=None):
-        logging.info("Disconnected from BLE device : " + deviceAddress)
+        self.stopEverything()
         self.ctrl.stop()
+        logging.info("Disconnected from BLE device : " + deviceAddress)
 
     def open(self, deviceAddress):
         device = NeblinaDevice(deviceAddress)
@@ -214,8 +220,6 @@ class NeblinaBLE(NeblinaAPIBase):
             self.ctrl.sendCommand(commandPacket.stringEncode())
 
     def receivePacket(self):
-        # if not self.ctrl.device.waitForNotification(1000.0):
-        #     logging.error("Failed to notify delegate.")
         data = self.ctrl.device.delegate.packets.get()
 
         packet = None
@@ -239,3 +243,21 @@ class NeblinaBLE(NeblinaAPIBase):
             bytes = self.ctrl.device.readBattery()
             return bytes
         return None
+
+    def flashRecord(self, numSamples, dataType):
+        """
+            This function can not be used for BLE communication due to inability to accurately count the number of
+            samples recorded.
+
+            Please use flashRecordStart and flashRecordStop.
+        """
+        assert False
+
+    def flashPlayback(self, pbSessionID, destinationFileName=None):
+        """
+            This function can not be used for BLE communication due to the higher then normal throughput required to
+            prevent same record-playback time span.
+
+            Please use UART to use playback.
+        """
+        assert False
