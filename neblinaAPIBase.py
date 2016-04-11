@@ -253,7 +253,7 @@ class NeblinaAPIBase(object):
         return packet.data.dataBytes
 
     def EEPROMWrite(self, writePageNumber, dataString):
-        assert writePageNumber >= 0 and writePageNumber <= 255
+        assert 0 <= writePageNumber <= 255
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Write, \
                          pageNumber=writePageNumber, dataBytes=dataString)
         packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
