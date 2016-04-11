@@ -64,6 +64,7 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.setStreamingInterface(Interface.BLE)
 
     def tearDown(self):
+        self.ble.motionStopStreams()
         self.ble.close(self.deviceAddress)
 
     # def testMotionStreamEuler(self):
@@ -187,60 +188,39 @@ class BLEIntegrationTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.ble.flashRecord(1, Commands.Motion.Quaternion)
 
+        streamToUse = 3
+
         self.ble.motionStopStreams()
-        # time.sleep(0.1)
-        self.ble.motionStartStreams(Commands.Motion.IMU)
-        # time.sleep(0.1)
-        self.ble.motionStartStreams(Commands.Motion.MAG)
-        # time.sleep(0.1)
-        self.ble.motionStartStreams(Commands.Motion.Quaternion)
-        # time.sleep(0.1)
+        self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
+        self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
+        self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
+        self.streamIfRequired(4,  Commands.Motion.EulerAngle, streamToUse)
+        self.streamIfRequired(5,  Commands.Motion.ExtForce, streamToUse)
+        self.streamIfRequired(6,  Commands.Motion.Pedometer, streamToUse)
+        self.streamIfRequired(7,  Commands.Motion.SittingStanding, streamToUse)
+        self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
+        self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
+        self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
+        # self.ble.motionStartStreams(Commands.Motion.IMU) if streamToUse > 0 else None
+        # self.ble.motionStartStreams(Commands.Motion.MAG) if streamToUse > 1 else None
+        # self.ble.motionStartStreams(Commands.Motion.Quaternion) if streamToUse > 2 else None
+        # self.ble.motionStartStreams(Commands.Motion.EulerAngle) if streamToUse > 3 else None
+        # self.ble.motionStartStreams(Commands.Motion.ExtForce) if streamToUse > 4 else None
+        # self.ble.motionStartStreams(Commands.Motion.Pedometer) if streamToUse > 5 else None
+        # self.ble.motionStartStreams(Commands.Motion.SittingStanding) if streamToUse > 6 else None
+        # self.ble.motionStartStreams(Commands.Motion.FingerGesture) if streamToUse > 7 else None
+        # self.ble.motionStartStreams(Commands.Motion.RotationInfo) if streamToUse > 9 else None
+        # self.ble.motionStartStreams(Commands.Motion.MotionState) if streamToUse > 10 else None
         self.ble.flashRecordStart()
-        # time.sleep(1)
+        time.sleep(2)
         self.ble.flashRecordStop()
-        # time.sleep(0.1)
         self.ble.motionStopStreams()
-        # self.ble.flashRecord(199, Commands.Motion.IMU)
-        # self.ble.flashRecord(200, Commands.Motion.MAG)
-        # self.ble.flashRecord(201, Commands.Motion.MAG)
-    #
-    # def testFlashSessionInfo(self):
-    #     packet = self.ble.flashGetSessionInfo(0)
-    #     self.assertEqual(packet.sessionLength, 198)
-        # packet = self.ble.flashGetSessionInfo(1)
-        # self.assertEqual(packet.sessionLength, 199)
-        # packet = self.ble.flashGetSessionInfo(2)
-        # self.assertEqual(packet.sessionLength, 200)
-        # packet = self.ble.flashGetSessionInfo(3)
-        # self.assertEqual(packet.sessionLength, 201)
 
-    # def testFlashSessionPlayback(self):
-    #     num = self.ble.flashPlayback(0)
-    #     self.assertEqual(num, 198)
-    #     # num = self.ble.flashPlayback(1)
-    #     # self.assertEqual(num, 199)
-    #     # num = self.ble.flashPlayback(2)
-    #     # self.assertEqual(num, 200)
-    #     # num = self.ble.flashPlayback(3)
-    #     # self.assertEqual(num, 201)
+        num = self.ble.flashGetSessions()
+        self.assertEqual(num, 1)
 
-    # def testFlashXtreme(self):
-    #     first = 100
-    #     second = 932000
-    #
-    #     self.ble.flashErase(Erase.Mass)
-    #     self.ble.flashRecord(first, Commands.Motion.Quaternion)
-    #     self.ble.flashRecord(second, Commands.Motion.IMU)
-    #
-    #     num = self.ble.flashGetSessions()
-    #     self.assertEqual(num, 2)
-    #
-    #     num = self.ble.flashPlayback(0)
-    #     self.assertEqual(num, first)
-    #     num = self.ble.flashPlayback(1)
-    #     self.assertEqual(num, second)
-    #
-    #     packet = self.ble.flashGetSessionInfo(0)
-    #     self.assertEqual(packet.sessionLength, first)
-    #     packet = self.ble.flashGetSessionInfo(1)
-    #     self.assertEqual(packet.sessionLength, second)
+        packet = self.ble.flashGetSessionInfo(0)
+        self.assertGreater(packet.sessionLength, 0)
+
+    def streamIfRequired(self, id, streamingType, streamToUse):
+        (lambda: None, lambda: self.ble.motionStartStreams(streamingType))[streamToUse > id]()

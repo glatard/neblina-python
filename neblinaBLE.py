@@ -170,7 +170,11 @@ class NeblinaCtrl(threading.Thread):
             while not self.commandToSend.empty():
                 command = self.commandToSend.get()
                 self.device.writeNeblina(command)
-            self.device.waitForNotification(0.01)
+
+            try:
+                self.device.waitForNotification(0.01)
+            except Exception:
+                break
 
     def stop(self):
         self.stopRequested = True
