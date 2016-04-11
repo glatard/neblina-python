@@ -246,7 +246,7 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, streamingType, False)
 
     def EEPROMRead(self, readPageNumber):
-        assert readPageNumber >= 0 and readPageNumber <= 255
+        assert 0 <= readPageNumber <= 255
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
         packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Read)
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.EEPROM, Commands.EEPROM.Read)
