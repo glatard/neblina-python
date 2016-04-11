@@ -62,7 +62,7 @@ class NeblinaDelegate(DefaultDelegate):
 
     def handleNotification(self, cHandle, data):
         self.packets.put(data)
-        logging.debug("Delegate - Received packet : {0}".format(data))
+        #logging.debug("Delegate - Received packet : {0}".format(data))
 
         # try:
         #     packet = NebResponsePacket(data)
@@ -229,14 +229,15 @@ class NeblinaBLE(NeblinaAPIBase):
         packet = None
         try:
             packet = NebResponsePacket(data)
+            logging.debug(packet.data)
         except KeyError as e:
-            print("KeyError : " + str(e))
+            logging.error("KeyError : {0}".format(str(e)))
         except NotImplementedError as e:
-            print("NotImplementedError : " + str(e))
+            logging.error("NotImplementedError : {0}".format(str(e)))
         except CRCError as e:
-            print("CRCError : " + str(e))
+            logging.error("CRCError : " + str(e))
         except InvalidPacketFormatError as e:
-            print("InvalidPacketFormatError : " + str(e))
+            logging.error("InvalidPacketFormatError : {0]}".format(str(e)))
         except:
             logging.error("Unexpected error : ", exc_info=True)
 

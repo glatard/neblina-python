@@ -188,9 +188,10 @@ class BLEIntegrationTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.ble.flashRecord(1, Commands.Motion.Quaternion)
 
-        streamToUse = 3
+        streamToUse = 1
 
         self.ble.motionStopStreams()
+        self.ble.motionSetDownsample(20)
         self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
         self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
         self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
@@ -201,18 +202,13 @@ class BLEIntegrationTest(unittest.TestCase):
         self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
         self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
         self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
-        # self.ble.motionStartStreams(Commands.Motion.IMU) if streamToUse > 0 else None
-        # self.ble.motionStartStreams(Commands.Motion.MAG) if streamToUse > 1 else None
-        # self.ble.motionStartStreams(Commands.Motion.Quaternion) if streamToUse > 2 else None
-        # self.ble.motionStartStreams(Commands.Motion.EulerAngle) if streamToUse > 3 else None
-        # self.ble.motionStartStreams(Commands.Motion.ExtForce) if streamToUse > 4 else None
-        # self.ble.motionStartStreams(Commands.Motion.Pedometer) if streamToUse > 5 else None
-        # self.ble.motionStartStreams(Commands.Motion.SittingStanding) if streamToUse > 6 else None
-        # self.ble.motionStartStreams(Commands.Motion.FingerGesture) if streamToUse > 7 else None
-        # self.ble.motionStartStreams(Commands.Motion.RotationInfo) if streamToUse > 9 else None
-        # self.ble.motionStartStreams(Commands.Motion.MotionState) if streamToUse > 10 else None
         self.ble.flashRecordStart()
-        time.sleep(2)
+
+        count = 0
+        while count < 100:
+            self.ble.receivePacket()
+            count = count + 1
+
         self.ble.flashRecordStop()
         self.ble.motionStopStreams()
 
@@ -223,4 +219,4 @@ class BLEIntegrationTest(unittest.TestCase):
         self.assertGreater(packet.sessionLength, 0)
 
     def streamIfRequired(self, id, streamingType, streamToUse):
-        (lambda: None, lambda: self.ble.motionStartStreams(streamingType))[streamToUse > id]()
+        (lambda: None, lambda: self.ble.motionStartStreams(streamingType))[streamToUse >= id]()
