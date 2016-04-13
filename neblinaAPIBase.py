@@ -30,6 +30,7 @@ import logging
 from neblina import *
 from neblinaData import *
 from neblinaError import *
+from neblinaUtilities import NebUtilities
 
 ###################################################################################
 
@@ -385,7 +386,7 @@ class NeblinaAPIBase(object):
 
         logging.info("Session {0} is closed successfully".format(sessionID))
 
-    def flashPlayback(self, pbSessionID, destinationFileName=None):
+    def flashPlayback(self, pbSessionID, dump=False):
         self.sendCommand(SubSystem.Storage, Commands.Storage.Playback, True, sessionID=pbSessionID)
         logging.debug('Sent the start playback command, waiting for response...')
         # wait for confirmation
@@ -400,11 +401,8 @@ class NeblinaAPIBase(object):
             packetList = self.storePacketsUntil(PacketType.RegularResponse, SubSystem.Storage,
                                                 Commands.Storage.Playback)
             logging.info('Finished playback from session number {0}!'.format(pbSessionID))
-            if (destinationFileName != None):
-                thefile = open(destinationFileName, 'w')
-                for item in packetList:
-                    thefile.write("%s\n" % item.stringEncode())
-                thefile.close()
+            if dump:
+                NebUtilities.saveFlashPlayback(pbSessionID, packetList)
             return len(packetList)
 
     def flashGetSessions(self):

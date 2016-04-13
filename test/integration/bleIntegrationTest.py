@@ -188,10 +188,10 @@ class BLEIntegrationTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.ble.flashRecord(1, Commands.Motion.Quaternion)
 
-        streamToUse = 1
+        streamToUse = 10
 
         self.ble.motionStopStreams()
-        self.ble.motionSetDownsample(20)
+        self.ble.motionSetDownsample(40)
         self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
         self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
         self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)

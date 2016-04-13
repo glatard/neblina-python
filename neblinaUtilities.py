@@ -25,7 +25,12 @@
 #
 ###################################################################################
 
+import os
+import time
+
 from itertools import zip_longest
+
+from neblina import *
 
 ###################################################################################
 
@@ -59,3 +64,57 @@ class NebUtilities(object):
            ii += 1
         packetBytes[2] = crc_backup
         return crc
+
+    def saveFlashPlayback(sessionID, packetList):
+        path = os.path.dirname(__file__)
+        recordPath = os.path.join(path, "record/")
+        if not os.path.exists(recordPath):
+            os.makedirs(recordPath)
+
+        date = time.strftime("%Y-%m-%d/")
+        datePath = os.path.join(recordPath, date)
+        if not os.path.exists(datePath):
+            os.makedirs(datePath)
+
+        sessionPath = os.path.join(datePath, "Session-{0}/".format(sessionID))
+        if not os.path.exists(sessionPath):
+            os.makedirs(sessionPath)
+
+        os.listdir(sessionPath)
+        indexPath = None
+        count = 0
+        while(True):
+            indexPath = os.path.join(sessionPath, "{0}/".format(count))
+            if not os.path.exists(indexPath):
+                break
+            count += 1
+
+        os.makedirs(indexPath)
+
+        dumppath = os.path.join(indexPath, "dump.txt")
+        magpath = os.path.join(indexPath, "mag.csv")
+        imupath = os.path.join(indexPath, "imu.csv")
+        quatpath = os.path.join(indexPath, "quat.csv")
+        eulerpath = os.path.join(indexPath, "euler.csv")
+        forcepath = os.path.join(indexPath, "force.csv")
+
+        for packet in packetList:
+            NebUtilities.appendToFile(dumppath, packet.stringEncode())
+
+            if packet.header.command == Commands.Motion.IMU:
+                NebUtilities.appendToFile(imupath, packet.data.csvString())
+            elif packet.header.command == Commands.Motion.MAG:
+                NebUtilities.appendToFile(magpath, packet.data.csvString())
+            elif packet.header.command == Commands.Motion.Quaternion:
+                NebUtilities.appendToFile(quatpath, packet.data.csvString())
+            elif packet.header.command == Commands.Motion.EulerAngle:
+                NebUtilities.appendToFile(eulerpath, packet.data.csvString())
+            elif packet.header.command == Commands.Motion.ExtForce:
+                NebUtilities.appendToFile(forcepath, packet.data.csvString())
+            else:
+                assert False
+
+    def appendToFile(path, string):
+        file = open(path, "a")
+        file.write("{0}\n".format(string))
+        file.close()

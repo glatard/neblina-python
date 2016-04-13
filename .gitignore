@@ -64,3 +64,6 @@ streamconfig.txt
 
 # IDE related files
 .idea/*
+
+# Record file
+record/*

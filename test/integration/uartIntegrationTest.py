@@ -190,11 +190,11 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.steps)
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
-
-    def testFlashErase(self):
-        self.uart.flashErase()
-        num = self.uart.flashGetSessions()
-        self.assertEqual(num, 0)
+    #
+    # def testFlashErase(self):
+    #     self.uart.flashErase()
+    #     num = self.uart.flashGetSessions()
+    #     self.assertEqual(num, 0)
     #
     # def testFlashRecord(self):
     #     self.uart.flashRecord(198, Commands.Motion.Quaternion)
@@ -255,3 +255,4 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertEqual(packet.sessionLength, first)
     #     packet = self.uart.flashGetSessionInfo(1)
     #     self.assertEqual(packet.sessionLength, second)
+

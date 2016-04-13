@@ -443,6 +443,17 @@ class ExternalForceData(object):
         .format(self.timestamp,self.externalForces[0],\
             self.externalForces[1], self.externalForces[2])
 
+    def encode(self):
+        garbage = ('\000'*6).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.ExternalForce, self.timestamp,\
+        self.externalForces[0], self.externalForces[1], self.externalForces[2], garbage)
+        return packetString
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};".format(self.timestamp,\
+            self.externalForces[0], self.externalForces[1], self.externalForces[2])
+        return packetString
+
 ###################################################################################
 
 
@@ -598,6 +609,11 @@ class QuaternionData(object):
             self.timestamp, self.quaternions[0], self.quaternions[1],\
             self.quaternions[2], self.quaternions[3])
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
+            self.quaternions[0], self.quaternions[1], self.quaternions[2], self.quaternions[3])
+        return packetString
+
 ###################################################################################
 
 
@@ -648,6 +664,11 @@ class IMUData(object):
             self.gyro[0], self.gyro[1], self.gyro[2])
         return packetString
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
+            self.accel[0], self.accel[1], self.accel[2], self.gyro[0], self.gyro[1], self.gyro[2])
+        return packetString
+
 ###################################################################################
 
 class MAGData(object):
@@ -696,6 +717,11 @@ class MAGData(object):
             self.accel[0], self.accel[1], self.accel[2])
         return packetString
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
+            self.accel[0], self.accel[1], self.accel[2], self.mag[0], self.mag[1], self.mag[2])
+        return packetString
+
 ###################################################################################
 
 
@@ -717,9 +743,13 @@ class EulerAngleData(object):
     def encode(self):
         garbage = ('\000'*4).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Euler, self.timestamp,\
-         int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10), garbage)
+            int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10), garbage)
         return packetString
 
     def __str__(self):
-        return "{0}us: yaw/pitch/roll:({1},{2},{3}))"\
-        .format(self.timestamp,self.yaw, self.pitch, self.roll)
+        return "{0}us: yaw/pitch/roll:({1},{2},{3}))".format(self.timestamp,self.yaw, self.pitch, self.roll)
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
+            self.yaw, self.pitch, self.roll, self.demoHeading)
+        return packetString
