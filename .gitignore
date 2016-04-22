@@ -67,3 +67,6 @@ streamconfig.txt
 
 # Record file
 record/*
+
+# Python virtual environment
+venv/*
