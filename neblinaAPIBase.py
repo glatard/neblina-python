@@ -404,7 +404,9 @@ class NeblinaAPIBase(object):
                                                 Commands.Storage.Playback)
             logging.info('Finished playback from session number {0}!'.format(pbSessionID))
             if dump:
+                logging.info('Saving dump file. Waiting for completion...')
                 NebUtilities.saveFlashPlayback(pbSessionID, packetList)
+                logging.info('Dump file saving completed.')
             return len(packetList)
 
     def flashGetSessions(self):
