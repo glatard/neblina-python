@@ -316,7 +316,7 @@ class NeblinaAPIBase(object):
 
     def flashRecordStart(self, streamingType=None):
         if streamingType:
-            self.sendCommand(SubSystem.Motion, streamingType, False)
+            self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, False)
             logging.debug('Sending the stop streaming command, and waiting for a response...')
 
             self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
@@ -344,24 +344,26 @@ class NeblinaAPIBase(object):
             logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
         sessionID = packet.data.sessionID
 
-        # Step 5 - enable streaming
-        # self.sendCommand(SubSystem.Motion, streamingType, True)
-        # logging.debug('Sending the enable streaming command, and waiting for a response...')
+        if streamingType:
+            # Step 5 - enable streaming
+            self.sendCommand(SubSystem.Motion, streamingType, True)
+            logging.debug('Sending the enable streaming command, and waiting for a response...')
 
-        # Step 6 - wait for ack
-        # self.waitForAck(SubSystem.Motion, streamingType)
-        # logging.debug('Acknowledge packet was received!')
+            # Step 6 - wait for ack
+            self.waitForAck(SubSystem.Motion, streamingType)
+            logging.debug('Acknowledge packet was received!')
 
         return sessionID
 
     def flashRecordStop(self, streamingType=None):
-        # Step 8 - Stop the streaming
-        #self.sendCommand(SubSystem.Motion, dataType, False)
-        #logging.debug('Sending the stop streaming command, and waiting for a response...')
+        if streamingType:
+            # Step 8 - Stop the streaming
+            self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+            logging.debug('Sending the stop streaming command, and waiting for a response...')
 
-        # Step 9 - wait for ack
-        #self.waitForAck(SubSystem.Motion, dataType)
-        #logging.debug('Acknowledge packet was received!')
+            # Step 9 - wait for ack
+            self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+            logging.debug('Acknowledge packet was received!')
 
         # Step 10 - Stop the recording
         self.sendCommand(SubSystem.Storage, Commands.Storage.Record, False)

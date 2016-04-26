@@ -511,6 +511,11 @@ class PedometerData(object):
         .format(self.timestamp, self.stepCount,\
         self.stepsPerMinute, self.walkingDirection)
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};".format(self.timestamp,\
+            self.stepCount, self.stepsPerMinute, self.walkingDirection)
+        return packetString
+
 ###################################################################################
 
 

@@ -291,11 +291,20 @@ class StreamMenu(cmd.Cmd):
         self.uart.flashRecord(numSamples, Commands.Motion.Quaternion)
 
     def do_flashPlayback(self, args):
+        arguments = args.split(' ')
         if(len(args) <= 0):
             mySessionID = 65535
-        elif(len(args) > 0):
-            mySessionID = int(args)
-        self.uart.flashPlayback(mySessionID)
+            dump = False
+        elif(len(arguments) == 1):
+            mySessionID = int(arguments[0])
+            dump = False
+        elif(len(arguments) >= 2 ):
+            mySessionID = int(arguments[0])
+            if arguments[1] == 'True' or arguments[1] == '1':
+                dump = True
+            else:
+                dump = False
+        self.uart.flashPlayback(mySessionID, dump)
 
     def do_versions(self, args):
         packet = self.uart.debugFWVersions()
