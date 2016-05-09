@@ -69,9 +69,9 @@ class UARTIntegrationTest(unittest.TestCase):
     def tearDown(self):
         self.uart.close()
 
-    # def testMotionStreamEuler(self):
-    #     self.uart.motionStream(Commands.Motion.EulerAngle, 100)
-    #
+    def testMotionStreamEuler(self):
+        self.uart.motionStream(Commands.Motion.EulerAngle, 100)
+
     # def testMotionStreamIMU(self):
     #     self.uart.motionStream(Commands.Motion.IMU, 100)
     #

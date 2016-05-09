@@ -201,7 +201,7 @@ class NeblinaBLE(NeblinaAPIBase):
         self.ctrl = NeblinaCtrl()
 
     def close(self, deviceAddress=None):
-        self.stopEverything()
+        #self.stopEverything()
         self.ctrl.stop()
         logging.info("Disconnected from BLE device : " + deviceAddress)
 

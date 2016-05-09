@@ -68,7 +68,7 @@ class StreamMenu(cmd.Cmd):
         print('.')
         time.sleep(1)
         print('.')
-        self.uart.setStreamingInterface(Interface.UART)
+        #self.uart.setStreamingInterface(Interface.UART)
 
     # If the user exits with Ctrl-C, try switching the interface back to BLE
     def cmdloop(self, intro=None):

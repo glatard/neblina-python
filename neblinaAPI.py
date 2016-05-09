@@ -56,7 +56,7 @@ class NeblinaAPI(object):
 
     def open(self, port):
         self.api.open(port)
-        if ( self.api.isOpened(port)):
+        if self.api.isOpened(port):
             self.setStreamingInterface(self.interface)
             self.stopAllStreams()
 

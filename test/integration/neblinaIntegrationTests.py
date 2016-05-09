@@ -40,7 +40,7 @@ def getSuite(comPort, deviceAddress):
 
     suite.addTest(uartIntegrationTest.getSuite(comPort))
     #suite.addTest(promotionIntegrationTest.getSuite(comPort))
-    suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
+    #suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
     #suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
 
     return suite
