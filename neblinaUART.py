@@ -50,6 +50,7 @@ class NeblinaUART(NeblinaAPIBase):
         NeblinaAPIBase.__init__(self)
         self.comslip = slip.slip()
         self.comPort = None
+        self.sc = None
 
     def close(self, port=None):
         logging.debug("Closing COM port : {0}".format(self.comPort))
@@ -62,7 +63,7 @@ class NeblinaUART(NeblinaAPIBase):
         self.sc = None
         while self.sc is None:
             try:
-                self.sc = serial.Serial(port=self.comPort,baudrate=500000)
+                self.sc = serial.Serial(port=self.comPort, baudrate=500000)
             except serial.serialutil.SerialException as se:
                 if 'Device or resource busy:' in se.__str__():
                     logging.info('Opening COM port is taking a little while, please stand by...')
@@ -71,10 +72,9 @@ class NeblinaUART(NeblinaAPIBase):
                 time.sleep(1)
 
         self.sc.flushInput()
-        self.stopAllStreams(True)
+        self.stopAllStreams()
 
     def isOpened(self, port=None):
-        value = self.sc and self.sc.is_open
         return self.sc and self.sc.is_open
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):

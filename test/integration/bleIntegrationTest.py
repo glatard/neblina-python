@@ -29,10 +29,13 @@ import logging
 import time
 import unittest
 
+import neblinaUtilities
 from neblina import *
 from neblinaBLE import NeblinaBLE, NeblinaDelegate
 from neblinaError import *
 from neblinaResponsePacket import NebResponsePacket
+from neblinaUtilities import NebUtilities
+from test import neblinaTestUtilities
 
 ###################################################################################
 
@@ -62,14 +65,26 @@ class BLEIntegrationTest(unittest.TestCase):
             self.fail("Unable to connect to BLE device.")
 
     def tearDown(self):
-        self.ble.motionStopStreams()
+        self.ble.stopEverything()
         self.ble.close(self.deviceAddress)
 
-    def testMotionStreamEuler(self):
-        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
+    def testMotionEngine(self):
+        testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
+        testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
+        self.ble.debugUnitTestEnable(True)
+        for idx, packetBytes in enumerate(testInputVectorPacketList):
+            # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
+            packet = self.ble.debugUnitTestSendBytes(packetBytes)
+            self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
+            print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
+        print("\r")
+        self.ble.debugUnitTestEnable(False)
 
-    def testMotionStreamIMU(self):
-        self.ble.motionStream(Commands.Motion.IMU, 100)
+    # def testMotionStreamEuler(self):
+    #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
+    #
+    # def testMotionStreamIMU(self):
+    #     self.ble.motionStream(Commands.Motion.IMU, 100)
 
     # def testMotionStreamMAG(self):
     #     self.ble.motionStream(Commands.Motion.MAG, 100)

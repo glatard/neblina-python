@@ -99,18 +99,18 @@ class NeblinaAPIBase(object):
             self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
             packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
 
-    def stopEverything(self, noack=False):
-        self.stopAllStreams(noack)
+    def stopEverything(self):
+        self.stopAllStreams()
         self.flashRecordStop()
 
-    def stopAllStreams(self, noack=False):
+    def stopAllStreams(self):
         """
             Stop all streams.
-            For now, calls motionStopStreams which stop all motion streams.
+            For now, calls motionStopAllStreams which stop all motion streams.
             In the future, this function will stop all streams which are not associated with motion.
             This could be done with a single new commands or multiple separate commands.
         """
-        self.motionStopStreams(noack)
+        self.motionStopAllStreams()
 
     def isPacketError(self, packet):
         error = False
@@ -192,13 +192,19 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
-    def motionStopStreams(self, streamingType):
+    def motionStopAllStreams(self):
+        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        logging.debug("Sending disable streaming command. Waiting for acknowledge.")
+        self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        logging.debug("Acknowledgment received.")
+
+    def motionStopStream(self, streamingType):
         self.sendCommand(SubSystem.Motion, streamingType, False)
         logging.debug("Sending stop motion command. Waiting for acknowledge.")
         self.waitForAck(SubSystem.Motion, streamingType)
         logging.debug("Acknowledgment received.")
 
-    def motionStartStreams(self, streamingType):
+    def motionStartStream(self, streamingType):
         # Send command to start streaming
         self.sendCommand(SubSystem.Motion, streamingType, True)
         logging.debug("Sending start motion command. Waiting for acknowledge.")
@@ -209,7 +215,7 @@ class NeblinaAPIBase(object):
     # Motine Engine commands
     def motionStream(self, streamingType, numPackets=None):
         errorList = []
-        packet = self.motionStartStreams(streamingType)
+        packet = self.motionStartStream(streamingType)
 
         # Timeout mechanism.
         numTries = 0
@@ -257,7 +263,7 @@ class NeblinaAPIBase(object):
                 logging.error("Exception : " + str(e))
 
         # Stop whatever it was streaming
-        packet = self.motionStopStreams(streamingType)
+        packet = self.motionStopStream(streamingType)
 
     def EEPROMRead(self, readPageNumber):
         assert 0 <= readPageNumber <= 255
@@ -478,8 +484,13 @@ class NeblinaAPIBase(object):
 
     def debugUnitTestEnable(self, enable=True):
         self.sendCommand(SubSystem.Debug, Commands.Debug.StartUnitTestMotion, enable)
+        logging.debug("Sending Start UnitTest Motion. Waiting for acknowledgment.")
         self.waitForAck(SubSystem.Debug, Commands.Debug.StartUnitTestMotion)
+        logging.debug("Acknowledgment received")
 
     def debugUnitTestSendBytes(self, bytes):
         self.sendCommandBytes(bytes)
-        return self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.UnitTestMotionData)
+        logging.debug("Sending UnitTest Motion Bytes. Waiting for packet.")
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.UnitTestMotionData)
+        logging.debug("Packet received.")
+        return packet

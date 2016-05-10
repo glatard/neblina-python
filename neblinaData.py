@@ -290,8 +290,7 @@ class FWVersionsData(object):
         apiRelease,\
         mcuFWVersion[0], mcuFWVersion[1], mcuFWVersion[2],\
         bleFWVersion[0], bleFWVersion[1], bleFWVersion[2],\
-        deviceID,\
-        garbage = struct.unpack(Formatting.Data.FWVersions, dataString)
+        deviceID = struct.unpack(Formatting.Data.FWVersions, dataString)
 
         return cls(deviceID, apiRelease, mcuFWVersion, bleFWVersion)
 

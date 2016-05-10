@@ -224,6 +224,10 @@ class NeblinaBLE(NeblinaAPIBase):
             commandPacket = NebCommandPacket(subSystem, command, enable, **kwargs)
             self.ctrl.sendCommand(commandPacket.stringEncode())
 
+    def sendCommandBytes(self, bytes):
+        if self.ctrl.device and self.ctrl.device.connected:
+            self.ctrl.sendCommand(bytes)
+
     def receivePacket(self):
         data = self.ctrl.device.delegate.packets.get()
 
