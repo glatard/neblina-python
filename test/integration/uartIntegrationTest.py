@@ -64,7 +64,7 @@ class UARTIntegrationTest(unittest.TestCase):
         if not self.uart.isOpened(self.comPort):
             self.fail("Unable to connect to COM port.")
 
-        self.uart.setStreamingInterface(Interface.UART)
+        self.uart.openStreaming(Interface.UART)
 
     def tearDown(self):
         self.uart.close()
@@ -72,14 +72,14 @@ class UARTIntegrationTest(unittest.TestCase):
     def testMotionStreamEuler(self):
         self.uart.motionStream(Commands.Motion.EulerAngle, 100)
 
-    # def testMotionStreamIMU(self):
-    #     self.uart.motionStream(Commands.Motion.IMU, 100)
-    #
-    # def testMotionStreamMAG(self):
-    #     self.uart.motionStream(Commands.Motion.MAG, 100)
-    #
-    # def testMotionStreamQuaternion(self):
-    #     self.uart.motionStream(Commands.Motion.Quaternion, 100)
+    def testMotionStreamIMU(self):
+        self.uart.motionStream(Commands.Motion.IMU, 100)
+
+    def testMotionStreamMAG(self):
+        self.uart.motionStream(Commands.Motion.MAG, 100)
+
+    def testMotionStreamQuaternion(self):
+        self.uart.motionStream(Commands.Motion.Quaternion, 100)
     #
     # def testVersion(self):
     #     versions = self.uart.debugFWVersions()
@@ -190,7 +190,7 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionState.steps)
     #     self.assertFalse(motionState.magData)
     #     self.assertFalse(motionState.sitStand)
-    #
+
     # def testFlashErase(self):
     #     self.uart.flashErase()
     #     num = self.uart.flashGetSessions()

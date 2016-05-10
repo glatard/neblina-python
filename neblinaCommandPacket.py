@@ -40,6 +40,8 @@ class NebCommandPacket(object):
         if subSystem == SubSystem.Debug and commandType == Commands.Debug.UnitTestMotionData:
             self.data = NebUnitTestMotionDataCommandData(kwargs['timestamp'], kwargs['accel'],\
                                                          kwargs['gyro'], kwargs['mag'])
+        elif subSystem == SubSystem.Debug and commandType == Commands.Debug.InterfaceState:
+            self.data = NebDataPortState(enable, kwargs['interface'])
         elif subSystem == SubSystem.Motion and commandType == Commands.Motion.Downsample:
             self.data = NebDownsampleCommandData(enable)
         elif subSystem == SubSystem.Motion and commandType == Commands.Motion.AccRange:

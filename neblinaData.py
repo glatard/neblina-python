@@ -33,12 +33,28 @@ from neblinaUtilities import NebUtilities as nebUtilities
 
 ###################################################################################
 
+
+class AckData(object):
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Acknowledgment"
+
+
+###################################################################################
+
+
 class BlankData(object):
     """ This object is for packet data
         containing no meaningful info in it.
     """
     def __init__(self, dataString):
-        self.blankBytes = struct.unpack(Formatting.Data.Blank, dataString)
+        if len(dataString) > 0:
+            self.blankBytes = struct.unpack(Formatting.Data.Blank, dataString)
+        else:
+            self.blankBytes = ('\000'*16).encode('utf-8')
 
     def __str__(self):
         return '{0}'.format(self.blankBytes)
@@ -757,4 +773,32 @@ class EulerAngleData(object):
     def csvString(self):
         packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
             self.yaw, self.pitch, self.roll, self.demoHeading)
+        return packetString
+
+###################################################################################
+
+
+class DataPortStatusData(object):
+    """ Neblina data port status data
+
+        Formatting:
+        - Data port ID
+        - Open/Close
+    """
+    def __init__(self, portID, openClose):
+        self.portID = portID
+        self.openClose = openClose
+
+    def __str__(self):
+        return "portID: {0}, openClose: {1}" \
+            .format(self.portID, self.openClose)
+
+    @classmethod
+    def decode(cls, dataString):
+        portID, openClose = struct.unpack(Formatting.CommandData.SetDataPortState, dataString)
+        return cls(portID, openClose)
+
+    def encode(self):
+        packetString = struct.pack(Formatting.CommandData.SetDataPortState, \
+                                   self.portID, self.openClose)
         return packetString

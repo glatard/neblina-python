@@ -261,3 +261,28 @@ class NebEEPROMCommandData(object):
         return commandDataString
 
 ###################################################################################
+
+
+class NebDataPortState(object):
+    """ Neblina data port status
+
+        Formatting:
+        - Data port ID
+        - Open/Close
+    """
+    def __init__(self, openClose, portID ):
+        self.portID = portID
+        self.openClose = openClose
+
+    def __str__(self):
+        string = 'open' if self.openClose else 'close'
+        return "DataPortState Command {0}: {1}"\
+        .format(self.portID, string)
+
+    def encode(self):
+        openCloseVal = 1 if self.openClose else 0
+        commandDataString = struct.pack(Formatting.CommandData.SetDataPortState, \
+                                        self.portID, openCloseVal)
+        return commandDataString
+
+###################################################################################

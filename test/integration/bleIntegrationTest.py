@@ -71,19 +71,19 @@ class BLEIntegrationTest(unittest.TestCase):
     def testMotionStreamIMU(self):
         self.ble.motionStream(Commands.Motion.IMU, 100)
 
-    def testMotionStreamMAG(self):
-        self.ble.motionStream(Commands.Motion.MAG, 100)
+    # def testMotionStreamMAG(self):
+    #     self.ble.motionStream(Commands.Motion.MAG, 100)
+    #
+    # def testMotionStreamQuaternion(self):
+    #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
 
-    def testMotionStreamQuaternion(self):
-        self.ble.motionStream(Commands.Motion.Quaternion, 100)
-
-    def testVersion(self):
-        versions = self.ble.debugFWVersions()
-        logging.info(versions)
-        self.assertEqual(versions.apiRelease, 1)
-        for i in range(0, 2):
-            self.assertNotEqual(versions.bleFWVersion[i], 255)
-            self.assertNotEqual(versions.mcuFWVersion[i], 255)
+    # def testVersion(self):
+    #     versions = self.ble.debugFWVersions()
+    #     logging.info(versions)
+    #     self.assertEqual(versions.apiRelease, 1)
+    #     for i in range(0, 2):
+    #         self.assertNotEqual(versions.bleFWVersion[i], 255)
+    #         self.assertNotEqual(versions.mcuFWVersion[i], 255)
     #
     # def testMEMSComm(self):
     #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')

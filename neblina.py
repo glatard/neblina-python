@@ -96,6 +96,7 @@ class Commands:
         StartUnitTestMotion = 0x03
         UnitTestMotionData = 0x04
         FWVersions = 0x05
+        InterfaceState = 0x09
 
     class Power:
         GetBatteryLevel = 0x00
@@ -241,3 +242,4 @@ class Formatting:
         GetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         SetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         EEPROM = "<H 8s 6s"  # Page number, 8 bytes R/W Data
+        SetDataPortState = "<B B"  # Port ID, Open/Close

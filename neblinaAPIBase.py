@@ -72,6 +72,18 @@ class NeblinaAPIBase(object):
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetTemperature)
         return packet.data.temperature
 
+    def closeStreaming(self, interface):
+        self.sendCommand(SubSystem.Debug, Commands.Debug.InterfaceState, False, interface=interface)
+        logging.debug('Waiting for the module to close streaming...')
+        packet = self.waitForAck(SubSystem.Debug, Commands.Debug.InterfaceState)
+        logging.debug('Module has closed its streaming')
+
+    def openStreaming(self, interface):
+        self.sendCommand(SubSystem.Debug, Commands.Debug.InterfaceState, True, interface=interface)
+        logging.debug('Waiting for the module to open streaming...')
+        packet = self.waitForAck(SubSystem.Debug, Commands.Debug.InterfaceState)
+        logging.debug('Module has opened its streaming')
+
     def setStreamingInterface(self, interface=Interface.BLE):
         self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
         logging.debug('Waiting for the module to switch its interface...')
@@ -180,10 +192,11 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
-    def motionStopStreams(self, noack=False):
-        self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
-        # if not noack:
-        #     self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+    def motionStopStreams(self, streamingType):
+        self.sendCommand(SubSystem.Motion, streamingType, False)
+        logging.debug("Sending stop motion command. Waiting for acknowledge.")
+        self.waitForAck(SubSystem.Motion, streamingType)
+        logging.debug("Acknowledgment received.")
 
     def motionStartStreams(self, streamingType):
         # Send command to start streaming
@@ -244,7 +257,7 @@ class NeblinaAPIBase(object):
                 logging.error("Exception : " + str(e))
 
         # Stop whatever it was streaming
-        self.sendCommand(SubSystem.Motion, streamingType, False)
+        packet = self.motionStopStreams(streamingType)
 
     def EEPROMRead(self, readPageNumber):
         assert 0 <= readPageNumber <= 255
