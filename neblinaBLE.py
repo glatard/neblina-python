@@ -160,6 +160,7 @@ class NeblinaCtrl(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.device = None
+        self.isPause = False        # To ensure thread safety when accessing other characteristic then Neblina.
         self.stopRequested = False
         self.commandToSend = queue.Queue()
 
@@ -168,14 +169,22 @@ class NeblinaCtrl(threading.Thread):
             return
 
         while not self.stopRequested:
+            if self.isPause:
+                continue
+
             while not self.commandToSend.empty():
                 command = self.commandToSend.get()
                 self.device.writeNeblina(command)
-
             try:
                 self.device.waitForNotification(0.01)
             except Exception:
                 break
+
+    def pause(self):
+        self.isPause = True
+
+    def unpause(self):
+        self.isPause = False
 
     def stop(self):
         self.stopRequested = True
@@ -250,7 +259,9 @@ class NeblinaBLE(NeblinaAPIBase):
 
     def getBatteryLevel(self):
         if self.ctrl.device and self.ctrl.device.connected:
+            self.ctrl.pause()
             bytes = self.ctrl.device.readBattery()
+            self.ctrl.unpause()
             return bytes
         return None
 

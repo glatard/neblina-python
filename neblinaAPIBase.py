@@ -263,7 +263,7 @@ class NeblinaAPIBase(object):
                 logging.error("Exception : " + str(e))
 
         # Stop whatever it was streaming
-        packet = self.motionStopStream(streamingType)
+        self.motionStopStream(streamingType)
 
     def EEPROMRead(self, readPageNumber):
         assert 0 <= readPageNumber <= 255

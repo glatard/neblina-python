@@ -68,30 +68,31 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.stopEverything()
         self.ble.close(self.deviceAddress)
 
-    def testMotionEngine(self):
-        testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-        testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-        self.ble.debugUnitTestEnable(True)
-        for idx, packetBytes in enumerate(testInputVectorPacketList):
-            # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-            packet = self.ble.debugUnitTestSendBytes(packetBytes)
-            self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-            print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
-        print("\r")
-        self.ble.debugUnitTestEnable(False)
+    # def testMotionEngine(self):
+    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
+    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
+    #     self.ble.debugUnitTestEnable(True)
+    #     for idx, packetBytes in enumerate(testInputVectorPacketList):
+    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
+    #         packet = self.ble.debugUnitTestSendBytes(packetBytes)
+    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
+    #         print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
+    #     print("\r")
+    #     self.ble.debugUnitTestEnable(False)
 
-    # def testMotionStreamEuler(self):
-    #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
-    #
+    def testMotionStreamEuler(self):
+        self.ble.motionSetDownsample(40)
+        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
+
     # def testMotionStreamIMU(self):
     #     self.ble.motionStream(Commands.Motion.IMU, 100)
-
+    #
     # def testMotionStreamMAG(self):
     #     self.ble.motionStream(Commands.Motion.MAG, 100)
     #
     # def testMotionStreamQuaternion(self):
     #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
-
+    #
     # def testVersion(self):
     #     versions = self.ble.debugFWVersions()
     #     logging.info(versions)
@@ -104,20 +105,19 @@ class BLEIntegrationTest(unittest.TestCase):
     #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
     #     temp = self.ble.getTemperature()
     #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-    #
+
     # def testBattery(self):
     #     batteryLevel = self.ble.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
-    #
-    #
+
     # def testLEDs(self):
-    #     for i in range(0, 100):
+    #     for i in range(0, 10):
     #         self.ble.setLEDs(([0, 1], [1, 0]))
     #         self.ble.setLEDs(([0, 0], [1, 1]))
     #     for i in range(0, 10):
     #         self.ble.setLEDs(([0, 1], [1, 1]))
     #         self.ble.setLEDs(([0, 0], [1, 0]))
-    #
+
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
     #     with self.assertRaises(AssertionError):
@@ -147,7 +147,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #     for i in range(0, num):
     #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
     #         self.ble.EEPROMWrite(i, storeBytes[i])
-    #
+
     # def testMotionDownsample(self):
     #     numPacket = 2
     #     for i in range(1, 51):
@@ -157,7 +157,6 @@ class BLEIntegrationTest(unittest.TestCase):
     #         start = time.time()
     #         self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
     #         end = time.time()
-    #         self.ble.motionStopStreams()
     #         duration = end - start
     #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
     #         desiredDuration = 1/(1000/factor)*numPacket
@@ -167,7 +166,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #         self.ble.motionSetDownsample(1)
     #         self.ble.motionSetDownsample(1001)
     #     self.ble.motionSetDownsample(20)  # Reset to default
-    #
+
     # def testMotionAccRange(self):
     #     with self.assertRaises(AssertionError):
     #         self.ble.motionSetAccFullScale(-1)
@@ -196,7 +195,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.ble.flashErase()
     #     num = self.ble.flashGetSessions()
     #     self.assertEqual(num, 0)
-    #
+
     # def testFlashRecord(self):
     #     with self.assertRaises(AssertionError):
     #         self.ble.flashRecord(1, Commands.Motion.Quaternion)
