@@ -268,8 +268,11 @@ class NeblinaAPIBase(object):
     def EEPROMRead(self, readPageNumber):
         assert 0 <= readPageNumber <= 255
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
+        logging.debug("Sending EEPROM Read command. Waiting for acknowledgment.")
         packet = self.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Read)
+        logging.debug("Acknowledge received.")
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.EEPROM, Commands.EEPROM.Read)
+        logging.debug("EEPROM Read packet received.")
         return packet.data.dataBytes
 
     def EEPROMWrite(self, writePageNumber, dataString):

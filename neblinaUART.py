@@ -73,6 +73,7 @@ class NeblinaUART(NeblinaAPIBase):
 
         self.sc.flushInput()
         self.stopAllStreams()
+        self.openStreaming(Interface.UART)
 
     def isOpened(self, port=None):
         return self.sc and self.sc.is_open

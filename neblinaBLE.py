@@ -33,8 +33,7 @@ import socket
 try:
     from bluepy.btle import *
 except ImportError:
-    print("Unable to locate bluepy. It is a required module to use neblinaBLE API.")
-    exit()
+    raise ImportError("Unable to locate bluepy. It is a required module to use neblinaBLE API.")
 
 from neblina import *
 from neblinaAPIBase import NeblinaAPIBase

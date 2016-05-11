@@ -80,10 +80,10 @@ class BLEIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.ble.debugUnitTestEnable(False)
 
-    def testMotionStreamEuler(self):
-        self.ble.motionSetDownsample(40)
-        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
-
+    # def testMotionStreamEuler(self):
+    #     self.ble.motionSetDownsample(40)
+    #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
+    #
     # def testMotionStreamIMU(self):
     #     self.ble.motionStream(Commands.Motion.IMU, 100)
     #
@@ -105,11 +105,11 @@ class BLEIntegrationTest(unittest.TestCase):
     #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
     #     temp = self.ble.getTemperature()
     #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-
+    #
     # def testBattery(self):
     #     batteryLevel = self.ble.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
-
+    #
     # def testLEDs(self):
     #     for i in range(0, 10):
     #         self.ble.setLEDs(([0, 1], [1, 0]))
@@ -118,35 +118,39 @@ class BLEIntegrationTest(unittest.TestCase):
     #         self.ble.setLEDs(([0, 1], [1, 1]))
     #         self.ble.setLEDs(([0, 0], [1, 0]))
 
-    # def testEEPROM(self):
-    #     # Verify EEPROM Read/Write limit
-    #     with self.assertRaises(AssertionError):
-    #         self.ble.EEPROMRead(-1)
-    #         self.ble.EEPROMRead(256)
-    #         self.ble.EEPROMWrite(-1, "0xFF")
-    #         self.ble.EEPROMWrite(256, "0xFF")
-    #
-    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-    #     num = 256
-    #     storeBytes = []
-    #     # Store EEPROM state
-    #     for i in range(0, num):
-    #         dataBytes = self.ble.EEPROMRead(i)
-    #         storeBytes.append(dataBytes)
-    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-    #     # Test write/read
-    #     for i in range(0, num):
-    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
-    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-    #         self.ble.EEPROMWrite(i, dataBytes)
-    #     for i in range(0, num):
-    #         dataBytes = self.ble.EEPROMRead(i)
-    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-    #         for j in range(0, 8):
-    #             self.assertEqual(dataBytes[j], i)
-    #     for i in range(0, num):
-    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-    #         self.ble.EEPROMWrite(i, storeBytes[i])
+    def testEEPROM(self):
+        # Verify EEPROM Read/Write limit
+        with self.assertRaises(AssertionError):
+            self.ble.EEPROMRead(-1)
+            self.ble.EEPROMRead(256)
+            self.ble.EEPROMWrite(-1, "0xFF")
+            self.ble.EEPROMWrite(256, "0xFF")
+
+        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+        num = 256
+        storeBytes = []
+        # Store EEPROM state
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            storeBytes.append(dataBytes)
+            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+        # Test write/read
+        for i in range(0, num):
+            dataBytes = bytes([i, i, i, i, i, i, i, i])
+            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+            self.ble.EEPROMWrite(i, dataBytes)
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+            for j in range(0, 8):
+                self.assertEqual(dataBytes[j], i)
+        for i in range(0, num):
+            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+            self.ble.EEPROMWrite(i, storeBytes[i])
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+            self.assertTrue(dataBytes == storeBytes[i])
 
     # def testMotionDownsample(self):
     #     numPacket = 2
@@ -166,7 +170,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #         self.ble.motionSetDownsample(1)
     #         self.ble.motionSetDownsample(1001)
     #     self.ble.motionSetDownsample(20)  # Reset to default
-
+    #
     # def testMotionAccRange(self):
     #     with self.assertRaises(AssertionError):
     #         self.ble.motionSetAccFullScale(-1)
@@ -176,7 +180,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.ble.motionSetAccFullScale(8)
     #     self.ble.motionSetAccFullScale(16)
     #     self.ble.motionSetAccFullScale(8)   # Reset to default
-    #
+
     # def testMotionState(self):
     #     self.ble.motionStopStreams()
     #     motionState = self.ble.motionGetStates()

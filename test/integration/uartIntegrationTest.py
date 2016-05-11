@@ -65,8 +65,6 @@ class UARTIntegrationTest(unittest.TestCase):
         if not self.uart.isOpened(self.comPort):
             self.fail("Unable to connect to COM port.")
 
-        self.uart.openStreaming(Interface.UART)
-
     def tearDown(self):
         self.uart.close()
 
@@ -124,7 +122,7 @@ class UARTIntegrationTest(unittest.TestCase):
             time.sleep(0.1)
             self.uart.setLEDs(([0, 0], [1, 0]))
             time.sleep(0.1)
-    #
+
     def testEEPROM(self):
         # Verify EEPROM Read/Write limit
         with self.assertRaises(AssertionError):
@@ -134,16 +132,30 @@ class UARTIntegrationTest(unittest.TestCase):
             self.uart.EEPROMWrite(256, "0xFF")
 
         # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-        for i in range(0, 256):
-            storeBytes = self.uart.EEPROMRead(i)
-            dataBytes = bytes([i, i, i, i, i, i, i, i])
-            self.uart.EEPROMWrite(i, dataBytes)
-            time.sleep(0.01)
+        num = 256
+        storeBytes = []
+        # Store EEPROM state
+        for i in range(0, num):
             dataBytes = self.uart.EEPROMRead(i)
+            storeBytes.append(dataBytes)
+            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+        # Test write/read
+        for i in range(0, num):
+            dataBytes = bytes([i, i, i, i, i, i, i, i])
+            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+            self.uart.EEPROMWrite(i, dataBytes)
+        for i in range(0, num):
+            dataBytes = self.uart.EEPROMRead(i)
+            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
             for j in range(0, 8):
                 self.assertEqual(dataBytes[j], i)
-            self.uart.EEPROMWrite(i, storeBytes)
-            #logging.info("Got \'{0}\' at page #{1}".format(dataBytes, i))
+        for i in range(0, num):
+            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+            self.uart.EEPROMWrite(i, storeBytes[i])
+        for i in range(0, num):
+            dataBytes = self.uart.EEPROMRead(i)
+            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+            self.assertTrue(dataBytes == storeBytes[i])
 
     def testMotionDownsample(self):
         numPacket = 1
