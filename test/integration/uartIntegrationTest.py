@@ -60,13 +60,15 @@ class UARTIntegrationTest(unittest.TestCase):
         # Give it a break between each test
         time.sleep(1)
 
-        self.uart = NeblinaUART()
-        self.uart.open(self.comPort)
-        if not self.uart.isOpened(self.comPort):
-            self.fail("Unable to connect to COM port.")
+        if not self.setupHasAlreadyRun:
+            self.uart = NeblinaUART()
+            self.uart.open(self.comPort)
+            if not self.uart.isOpened(self.comPort):
+                self.fail("Unable to connect to COM port.")
 
     def tearDown(self):
-        self.uart.close()
+        #self.uart.close()
+        pass
 
     # def testMotionEngine(self):
     #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
