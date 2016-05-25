@@ -118,39 +118,39 @@ class BLEIntegrationTest(unittest.TestCase):
     #         self.ble.setLEDs(([0, 1], [1, 1]))
     #         self.ble.setLEDs(([0, 0], [1, 0]))
 
-    def testEEPROM(self):
-        # Verify EEPROM Read/Write limit
-        with self.assertRaises(AssertionError):
-            self.ble.EEPROMRead(-1)
-            self.ble.EEPROMRead(256)
-            self.ble.EEPROMWrite(-1, "0xFF")
-            self.ble.EEPROMWrite(256, "0xFF")
-
-        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-        num = 256
-        storeBytes = []
-        # Store EEPROM state
-        for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
-            storeBytes.append(dataBytes)
-            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-        # Test write/read
-        for i in range(0, num):
-            dataBytes = bytes([i, i, i, i, i, i, i, i])
-            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.ble.EEPROMWrite(i, dataBytes)
-        for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
-            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-            for j in range(0, 8):
-                self.assertEqual(dataBytes[j], i)
-        for i in range(0, num):
-            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.ble.EEPROMWrite(i, storeBytes[i])
-        for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
-            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-            self.assertTrue(dataBytes == storeBytes[i])
+    # def testEEPROM(self):
+    #     # Verify EEPROM Read/Write limit
+    #     with self.assertRaises(AssertionError):
+    #         self.ble.EEPROMRead(-1)
+    #         self.ble.EEPROMRead(256)
+    #         self.ble.EEPROMWrite(-1, "0xFF")
+    #         self.ble.EEPROMWrite(256, "0xFF")
+    #
+    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+    #     num = 256
+    #     storeBytes = []
+    #     # Store EEPROM state
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.EEPROMRead(i)
+    #         storeBytes.append(dataBytes)
+    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+    #     # Test write/read
+    #     for i in range(0, num):
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+    #         self.ble.EEPROMWrite(i, dataBytes)
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.EEPROMRead(i)
+    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+    #         for j in range(0, 8):
+    #             self.assertEqual(dataBytes[j], i)
+    #     for i in range(0, num):
+    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+    #         self.ble.EEPROMWrite(i, storeBytes[i])
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.EEPROMRead(i)
+    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+    #         self.assertTrue(dataBytes == storeBytes[i])
 
     # def testMotionDownsample(self):
     #     numPacket = 2
@@ -180,7 +180,7 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.ble.motionSetAccFullScale(8)
     #     self.ble.motionSetAccFullScale(16)
     #     self.ble.motionSetAccFullScale(8)   # Reset to default
-
+    #
     # def testMotionState(self):
     #     self.ble.motionStopStreams()
     #     motionState = self.ble.motionGetStates()
@@ -199,40 +199,43 @@ class BLEIntegrationTest(unittest.TestCase):
     #     self.ble.flashErase()
     #     num = self.ble.flashGetSessions()
     #     self.assertEqual(num, 0)
-
+    #
     # def testFlashRecord(self):
     #     with self.assertRaises(AssertionError):
     #         self.ble.flashRecord(1, Commands.Motion.Quaternion)
-    #
-    #     streamToUse = 10
-    #
-    #     self.ble.motionStopStreams()
-    #     self.ble.motionSetDownsample(40)
-    #     self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
-    #     self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
-    #     self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
-    #     self.streamIfRequired(4,  Commands.Motion.EulerAngle, streamToUse)
-    #     self.streamIfRequired(5,  Commands.Motion.ExtForce, streamToUse)
-    #     self.streamIfRequired(6,  Commands.Motion.Pedometer, streamToUse)
-    #     self.streamIfRequired(7,  Commands.Motion.SittingStanding, streamToUse)
-    #     self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
-    #     self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
-    #     self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
-    #     self.ble.flashRecordStart()
-    #
-    #     count = 0
-    #     while count < 100:
-    #         self.ble.receivePacket()
-    #         count = count + 1
-    #
-    #     self.ble.flashRecordStop()
-    #     self.ble.motionStopStreams()
-    #
-    #     num = self.ble.flashGetSessions()
-    #     self.assertEqual(num, 1)
-    #
-    #     packet = self.ble.flashGetSessionInfo(0)
-    #     self.assertGreater(packet.sessionLength, 0)
-    #
-    # def streamIfRequired(self, id, streamingType, streamToUse):
-    #     (lambda: None, lambda: self.ble.motionStartStreams(streamingType))[streamToUse >= id]()
+
+    def testStreamExtreme(self):
+        self.ble.flashErase()
+
+        streamToUse = 10
+
+        self.ble.motionStopAllStreams()
+        self.ble.motionSetDownsample(40)
+        self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
+        self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
+        self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
+        self.streamIfRequired(4,  Commands.Motion.EulerAngle, streamToUse)
+        self.streamIfRequired(5,  Commands.Motion.ExtForce, streamToUse)
+        self.streamIfRequired(6,  Commands.Motion.Pedometer, streamToUse)
+        self.streamIfRequired(7,  Commands.Motion.SittingStanding, streamToUse)
+        self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
+        self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
+        self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
+        self.ble.flashRecordStart()
+
+        count = 0
+        while count < 100:
+            self.ble.receivePacket()
+            count = count + 1
+
+        self.ble.flashRecordStop()
+        self.ble.motionStopAllStreams()
+
+        num = self.ble.flashGetSessions()
+        self.assertEqual(num, 1)
+
+        packet = self.ble.flashGetSessionInfo(0)
+        self.assertGreater(packet.sessionLength, 0)
+
+    def streamIfRequired(self, id, streamingType, streamToUse):
+        (lambda: None, lambda: self.ble.motionStartStream(streamingType))[streamToUse >= id]()
