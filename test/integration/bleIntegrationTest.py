@@ -68,141 +68,141 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.stopEverything()
         self.ble.close(self.deviceAddress)
 
-    # def testMotionEngine(self):
-    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-    #     self.ble.debugUnitTestEnable(True)
-    #     for idx, packetBytes in enumerate(testInputVectorPacketList):
-    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-    #         packet = self.ble.debugUnitTestSendBytes(packetBytes)
-    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-    #         print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
-    #     print("\r")
-    #     self.ble.debugUnitTestEnable(False)
+    def testMotionEngine(self):
+        testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
+        testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
+        self.ble.debugUnitTestEnable(True)
+        for idx, packetBytes in enumerate(testInputVectorPacketList):
+            # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
+            packet = self.ble.debugUnitTestSendBytes(packetBytes)
+            self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
+            print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
+        print("\r")
+        self.ble.debugUnitTestEnable(False)
 
-    # def testMotionStreamEuler(self):
-    #     self.ble.motionSetDownsample(40)
-    #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
-    #
-    # def testMotionStreamIMU(self):
-    #     self.ble.motionStream(Commands.Motion.IMU, 100)
-    #
-    # def testMotionStreamMAG(self):
-    #     self.ble.motionStream(Commands.Motion.MAG, 100)
-    #
-    # def testMotionStreamQuaternion(self):
-    #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
-    #
-    # def testVersion(self):
-    #     versions = self.ble.debugFWVersions()
-    #     logging.info(versions)
-    #     self.assertEqual(versions.apiRelease, 1)
-    #     for i in range(0, 2):
-    #         self.assertNotEqual(versions.bleFWVersion[i], 255)
-    #         self.assertNotEqual(versions.mcuFWVersion[i], 255)
-    #
-    # def testMEMSComm(self):
-    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-    #     temp = self.ble.getTemperature()
-    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-    #
-    # def testBattery(self):
-    #     batteryLevel = self.ble.getBatteryLevel()
-    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
-    #
-    # def testLEDs(self):
-    #     for i in range(0, 10):
-    #         self.ble.setLEDs(([0, 1], [1, 0]))
-    #         self.ble.setLEDs(([0, 0], [1, 1]))
-    #     for i in range(0, 10):
-    #         self.ble.setLEDs(([0, 1], [1, 1]))
-    #         self.ble.setLEDs(([0, 0], [1, 0]))
+    def testMotionStreamEuler(self):
+        self.ble.motionSetDownsample(40)
+        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
 
-    # def testEEPROM(self):
-    #     # Verify EEPROM Read/Write limit
-    #     with self.assertRaises(AssertionError):
-    #         self.ble.EEPROMRead(-1)
-    #         self.ble.EEPROMRead(256)
-    #         self.ble.EEPROMWrite(-1, "0xFF")
-    #         self.ble.EEPROMWrite(256, "0xFF")
-    #
-    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-    #     num = 256
-    #     storeBytes = []
-    #     # Store EEPROM state
-    #     for i in range(0, num):
-    #         dataBytes = self.ble.EEPROMRead(i)
-    #         storeBytes.append(dataBytes)
-    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-    #     # Test write/read
-    #     for i in range(0, num):
-    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
-    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-    #         self.ble.EEPROMWrite(i, dataBytes)
-    #     for i in range(0, num):
-    #         dataBytes = self.ble.EEPROMRead(i)
-    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-    #         for j in range(0, 8):
-    #             self.assertEqual(dataBytes[j], i)
-    #     for i in range(0, num):
-    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-    #         self.ble.EEPROMWrite(i, storeBytes[i])
-    #     for i in range(0, num):
-    #         dataBytes = self.ble.EEPROMRead(i)
-    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-    #         self.assertTrue(dataBytes == storeBytes[i])
+    def testMotionStreamIMU(self):
+        self.ble.motionStream(Commands.Motion.IMU, 100)
 
-    # def testMotionDownsample(self):
-    #     numPacket = 2
-    #     for i in range(1, 51):
-    #         factor = i * 20
-    #         logging.info("Downsample factor : {0}".format(factor))
-    #         self.ble.motionSetDownsample(factor)
-    #         start = time.time()
-    #         self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
-    #         end = time.time()
-    #         duration = end - start
-    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
-    #         desiredDuration = 1/(1000/factor)*numPacket
-    #         #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
-    #
-    #     with self.assertRaises(AssertionError):
-    #         self.ble.motionSetDownsample(1)
-    #         self.ble.motionSetDownsample(1001)
-    #     self.ble.motionSetDownsample(20)  # Reset to default
-    #
-    # def testMotionAccRange(self):
-    #     with self.assertRaises(AssertionError):
-    #         self.ble.motionSetAccFullScale(-1)
-    #         self.ble.motionSetAccFullScale(17)
-    #     self.ble.motionSetAccFullScale(2)
-    #     self.ble.motionSetAccFullScale(4)
-    #     self.ble.motionSetAccFullScale(8)
-    #     self.ble.motionSetAccFullScale(16)
-    #     self.ble.motionSetAccFullScale(8)   # Reset to default
-    #
-    # def testMotionState(self):
-    #     self.ble.motionStopStreams()
-    #     motionState = self.ble.motionGetStates()
-    #     self.assertFalse(motionState.distance)
-    #     self.assertFalse(motionState.force)
-    #     self.assertFalse(motionState.euler)
-    #     self.assertFalse(motionState.quaternion)
-    #     self.assertFalse(motionState.imuData)
-    #     self.assertFalse(motionState.motion)
-    #     self.assertFalse(motionState.steps)
-    #     self.assertFalse(motionState.magData)
-    #     self.assertFalse(motionState.sitStand)
-    #     self.assertFalse(motionState.sitStand)
-    #
-    # def testFlashErase(self):
-    #     self.ble.flashErase()
-    #     num = self.ble.flashGetSessions()
-    #     self.assertEqual(num, 0)
-    #
-    # def testFlashRecord(self):
-    #     with self.assertRaises(AssertionError):
-    #         self.ble.flashRecord(1, Commands.Motion.Quaternion)
+    def testMotionStreamMAG(self):
+        self.ble.motionStream(Commands.Motion.MAG, 100)
+
+    def testMotionStreamQuaternion(self):
+        self.ble.motionStream(Commands.Motion.Quaternion, 100)
+
+    def testVersion(self):
+        versions = self.ble.debugFWVersions()
+        logging.info(versions)
+        self.assertEqual(versions.apiRelease, 1)
+        for i in range(0, 2):
+            self.assertNotEqual(versions.bleFWVersion[i], 255)
+            self.assertNotEqual(versions.mcuFWVersion[i], 255)
+
+    def testMEMSComm(self):
+        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+        temp = self.ble.getTemperature()
+        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+
+    def testBattery(self):
+        batteryLevel = self.ble.getBatteryLevel()
+        logging.info("Board Battery: {0}\%".format(batteryLevel))
+
+    def testLEDs(self):
+        for i in range(0, 10):
+            self.ble.setLEDs(([0, 1], [1, 0]))
+            self.ble.setLEDs(([0, 0], [1, 1]))
+        for i in range(0, 10):
+            self.ble.setLEDs(([0, 1], [1, 1]))
+            self.ble.setLEDs(([0, 0], [1, 0]))
+
+    def testEEPROM(self):
+        # Verify EEPROM Read/Write limit
+        with self.assertRaises(AssertionError):
+            self.ble.EEPROMRead(-1)
+            self.ble.EEPROMRead(256)
+            self.ble.EEPROMWrite(-1, "0xFF")
+            self.ble.EEPROMWrite(256, "0xFF")
+
+        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+        num = 256
+        storeBytes = []
+        # Store EEPROM state
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            storeBytes.append(dataBytes)
+            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+        # Test write/read
+        for i in range(0, num):
+            dataBytes = bytes([i, i, i, i, i, i, i, i])
+            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+            self.ble.EEPROMWrite(i, dataBytes)
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+            for j in range(0, 8):
+                self.assertEqual(dataBytes[j], i)
+        for i in range(0, num):
+            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+            self.ble.EEPROMWrite(i, storeBytes[i])
+        for i in range(0, num):
+            dataBytes = self.ble.EEPROMRead(i)
+            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+            self.assertTrue(dataBytes == storeBytes[i])
+
+    def testMotionDownsample(self):
+        numPacket = 2
+        for i in range(1, 51):
+            factor = i * 20
+            logging.info("Downsample factor : {0}".format(factor))
+            self.ble.motionSetDownsample(factor)
+            start = time.time()
+            self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
+            end = time.time()
+            duration = end - start
+            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+            desiredDuration = 1/(1000/factor)*numPacket
+            #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+
+        with self.assertRaises(AssertionError):
+            self.ble.motionSetDownsample(1)
+            self.ble.motionSetDownsample(1001)
+        self.ble.motionSetDownsample(20)  # Reset to default
+
+    def testMotionAccRange(self):
+        with self.assertRaises(AssertionError):
+            self.ble.motionSetAccFullScale(-1)
+            self.ble.motionSetAccFullScale(17)
+        self.ble.motionSetAccFullScale(2)
+        self.ble.motionSetAccFullScale(4)
+        self.ble.motionSetAccFullScale(8)
+        self.ble.motionSetAccFullScale(16)
+        self.ble.motionSetAccFullScale(8)   # Reset to default
+
+    def testMotionState(self):
+        self.ble.motionStopStreams()
+        motionState = self.ble.motionGetStates()
+        self.assertFalse(motionState.distance)
+        self.assertFalse(motionState.force)
+        self.assertFalse(motionState.euler)
+        self.assertFalse(motionState.quaternion)
+        self.assertFalse(motionState.imuData)
+        self.assertFalse(motionState.motion)
+        self.assertFalse(motionState.steps)
+        self.assertFalse(motionState.magData)
+        self.assertFalse(motionState.sitStand)
+        self.assertFalse(motionState.sitStand)
+
+    def testFlashErase(self):
+        self.ble.flashErase()
+        num = self.ble.flashGetSessions()
+        self.assertEqual(num, 0)
+
+    def testFlashRecord(self):
+        with self.assertRaises(AssertionError):
+            self.ble.flashRecord(1, Commands.Motion.Quaternion)
 
     def testStreamExtreme(self):
         self.ble.flashErase()
