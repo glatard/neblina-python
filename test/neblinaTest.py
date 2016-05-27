@@ -26,6 +26,7 @@
 ###################################################################################
 
 import getopt
+import os
 import sys
 import unittest
 import logging
@@ -119,9 +120,10 @@ def main( argv ):
 
 
 if __name__ == "__main__":
+    logPath = os.path.dirname(os.path.realpath(__file__)) + '/neblinaTest.log'
     #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s')
     logging.basicConfig(level=logging.DEBUG, \
                         format='%(asctime)s : %(message)s', \
-                        filename='neblinaTest.log', \
+                        filename=logPath, \
                         filemode='w')
     main(sys.argv[1:])
