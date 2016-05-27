@@ -81,6 +81,13 @@ class SubSystem:
 ###################################################################################
 
 
+class Erase:
+    Quick = 0x00
+    Mass = 0x01
+
+###################################################################################
+
+
 class Commands:
 
     class Debug:
@@ -89,6 +96,7 @@ class Commands:
         StartUnitTestMotion = 0x03
         UnitTestMotionData = 0x04
         FWVersions = 0x05
+        InterfaceState = 0x09
 
     class Power:
         GetBatteryLevel = 0x00
@@ -140,6 +148,9 @@ class Commands:
         SetVal = 0x01
         GetVal = 0x02
         Config = 0x03
+
+    class BLE:
+        Receive = 0x01
 
 CommandStrings = {
     (SubSystem.Debug, Commands.Debug.SetInterface): 'Set Interface',
@@ -207,7 +218,7 @@ class Formatting:
         BatteryLevel = "<I H 10s"  # Battery Level (%)
         Temperature = "<I h 10s"  # Temperature x100 in Celsius
         FlashNumSessions = "<I H 10s"  # Reserved, number of sessions
-        FWVersions = "<B 3B 3B 8s B"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
+        FWVersions = "<B 3B 3B 8s"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
         MotionState = "<I B 11s"  # Timestamp, start/stop
         ExternalForce = "<I 3h 6s"  # Timestamp, External force xyz
@@ -231,3 +242,4 @@ class Formatting:
         GetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         SetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         EEPROM = "<H 8s 6s"  # Page number, 8 bytes R/W Data
+        SetDataPortState = "<B B"  # Port ID, Open/Close

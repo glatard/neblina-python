@@ -26,6 +26,7 @@
 ###################################################################################
 
 import getopt
+import os
 import sys
 import unittest
 import logging
@@ -42,8 +43,9 @@ def printArguments():
     print("Copyright Motsai 2010-2016")
     print("")
     print("Neblina commands:")
-    print("    -h --help : Display available commands.")
-    print("    -p --port : COM port to use.")
+    print("    -h --help   : Display available commands.")
+    print("    -p --port   : COM port to use.")
+    print("    -d --device : Bluetooth LE device to use.")
     print("")
     print("Neblina test commands (if none specify, run all test):")
     print("    -i : Run integration test.")
@@ -53,42 +55,41 @@ def printArguments():
 
 
 def testUnit():
-    print( "--------------------------------------" )
-    print( "Executing all unit tests." )
-    print( "--------------------------------------" )
+    time.sleep(0.1)
+    print("--------------------------------------")
+    print("Executing all unit tests.")
+    print("--------------------------------------")
     time.sleep(0.1)         # Prevent previous print to overlap test
     suite = unittest.TestSuite()
     suite.addTest( neblinaUnitTests.getSuite() )
-    unittest.TextTestRunner( verbosity = 2 ).run( suite )
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 ###################################################################################
 
 
-def testIntegration(port):
-    print( "--------------------------------------" )
-    if port == None:
-        print("Unable to run integration test.")
-        print("Please specify the PORT using -p command.")
-        sys.exit()
-    print( "Executing all integration tests." )
-    print( "--------------------------------------" )
-    time.sleep(0.1)         # Prevent previous print to overlap test
+def testIntegration(comPort, deviceAddress):
+    time.sleep(0.1)
+    print("--------------------------------------")
+    print("Executing all integration tests.")
+    print("--------------------------------------")
+    time.sleep(0.1)
     suite = unittest.TestSuite()
-    suite.addTest( neblinaIntegrationTests.getSuite(port) )
-    unittest.TextTestRunner( verbosity = 2 ).run( suite )
+    suite.addTest(neblinaIntegrationTests.getSuite(comPort, deviceAddress))
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 ###################################################################################
 
 
 def main( argv ):
-    port = None
+    comPort = None
+    deviceAddress = None
     runAll = True
     runUnit = False
     runIntegration = False
 
     # Retrieve commands and arguments
     try:
-        opts, args = getopt.getopt( argv, "hp:iu")
+        opts, args = getopt.getopt( argv, "hp:d:iu")
     except getopt.GetoptError:
         printArguments()
         sys.exit()
@@ -98,7 +99,9 @@ def main( argv ):
             printArguments()
             sys.exit()
         elif opt in ("-p", "--port"):
-            port = arg
+            comPort = arg
+        elif opt in ("-d", "--device"):
+            deviceAddress = arg
         elif opt in ("-i"):
             runAll = False
             runIntegration = True
@@ -111,11 +114,16 @@ def main( argv ):
         testUnit()
 
     if runIntegration or runAll:
-        testIntegration(port)
+        testIntegration(comPort, deviceAddress)
 
 ###################################################################################
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARN, format='%(message)s')
-    main( sys.argv[1:])
+    logPath = os.path.dirname(os.path.realpath(__file__)) + '/neblinaTest.log'
+    #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s')
+    logging.basicConfig(level=logging.DEBUG, \
+                        format='%(asctime)s : %(message)s', \
+                        filename=logPath, \
+                        filemode='w')
+    main(sys.argv[1:])

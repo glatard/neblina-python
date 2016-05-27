@@ -25,10 +25,23 @@
 #
 ###################################################################################
 
+import binascii
 import struct
 
 from neblina import *
 from neblinaUtilities import NebUtilities as nebUtilities
+
+###################################################################################
+
+
+class AckData(object):
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Acknowledgment"
+
 
 ###################################################################################
 
@@ -38,10 +51,17 @@ class BlankData(object):
         containing no meaningful info in it.
     """
     def __init__(self, dataString):
-        self.blankBytes = struct.unpack(Formatting.Data.Blank, dataString)
+        if len(dataString) > 0:
+            self.blankBytes = struct.unpack(Formatting.Data.Blank, dataString)
+        else:
+            self.blankBytes = ('\000'*16).encode('utf-8')
 
     def __str__(self):
         return '{0}'.format(self.blankBytes)
+
+    def encode(self):
+        garbage = ('\000'*16).encode('utf-8')
+        return struct.pack(Formatting.Data.Blank, garbage)
 
 ###################################################################################
 
@@ -203,13 +223,17 @@ class FlashSessionInfoData(object):
         - Session ID
     """
     def __init__(self, dataString):
-        self.sessionLength,\
+        self.sessionLengthBytes,\
         self.sessionID,\
         garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
+        if self.sessionLengthBytes > 0:
+            self.sessionLength = self.sessionLengthBytes / 18
+        else:
+            self.sessionLength = self.sessionLengthBytes
 
     def __str__(self):
         return "Session {0}: {1} bytes"\
-        .format(self.sessionID, self.sessionLength)
+        .format(self.sessionID, self.sessionLengthBytes)
 
 ###################################################################################
 
@@ -242,23 +266,41 @@ class FWVersionsData(object):
         - BLE Major/Minor/Build
         - Device ID
     """
-    def __init__(self, dataString):
-        self.mcuFWVersion = [0]*3
-        self.bleFWVersion = [0]*3
-        self.apiRelease,\
-        self.mcuFWVersion[0],self.mcuFWVersion[1],self.mcuFWVersion[2],\
-        self.bleFWVersion[0],self.bleFWVersion[1],self.bleFWVersion[2],\
-        self.deviceID,\
-        garbage = struct.unpack(Formatting.Data.FWVersions, dataString)
+    def __init__(self, deviceID, apiRelease, mcuFWVersion, bleFWVersion):
+        assert len(mcuFWVersion)==3
+        assert len(bleFWVersion)==3
+
+        self.deviceID = deviceID
+        self.apiRelease = apiRelease
+        self.mcuFWVersion = mcuFWVersion
+        self.bleFWVersion = bleFWVersion
 
     def __str__(self):
-        return "API Release: {0}\n\
-        MCU Version: {1}.{2}.{3}\n\
-        BLE Version: {4}.{5}.{6}\n\
-        Device ID: {7}".format(self.apiRelease,\
+        string = "API Release: {0}\n".format(self.apiRelease)
+        string += "BLE Version: {0}.{1}.{2}\n".format(self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2])
+        string += "MCU Version: {0}.{1}.{2}\n".format(self.mcuFWVersion[0], self.mcuFWVersion[1], self.mcuFWVersion[2])
+        string += "Device ID: {0}".format(binascii.hexlify(self.deviceID))
+        return string
+
+    @classmethod
+    def decode(cls, dataString):
+        mcuFWVersion = [0]*3
+        bleFWVersion = [0]*3
+
+        apiRelease,\
+        mcuFWVersion[0], mcuFWVersion[1], mcuFWVersion[2],\
+        bleFWVersion[0], bleFWVersion[1], bleFWVersion[2],\
+        deviceID = struct.unpack(Formatting.Data.FWVersions, dataString)
+
+        return cls(deviceID, apiRelease, mcuFWVersion, bleFWVersion)
+
+    def encode(self):
+        packetString = struct.pack(Formatting.Data.FWVersions, self.apiRelease, \
             self.mcuFWVersion[0], self.mcuFWVersion[1], self.mcuFWVersion[2],\
-            self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2],\
-            binascii.hexlify(self.deviceID))
+            self.bleFWVersion[0], self.bleFWVersion[1], self.bleFWVersion[2], self.deviceID)
+        return packetString
+
+
 
 ###################################################################################
 
@@ -416,6 +458,17 @@ class ExternalForceData(object):
         .format(self.timestamp,self.externalForces[0],\
             self.externalForces[1], self.externalForces[2])
 
+    def encode(self):
+        garbage = ('\000'*6).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.ExternalForce, self.timestamp,\
+        self.externalForces[0], self.externalForces[1], self.externalForces[2], garbage)
+        return packetString
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};".format(self.timestamp,\
+            self.externalForces[0], self.externalForces[1], self.externalForces[2])
+        return packetString
+
 ###################################################################################
 
 
@@ -472,6 +525,11 @@ class PedometerData(object):
         return "{0}us: stepCount:{1}, stepsPerMinute:{2}, walkingDirection:{3}"\
         .format(self.timestamp, self.stepCount,\
         self.stepsPerMinute, self.walkingDirection)
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};".format(self.timestamp,\
+            self.stepCount, self.stepsPerMinute, self.walkingDirection)
+        return packetString
 
 ###################################################################################
 
@@ -571,6 +629,11 @@ class QuaternionData(object):
             self.timestamp, self.quaternions[0], self.quaternions[1],\
             self.quaternions[2], self.quaternions[3])
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
+            self.quaternions[0], self.quaternions[1], self.quaternions[2], self.quaternions[3])
+        return packetString
+
 ###################################################################################
 
 
@@ -621,6 +684,11 @@ class IMUData(object):
             self.gyro[0], self.gyro[1], self.gyro[2])
         return packetString
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
+            self.accel[0], self.accel[1], self.accel[2], self.gyro[0], self.gyro[1], self.gyro[2])
+        return packetString
+
 ###################################################################################
 
 class MAGData(object):
@@ -669,6 +737,11 @@ class MAGData(object):
             self.accel[0], self.accel[1], self.accel[2])
         return packetString
 
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
+            self.accel[0], self.accel[1], self.accel[2], self.mag[0], self.mag[1], self.mag[2])
+        return packetString
+
 ###################################################################################
 
 
@@ -690,9 +763,41 @@ class EulerAngleData(object):
     def encode(self):
         garbage = ('\000'*4).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Euler, self.timestamp,\
-         int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10), garbage)
+            int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10), garbage)
         return packetString
 
     def __str__(self):
-        return "{0}us: yaw/pitch/roll:({1},{2},{3}))"\
-        .format(self.timestamp,self.yaw, self.pitch, self.roll)
+        return "{0}us: yaw/pitch/roll:({1},{2},{3}))".format(self.timestamp,self.yaw, self.pitch, self.roll)
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
+            self.yaw, self.pitch, self.roll, self.demoHeading)
+        return packetString
+
+###################################################################################
+
+
+class DataPortStatusData(object):
+    """ Neblina data port status data
+
+        Formatting:
+        - Data port ID
+        - Open/Close
+    """
+    def __init__(self, portID, openClose):
+        self.portID = portID
+        self.openClose = openClose
+
+    def __str__(self):
+        return "portID: {0}, openClose: {1}" \
+            .format(self.portID, self.openClose)
+
+    @classmethod
+    def decode(cls, dataString):
+        portID, openClose = struct.unpack(Formatting.CommandData.SetDataPortState, dataString)
+        return cls(portID, openClose)
+
+    def encode(self):
+        packetString = struct.pack(Formatting.CommandData.SetDataPortState, \
+                                   self.portID, self.openClose)
+        return packetString

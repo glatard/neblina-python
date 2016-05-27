@@ -25,6 +25,8 @@
 #
 ###################################################################################
 
+import logging
+
 #from neblina import *
 from neblinaData import *
 from neblinaError import *
@@ -56,8 +58,11 @@ DebugResponses = {
     Commands.Debug.MotAndFlashRecState: MotAndFlashRecStateData,
     Commands.Debug.StartUnitTestMotion: BlankData,
     Commands.Debug.UnitTestMotionData: UnitTestMotionData,
-    Commands.Debug.FWVersions: FWVersionsData
-
+    Commands.Debug.FWVersions: FWVersionsData.decode,
+    6: BlankData,
+    7: BlankData,
+    8: BlankData,
+    Commands.Debug.InterfaceState: DataPortStatusData.decode,
 }
 
 StorageResponses = {
@@ -136,6 +141,13 @@ class NebResponsePacket(object):
         return responsePacket
 
     @classmethod
+    def createEmptyResponsePacket(cls, subSystem, command):
+        garbage = ('\000' * 16).encode('utf-8')
+        data = BlankData(garbage)
+        dataString = data.encode()
+        return cls.createResponsePacket(cls, subSystem, command, data, dataString)
+
+    @classmethod
     def createMAGResponsePacket(cls, timestamp, mag, accel):
         data = MAGData(timestamp, mag, accel)
         dataString = data.encode()
@@ -181,9 +193,9 @@ class NebResponsePacket(object):
         if (packetString != None):
             # Sanity check
             packetStringLength = len(packetString)
-            if (packetStringLength < 5):
+            if (packetStringLength < 4):
                 raise InvalidPacketFormatError( \
-                    'Impossible packet, must have a packet of at least 5 bytes but got {0}' \
+                    'Impossible packet, must have a packet of at least 4 bytes but got {0}' \
                         .format(packetStringLength))
 
             # The string can either be bytes or an actual string
@@ -219,8 +231,11 @@ class NebResponsePacket(object):
                 if calculatedCRC != self.header.crc:
                     raise CRCError(calculatedCRC, self.header.crc)
 
-            # Build the data object based on the subsystem and command.
-            self.data = ResponsePacketDataConstructors[subSystem][self.header.command](dataString)
+            if packetType == PacketType.Ack:
+                self.data = AckData()
+            else:
+                # Build the data object based on the subsystem and command.
+                self.data = ResponsePacketDataConstructors[subSystem][self.header.command](dataString)
 
         elif (header != None and data != None):
             self.header = header

@@ -27,15 +27,29 @@
 
 import unittest
 
-from test.integration import apiIntegrationTest, promotionIntegrationTest
+bleSupported = True
+try:
+    from test.integration import bleIntegrationTest
+    from test.integration import dualIntegrationTest
+except ImportError:
+    print("Unable to import BLE and Dual BLE-UART. Skipping tests.")
+    bleSupported = False
+
+from test.integration import uartIntegrationTest
 
 ###################################################################################
 
 
-def getSuite(comPort):
+def getSuite(comPort, deviceAddress):
     suite = unittest.TestSuite()
-    suite.addTest(apiIntegrationTest.getSuite(comPort))
-    suite.addTest(promotionIntegrationTest.getSuite(comPort))
+
+    suite.addTest(uartIntegrationTest.getSuite(comPort))
+
+    if bleSupported:
+        suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
+        #suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
+        pass
+
     return suite
 
 
