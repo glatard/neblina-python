@@ -43,7 +43,7 @@ from test.integration import uartIntegrationTest
 def getSuite(comPort, deviceAddress):
     suite = unittest.TestSuite()
 
-    #suite.addTest(uartIntegrationTest.getSuite(comPort))
+    suite.addTest(uartIntegrationTest.getSuite(comPort))
 
     if bleSupported:
         suite.addTest(bleIntegrationTest.getSuite(deviceAddress))

@@ -119,9 +119,9 @@ def main( argv ):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s')
-    # logging.basicConfig(level=logging.DEBUG, \
-    #                     format='%(asctime)s : %(message)s', \
-    #                     filename='neblinaTest.log', \
-    #                     filemode='w')
+    #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s : %(message)s')
+    logging.basicConfig(level=logging.DEBUG, \
+                        format='%(asctime)s : %(message)s', \
+                        filename='neblinaTest.log', \
+                        filemode='w')
     main(sys.argv[1:])
