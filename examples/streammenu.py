@@ -60,15 +60,19 @@ class StreamMenu(cmd.Cmd):
                 comPortName = configFile.readline()
 
         self.uart = NeblinaUART()
-        self.uart.open(comPortName)
-        print("Setting up the connection...")
+        print("Setting up the connection...") # initial delay needed for the device to synchronize its processors
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
-        #self.uart.setStreamingInterface(Interface.UART)
+        self.uart.open(comPortName) # all the commands including this one should be sent after the initial delay to guarantee the initializaion and synchronization of all the processors on Neblina
+        global initialmotionstate # the global variable that stores the initial motion engine state
+        initialmotionstate = self.uart.motionGetStates() # get the initial motion engine state
+        self.uart.stopAllStreams() # disable all streaming options after storing the initial state
+        self.uart.setStreamingInterface(Interface.UART) # switch the interface to avoid slow flash playback on UART
+
 
     # If the user exits with Ctrl-C, try switching the interface back to BLE
     def cmdloop(self, intro=None):
@@ -84,6 +88,28 @@ class StreamMenu(cmd.Cmd):
 
     def do_exit(self, args):
         """Exits from the console"""
+
+        # Set the motion engine state back to its initial state by enabling the appropriate streaming features
+        print('Setting the motion engine back to its initial state...')
+        if (initialmotionstate.distance==True):
+            self.uart.motionStartStream(Commands.Motion.TrajectoryInfo)
+        if (initialmotionstate.force==True):
+            self.uart.motionStartStream(Commands.Motion.ExtForce)
+        if (initialmotionstate.euler==True):
+            self.uart.motionStartStream(Commands.Motion.EulerAngle)
+        if (initialmotionstate.quaternion==True):
+            self.uart.motionStartStream(Commands.Motion.Quaternion)
+        if (initialmotionstate.imuData==True):
+            self.uart.motionStartStream(Commands.Motion.IMU)
+        if (initialmotionstate.motion==True):
+            self.uart.motionStartStream(Commands.Motion.MotionState)
+        if (initialmotionstate.steps==True):
+            self.uart.motionStartStream(Commands.Motion.Pedometer)
+        if (initialmotionstate.magData==True):
+            self.uart.motionStartStream(Commands.Motion.MAG)
+        if (initialmotionstate.sitStand==True):
+            self.uart.motionStartStream(Commands.Motion.SittingStanding)
+
         # Make the module stream back towards its default interface (BLE)
         self.uart.setStreamingInterface(Interface.BLE)
         return -1
