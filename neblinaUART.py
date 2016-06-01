@@ -72,8 +72,6 @@ class NeblinaUART(NeblinaAPIBase):
                 time.sleep(1)
 
         self.sc.flushInput()
-        # self.stopAllStreams() # not needed since we prefer to record the motion state at the beginning before disabling everything
-        # self.openStreaming(Interface.UART) # will be done later in streammenu init function
 
     def isOpened(self, port=None):
         return self.sc and self.sc.is_open
