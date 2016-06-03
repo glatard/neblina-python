@@ -65,6 +65,7 @@ class UARTIntegrationTest(unittest.TestCase):
             self.uart.open(self.comPort)
             if not self.uart.isOpened(self.comPort):
                 self.fail("Unable to connect to COM port.")
+            self.uart.openStreaming(Interface.UART)
 
     def tearDown(self):
         #self.uart.close()
