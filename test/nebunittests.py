@@ -2,7 +2,6 @@
 # Neblina unit testing framework
 # (C) 2015 Motsai Research Inc.
 
-import os
 import unittest
 import slip
 import binascii
@@ -51,8 +50,7 @@ class ut_NeblinaPackets(unittest.TestCase):
         return (packets, errorList)
 
     def buildPacketListFromSLIP(self, filename):
-        filepath = os.path.join( os.path.dirname( __file__ ), filename )
-        testSlipPackets = self.getTestStream(filepath)
+        testSlipPackets = self.getTestStream(filename)
         return self.buildPacketList(testSlipPackets)
 
     def printPackets(self, packetList):
