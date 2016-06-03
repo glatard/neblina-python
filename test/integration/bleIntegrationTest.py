@@ -54,7 +54,7 @@ class BLEIntegrationTest(unittest.TestCase):
     def setUp(self):
         if not self.deviceAddress:
             logging.warn("No Device Address specified. Skipping.")
-            raise unittest.SkipTest1
+            raise unittest.SkipTest
 
         # Give it a break between each test
         time.sleep(2)
@@ -68,17 +68,17 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.stopEverything()
         self.ble.close(self.deviceAddress)
 
-    def testMotionEngine(self):
-        testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-        testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-        self.ble.debugUnitTestEnable(True)
-        for idx, packetBytes in enumerate(testInputVectorPacketList):
-            # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-            packet = self.ble.debugUnitTestSendBytes(packetBytes)
-            self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-            print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
-        print("\r")
-        self.ble.debugUnitTestEnable(False)
+    # def testMotionEngine(self):
+    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
+    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
+    #     self.ble.debugUnitTestEnable(True)
+    #     for idx, packetBytes in enumerate(testInputVectorPacketList):
+    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
+    #         packet = self.ble.debugUnitTestSendBytes(packetBytes)
+    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
+    #         print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
+    #     print("\r")
+    #     self.ble.debugUnitTestEnable(False)
 
     def testMotionStreamEuler(self):
         self.ble.motionSetDownsample(40)
