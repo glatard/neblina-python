@@ -79,7 +79,7 @@ class NeblinaAPIBase(object):
         packet = self.waitForAck(SubSystem.Debug, Commands.Debug.InterfaceState)
         logging.debug('Module has change its data port state')
 
-    def setStreamingInterface(self, interface=Interface.BLE):
+    def setInterface(self, interface=Interface.BLE):
         self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
         logging.debug('Waiting for the module to switch its interface...')
         packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
