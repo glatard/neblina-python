@@ -209,7 +209,7 @@ class BLEIntegrationTest(unittest.TestCase):
 
         streamToUse = 10
 
-        self.ble.motionStopAllStreams()
+        self.ble.disableStreaming()
         self.ble.motionSetDownsample(40)
         self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
         self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
@@ -229,7 +229,7 @@ class BLEIntegrationTest(unittest.TestCase):
             count = count + 1
 
         self.ble.flashRecordStop()
-        self.ble.motionStopAllStreams()
+        self.ble.disableStreaming()
 
         num = self.ble.flashGetSessions()
         self.assertEqual(num, 1)
