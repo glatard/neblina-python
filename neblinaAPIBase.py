@@ -166,8 +166,8 @@ class NeblinaAPIBase(object):
         self.waitForAck(SubSystem.Motion, Commands.Motion.Downsample)
         logging.debug('Acknowledgment received.')
 
-    def motionSetAccFullScale(self, factor):
-        # Limit factor between 0 and 3 inclusively
+    def setAccelerometerRange(self, factor):
+        # Limit factor to 2, 4, 8 and 16
         assert factor == 2 or factor == 4 or factor == 8 or factor == 16
         self.sendCommand(SubSystem.Motion, Commands.Motion.AccRange, factor)
         self.waitForAck(SubSystem.Motion, Commands.Motion.AccRange)

@@ -181,13 +181,13 @@ class UARTIntegrationTest(unittest.TestCase):
 
     def testMotionAccRange(self):
         with self.assertRaises(AssertionError):
-            self.uart.motionSetAccFullScale(-1)
-            self.uart.motionSetAccFullScale(17)
-        self.uart.motionSetAccFullScale(2)
-        self.uart.motionSetAccFullScale(4)
-        self.uart.motionSetAccFullScale(8)
-        self.uart.motionSetAccFullScale(16)
-        self.uart.motionSetAccFullScale(8)   # Reset to default
+            self.uart.setAccelerometerRange(-1)
+            self.uart.setAccelerometerRange(17)
+        self.uart.setAccelerometerRange(2)
+        self.uart.setAccelerometerRange(4)
+        self.uart.setAccelerometerRange(8)
+        self.uart.setAccelerometerRange(16)
+        self.uart.setAccelerometerRange(8)   # Reset to default
 
     def testMotionStatus(self):
         motionStatus = self.uart.getMotionStatus()
