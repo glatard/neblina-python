@@ -172,7 +172,7 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, Commands.Motion.AccRange, factor)
         self.waitForAck(SubSystem.Motion, Commands.Motion.AccRange)
 
-    def motionResetTimestamp(self):
+    def resetTimestamp(self):
         self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
