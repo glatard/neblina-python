@@ -165,7 +165,7 @@ class UARTIntegrationTest(unittest.TestCase):
         for i in range(1, 51):
             factor = i * 20
             logging.info("Downsample factor : {0}".format(factor))
-            self.uart.motionSetDownsample(factor)
+            self.uart.setDownsample(factor)
             start = time.time()
             self.uart.motionStream(Commands.Motion.IMU, numPacket)
             end = time.time()
@@ -175,9 +175,9 @@ class UARTIntegrationTest(unittest.TestCase):
             self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
 
         with self.assertRaises(AssertionError):
-            self.uart.motionSetDownsample(1)
-            self.uart.motionSetDownsample(1001)
-        self.uart.motionSetDownsample(20)  # Reset to default
+            self.uart.setDownsample(1)
+            self.uart.setDownsample(1001)
+        self.uart.setDownsample(20)  # Reset to default
 
     def testMotionAccRange(self):
         with self.assertRaises(AssertionError):
