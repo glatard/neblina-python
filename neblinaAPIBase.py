@@ -236,7 +236,7 @@ class NeblinaAPIBase(object):
         # Stop whatever it was streaming
         self.motionStopStream(streamingType)
 
-    def EEPROMRead(self, readPageNumber):
+    def eepromRead(self, readPageNumber):
         assert 0 <= readPageNumber <= 255
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Read, pageNumber=readPageNumber)
         logging.debug("Sending EEPROM Read command. Waiting for acknowledgment.")
@@ -246,7 +246,7 @@ class NeblinaAPIBase(object):
         logging.debug("EEPROM Read packet received.")
         return packet.data.dataBytes
 
-    def EEPROMWrite(self, writePageNumber, dataString):
+    def eepromWrite(self, writePageNumber, dataString):
         assert 0 <= writePageNumber <= 255
         self.sendCommand(SubSystem.EEPROM, Commands.EEPROM.Write, \
                          pageNumber=writePageNumber, dataBytes=dataString)

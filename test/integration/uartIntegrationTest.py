@@ -131,34 +131,34 @@ class UARTIntegrationTest(unittest.TestCase):
     def testEEPROM(self):
         # Verify EEPROM Read/Write limit
         with self.assertRaises(AssertionError):
-            self.uart.EEPROMRead(-1)
-            self.uart.EEPROMRead(256)
-            self.uart.EEPROMWrite(-1, "0xFF")
-            self.uart.EEPROMWrite(256, "0xFF")
+            self.uart.eepromRead(-1)
+            self.uart.eepromRead(256)
+            self.uart.eepromWrite(-1, "0xFF")
+            self.uart.eepromWrite(256, "0xFF")
 
         # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
         num = 256
         storeBytes = []
         # Store EEPROM state
         for i in range(0, num):
-            dataBytes = self.uart.EEPROMRead(i)
+            dataBytes = self.uart.eepromRead(i)
             storeBytes.append(dataBytes)
             logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
         # Test write/read
         for i in range(0, num):
             dataBytes = bytes([i, i, i, i, i, i, i, i])
             logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.uart.EEPROMWrite(i, dataBytes)
+            self.uart.eepromWrite(i, dataBytes)
         for i in range(0, num):
-            dataBytes = self.uart.EEPROMRead(i)
+            dataBytes = self.uart.eepromRead(i)
             logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
             for j in range(0, 8):
                 self.assertEqual(dataBytes[j], i)
         for i in range(0, num):
             logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.uart.EEPROMWrite(i, storeBytes[i])
+            self.uart.eepromWrite(i, storeBytes[i])
         for i in range(0, num):
-            dataBytes = self.uart.EEPROMRead(i)
+            dataBytes = self.uart.eepromRead(i)
             logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
             self.assertTrue(dataBytes == storeBytes[i])
 
