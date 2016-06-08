@@ -241,6 +241,18 @@ class NebResponsePacket(object):
             self.header = header
             self.data = data
 
+    def isPacketError(self):
+        return self.header.packetType == PacketType.ErrorLogResp
+
+    def isPacketValid(self, packetType, subSystem, command):
+        return self.isPacketHeaderValid(packetType, subSystem, command)
+
+    def isPacketHeaderValid(self, packetType, subSystem, command):
+        valid = (self.header.packetType == packetType)
+        valid &= (self.header.subSystem == subSystem)
+        valid &= (self.header.command == command)
+        return valid
+
     def stringEncode(self):
         headerStringCode = self.header.encode()
         dataStringCode = self.data.encode()

@@ -112,32 +112,15 @@ class NeblinaAPIBase(object):
         """
         self.motionStopAllStreams()
 
-    def isPacketError(self, packet):
-        error = False
-        if packet:
-            error |= packet.header.packetType == PacketType.ErrorLogResp
-        return error
-
-    def isPacketValid(self, packet, packetType, subSystem, command):
-        valid = (packet != None)
-        if valid:
-            valid = self.isPacketHeaderValid(packet.header, packetType, subSystem, command)
-        return valid
-
-    def isPacketHeaderValid(self, header, packetType, subSystem, command):
-        valid = (header.packetType == packetType)
-        valid &= (header.subSystem == subSystem)
-        valid &= (header.command == command)
-        return valid
-
     def waitForAck(self, subSystem, command):
         ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
         return ackPacket
 
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
-        while not self.isPacketValid(packet, packetType, subSystem, command) and \
-              not self.isPacketError(packet):
+        while not packet or \
+            (not packet.isPacketValid(packetType, subSystem, command) and
+             not packet.isPacketError()):
             try:
                 packet = self.receivePacket()
             except NotImplementedError as e:
