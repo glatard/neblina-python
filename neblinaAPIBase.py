@@ -158,11 +158,13 @@ class NeblinaAPIBase(object):
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
         return packet.data.recorderStatus
 
-    def motionSetDownsample(self, factor):
+    def setDownsample(self, factor):
         # Limit to factor of 20 and between 20 and 1000.
         assert factor % 20 == 0 and 20 <= factor <= 1000
         self.sendCommand(SubSystem.Motion, Commands.Motion.Downsample, factor)
+        logging.debug('Sending downsample command. Waiting for acknowledge.')
         self.waitForAck(SubSystem.Motion, Commands.Motion.Downsample)
+        logging.debug('Acknowledgment received.')
 
     def motionSetAccFullScale(self, factor):
         # Limit factor between 0 and 3 inclusively
