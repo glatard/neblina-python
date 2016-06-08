@@ -36,7 +36,7 @@ except ImportError:
     raise ImportError("Unable to locate bluepy. It is a required module to use neblinaBLE API.")
 
 from neblina import *
-from neblinaAPIBase import NeblinaAPIBase
+from neblinaAPI import NeblinaAPI
 from neblinaCommandPacket import NebCommandPacket
 from neblinaError import *
 from neblinaResponsePacket import NebResponsePacket
@@ -199,13 +199,13 @@ class NeblinaCtrl(threading.Thread):
 ###################################################################################
 
 
-class NeblinaBLE(NeblinaAPIBase):
+class NeblinaBLE(NeblinaAPI):
     """
         NeblinaBLE is the Neblina Bluetooth Low Energy (BLE) Application Program Interface (API)
     """
 
     def __init__(self):
-        NeblinaAPIBase.__init__(self)
+        NeblinaAPI.__init__(self)
         self.ctrl = NeblinaCtrl()
 
     def close(self, deviceAddress=None):

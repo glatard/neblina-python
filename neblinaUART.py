@@ -33,21 +33,21 @@ import time
 from pyslip import slip
 
 from neblina import *
-from neblinaAPIBase import NeblinaAPIBase
+from neblinaAPI import NeblinaAPI
 from neblinaCommandPacket import NebCommandPacket
 from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
 
 
-class NeblinaUART(NeblinaAPIBase):
+class NeblinaUART(NeblinaAPI):
     """
         NeblinaUART serves as the UART communication protocol.
 
         This supports only 1 UART COM port.
     """
     def __init__(self):
-        NeblinaAPIBase.__init__(self)
+        NeblinaAPI.__init__(self)
         self.comslip = slip.slip()
         self.comPort = None
         self.sc = None

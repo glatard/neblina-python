@@ -34,7 +34,7 @@ import array
 import logging
 
 from neblina import *
-from neblinaAPIBase import NeblinaAPIBase
+from neblinaAPI import NeblinaAPI
 from neblinaUART import NeblinaUART
 from neblinaUtilities import NebUtilities
 from test import neblinaTestUtilities
