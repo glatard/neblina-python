@@ -94,19 +94,6 @@ class NeblinaAPIBase(object):
             self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
             packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
 
-    def stopEverything(self):
-        self.stopAllStreams()
-        self.flashRecordStop()
-
-    def stopAllStreams(self):
-        """
-            Stop all streams.
-            For now, calls motionStopAllStreams which stop all motion streams.
-            In the future, this function will stop all streams which are not associated with motion.
-            This could be done with a single new commands or multiple separate commands.
-        """
-        self.motionStopAllStreams()
-
     def waitForAck(self, subSystem, command):
         ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
         return ackPacket
@@ -176,7 +163,7 @@ class NeblinaAPIBase(object):
         self.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
-    def motionStopAllStreams(self):
+    def disableStreaming(self):
         self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         logging.debug("Sending disable streaming command. Waiting for acknowledge.")
         self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
