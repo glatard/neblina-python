@@ -72,17 +72,12 @@ class NeblinaAPIBase(object):
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetTemperature)
         return packet.data.temperature
 
-    def closeStreaming(self, interface):
-        self.sendCommand(SubSystem.Debug, Commands.Debug.InterfaceState, False, interface=interface)
-        logging.debug('Waiting for the module to close streaming...')
+    def setDataPortState(self, interface, state):
+        assert(type(state) is bool)
+        self.sendCommand(SubSystem.Debug, Commands.Debug.InterfaceState, state, interface=interface)
+        logging.debug('Waiting for the module to set data port state...')
         packet = self.waitForAck(SubSystem.Debug, Commands.Debug.InterfaceState)
-        logging.debug('Module has closed its streaming')
-
-    def openStreaming(self, interface):
-        self.sendCommand(SubSystem.Debug, Commands.Debug.InterfaceState, True, interface=interface)
-        logging.debug('Waiting for the module to open streaming...')
-        packet = self.waitForAck(SubSystem.Debug, Commands.Debug.InterfaceState)
-        logging.debug('Module has opened its streaming')
+        logging.debug('Module has change its data port state')
 
     def setStreamingInterface(self, interface=Interface.BLE):
         self.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
@@ -432,7 +427,8 @@ class NeblinaAPIBase(object):
     def storePacketsUntil(self, packetType, subSystem, command):
         packetList = []
         packet = None
-        while not self.isPacketValid(packet, packetType, subSystem, command):
+        while not packet or \
+            not packet.isPacketValid(packetType, subSystem, command):
             try:
                 if (packet != None and packet.header.subSystem != SubSystem.Debug):
                     packetList.append(packet)
