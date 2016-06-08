@@ -161,7 +161,7 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        self.uart.EEPROMWrite(writePageNumber, writeBytes)
+        self.uart.eepromWrite(writePageNumber, writeBytes)
 
         print('Write to page #{0} of dataBytes {1} was successful.'\
             .format(writePageNumber, writeBytes))
@@ -179,7 +179,7 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        dataBytes = self.uart.EEPROMRead(readPageNumber)
+        dataBytes = self.uart.eepromRead(readPageNumber)
 
         try:
             print('Got \'{0}\' at page #{1}'.format(dataBytes.decode('utf-8'), readPageNumber))

@@ -121,34 +121,34 @@ class BLEIntegrationTest(unittest.TestCase):
     def testEEPROM(self):
         # Verify EEPROM Read/Write limit
         with self.assertRaises(AssertionError):
-            self.ble.EEPROMRead(-1)
-            self.ble.EEPROMRead(256)
-            self.ble.EEPROMWrite(-1, "0xFF")
-            self.ble.EEPROMWrite(256, "0xFF")
+            self.ble.eepromRead(-1)
+            self.ble.eepromRead(256)
+            self.ble.eepromWrite(-1, "0xFF")
+            self.ble.eepromWrite(256, "0xFF")
 
         # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
         num = 256
         storeBytes = []
         # Store EEPROM state
         for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
+            dataBytes = self.ble.eepromRead(i)
             storeBytes.append(dataBytes)
             logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
         # Test write/read
         for i in range(0, num):
             dataBytes = bytes([i, i, i, i, i, i, i, i])
             logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.ble.EEPROMWrite(i, dataBytes)
+            self.ble.eepromWrite(i, dataBytes)
         for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
+            dataBytes = self.ble.eepromRead(i)
             logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
             for j in range(0, 8):
                 self.assertEqual(dataBytes[j], i)
         for i in range(0, num):
             logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.ble.EEPROMWrite(i, storeBytes[i])
+            self.ble.eepromWrite(i, storeBytes[i])
         for i in range(0, num):
-            dataBytes = self.ble.EEPROMRead(i)
+            dataBytes = self.ble.eepromRead(i)
             logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
             self.assertTrue(dataBytes == storeBytes[i])
 
