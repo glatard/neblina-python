@@ -35,7 +35,7 @@ from neblinaUtilities import NebUtilities
 ###################################################################################
 
 
-class NeblinaAPIBase(object):
+class NeblinaAPI(object):
     """
         NeblinaAPIBase serves as a base interface to Neblina communication protocol.
 
@@ -43,7 +43,7 @@ class NeblinaAPIBase(object):
     """
     def __init__(self):
         # Prevent self instantiation
-        assert type(self) != NeblinaAPIBase
+        assert type(self) != NeblinaAPI
 
     def close(self):
         raise NotImplementedError("close not override in child.")
