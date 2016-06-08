@@ -104,16 +104,16 @@ class packetsUnitTest(unittest.TestCase):
         commandDataBytes= b'\xde\xea\xbe\xef\xa5\x01\x11\x01\x02\xba\xbe\x00\x01\x02\x03\x04'
         commandBytes = commandHeaderBytes+commandDataBytes
         packet = NebResponsePacket(commandBytes)
-        self.assertEqual(packet.data.distance,   True )
-        self.assertEqual(packet.data.force,      False)
-        self.assertEqual(packet.data.euler,      True )
-        self.assertEqual(packet.data.quaternion, False)
-        self.assertEqual(packet.data.imuData,    False)
-        self.assertEqual(packet.data.motion,     True )
-        self.assertEqual(packet.data.steps,      False)
-        self.assertEqual(packet.data.magData,    True )
-        self.assertEqual(packet.data.sitStand,   True )
-        self.assertEqual(packet.data.recorderStatus,   2)
+        self.assertEqual(packet.data.motionStatus.distance,   True )
+        self.assertEqual(packet.data.motionStatus.force,      False)
+        self.assertEqual(packet.data.motionStatus.euler,      True )
+        self.assertEqual(packet.data.motionStatus.quaternion, False)
+        self.assertEqual(packet.data.motionStatus.imuData,    False)
+        self.assertEqual(packet.data.motionStatus.motion,     True )
+        self.assertEqual(packet.data.motionStatus.steps,      False)
+        self.assertEqual(packet.data.motionStatus.magData,    True )
+        self.assertEqual(packet.data.motionStatus.sitStand,   True )
+        self.assertEqual(packet.data.recorderStatus.status,   2)
 
     def testLEDCommandDecoding(self):
         commandHeaderBytes = b'\x04\x10\x1c\x02'

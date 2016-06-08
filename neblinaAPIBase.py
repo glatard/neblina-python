@@ -146,13 +146,17 @@ class NeblinaAPIBase(object):
                 continue
         return packet
 
-    def motionGetStates(self):
+    def getMotionStatus(self):
         self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
         self.waitForAck(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
         packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
-        return packet.data
-        # return (packet.data.distance, packet.data.force, packet.data.euler, packet.data.quaternion, \
-        #         packet.data.imuData, packet.data.motion, packet.data.steps, packet.data.magData, packet.data.sitStand)
+        return packet.data.motionStatus
+
+    def getRecorderStatus(self):
+        self.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        self.waitForAck(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
+        return packet.data.recorderStatus
 
     def motionSetDownsample(self, factor):
         # Limit to factor of 20 and between 20 and 1000.

@@ -189,17 +189,21 @@ class UARTIntegrationTest(unittest.TestCase):
         self.uart.motionSetAccFullScale(16)
         self.uart.motionSetAccFullScale(8)   # Reset to default
 
-    def testMotionState(self):
-        motionState = self.uart.motionGetStates()
-        self.assertFalse(motionState.distance)
-        self.assertFalse(motionState.force)
-        self.assertFalse(motionState.euler)
-        self.assertFalse(motionState.quaternion)
-        self.assertFalse(motionState.imuData)
-        self.assertFalse(motionState.motion)
-        self.assertFalse(motionState.steps)
-        self.assertFalse(motionState.magData)
-        self.assertFalse(motionState.sitStand)
+    def testMotionStatus(self):
+        motionStatus = self.uart.getMotionStatus()
+        self.assertFalse(motionStatus.distance)
+        self.assertFalse(motionStatus.force)
+        self.assertFalse(motionStatus.euler)
+        self.assertFalse(motionStatus.quaternion)
+        self.assertFalse(motionStatus.imuData)
+        self.assertFalse(motionStatus.motion)
+        self.assertFalse(motionStatus.steps)
+        self.assertFalse(motionStatus.magData)
+        self.assertFalse(motionStatus.sitStand)
+
+    def testRecorderStatus(self):
+        recorderStatus = self.uart.getRecorderStatus()
+        self.assertEqual(recorderStatus.status, 0)
 
     def testFlashErase(self):
         self.uart.flashErase()
