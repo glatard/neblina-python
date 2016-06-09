@@ -133,19 +133,9 @@ class UARTIntegrationTest(unittest.TestCase):
     #     batteryLevel = self.api.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
     #
-    # def testLEDs(self):
-    #     for i in range(0, 10):
-    #         for j in range(0, 2):
-    #             self.api.setLED(j, 1)
-    #             time.sleep(0.1)
-    #         for j in range(0, 2):
-    #             self.api.setLED(j, 0)
-    #             time.sleep(0.1)
-    #     for i in range(0, 10):
-    #         self.api.setLEDs(([0, 1], [1, 1]))
-    #         time.sleep(0.1)
-    #         self.api.setLEDs(([0, 0], [1, 0]))
-    #         time.sleep(0.1)
+    def testLEDs(self):
+        self.api.setLED(0, 1)
+        self.api.setLEDs(([0, 1], [1, 1]))
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
@@ -228,21 +218,21 @@ class UARTIntegrationTest(unittest.TestCase):
     #     recorderStatus = self.api.getRecorderStatus()
     #     self.assertEqual(recorderStatus.status, 0)
     #
-    def testFlashErase(self):
-        self.api.eraseStorage()
-        num = self.api.getSessionCount()
-        self.assertEqual(num, 0)
-
-    def testFlashRecord(self):
-        self.api.sessionRecord(True)
-        self.api.streamQuaternion(True)
-        self.api.getQuaternion()
-        self.api.streamQuaternion(False)
-        self.api.sessionRecord(False)
-
-    def testFlashSessionInfo(self):
-        self.api.getSessionInfo(0)
-
-    def testFlashSessionPlayback(self):
-        self.api.sessionPlayback(0)
+    # def testFlashErase(self):
+    #     self.api.eraseStorage()
+    #     num = self.api.getSessionCount()
+    #     self.assertEqual(num, 0)
+    #
+    # def testFlashRecord(self):
+    #     self.api.sessionRecord(True)
+    #     self.api.streamQuaternion(True)
+    #     self.api.getQuaternion()
+    #     self.api.streamQuaternion(False)
+    #     self.api.sessionRecord(False)
+    #
+    # def testFlashSessionInfo(self):
+    #     self.api.getSessionInfo(0)
+    #
+    # def testFlashSessionPlayback(self):
+    #     self.api.sessionPlayback(0)
 
