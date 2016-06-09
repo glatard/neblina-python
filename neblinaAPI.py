@@ -123,57 +123,57 @@ class NeblinaAPI(object):
     def getEulerAngle(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.EulerAngle)
         logging.debug("Received EulerAngle.")
-        return packet
+        return packet.data
 
     def getExternalForce(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.ExtForce)
         logging.debug("Received ExternalForce.")
-        return packet
+        return packet.data
 
     def getFingerGesture(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.FingerGesture)
         logging.debug("Received FingerGesture.")
-        return packet
+        return packet.data
 
     def getIMU(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.IMU)
         logging.debug("Received IMU.")
-        return packet
+        return packet.data
 
     def getMAG(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.MAG)
         logging.debug("Received MAG.")
-        return packet
+        return packet.data
 
     def getMotionState(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.MotionState)
         logging.debug("Received MotionState.")
-        return packet
+        return packet.data
 
     def getPedometer(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.Pedometer)
         logging.debug("Received Pedometer.")
-        return packet
+        return packet.data
 
     def getQuaternion(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.Quaternion)
         logging.debug("Received Quaternion.")
-        return packet
+        return packet.data
 
     def getRotationInfo(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.RotationInfo)
         logging.debug("Received RotationInfo.")
-        return packet
+        return packet.data
 
     def getSittingStanding(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.SittingStanding)
         logging.debug("Received SittingStanding.")
-        return packet
+        return packet.data
 
     def getTrajectoryInfo(self):
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.TrajectoryInfo)
         logging.debug("Received TrajectoryInfo.")
-        return packet
+        return packet.data
 
     def streamEulerAngle(self, state):
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.EulerAngle, state)
