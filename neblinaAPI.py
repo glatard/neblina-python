@@ -54,7 +54,7 @@ class NeblinaAPI(object):
         raise NotImplementedError("receivePacket not override in child.")
 
     def getBatteryLevel(self):
-        raise NotImplementedError("getBatteryLevel not override in child")
+        return self.core.getBatteryLevel()
 
     def getTemperature(self):
         self.core.sendCommand(SubSystem.Power, Commands.Power.GetTemperature, True)
@@ -345,11 +345,13 @@ class NeblinaAPI(object):
             return
         self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
         self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)
+        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
 
     def setLED(self, ledIndex, ledValue):
         ledValues = [(ledIndex, ledValue)]
         self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
         self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)
+        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
 
     def flashGetState(self):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
@@ -524,7 +526,7 @@ class NeblinaAPI(object):
         logging.info('Total IMU Packets Read: {0}'.format(len(packetList)))
         return packetList
 
-    def debugFWVersions(self):
+    def getFirmwareVersion(self):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.FWVersions)
         versionPacket = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.FWVersions)
         return versionPacket.data
