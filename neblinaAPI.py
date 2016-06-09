@@ -324,30 +324,16 @@ class NeblinaAPI(object):
                          pageNumber=writePageNumber, dataBytes=dataString)
         packet = self.core.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
 
-    def getLEDs(self, ledIndices):
-        if type(ledIndices) != list:
-            logging.warning("Use this function with a list of leds you want to know the value as an argument.")
-            return
-        self.core.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndices=ledIndices)
-        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
-        return packet.data.ledTupleList
-
     def getLED(self, index):
+        assert 0 <= index <= 7
         self.core.sendCommand(SubSystem.LED, Commands.LED.GetVal, ledIndices=[index])
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
         if not packet:
             return 0xF  # Return anything but 0x0 or 0x1
-        return packet.data.ledTupleList[0]
-
-    def setLEDs(self, ledValues):
-        if type(ledValues) != list and type(ledValues[0]) == tuple:
-            logging.warning("Use this function with a list of tuples as an argument.")
-            return
-        self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
-        self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)
-        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
+        return packet.data.ledState[index]
 
     def setLED(self, ledIndex, ledValue):
+        assert 0 <= ledIndex <= 7
         ledValues = [(ledIndex, ledValue)]
         self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
         self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)

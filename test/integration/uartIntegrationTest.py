@@ -135,7 +135,12 @@ class UARTIntegrationTest(unittest.TestCase):
     #
     def testLEDs(self):
         self.api.setLED(0, 1)
-        self.api.setLEDs(([0, 1], [1, 1]))
+        self.api.getLED(0)
+        with self.assertRaises(AssertionError):
+            self.api.getLED(-1)
+            self.api.getLED(8)
+            self.api.setLED(-1, 1)
+            self.api.setLED(8, 1)
     #
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
