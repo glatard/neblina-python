@@ -215,7 +215,7 @@ class Formatting:
         Blank = "16s"  # Blank 16 bytes
         MotionAndFlash = "<I 4s B 7s"  # Timestamp (unused for now), downsample factor
         EEPROMRead = "<H 8s 6s"  # Page number, 8 bytes Read Data
-        LEDGetVal = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
+        LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
         BatteryLevel = "<I H 10s"  # Battery Level (%)
         Temperature = "<I h 10s"  # Temperature x100 in Celsius
         FlashNumSessions = "<I H 10s"  # Reserved, number of sessions

@@ -173,15 +173,13 @@ class LEDGetValData(object):
         - LED Value (one for each LEDs)
     """
     def __init__(self, dataString):
-        numLEDs = int(dataString[0])
-        numLEDBytes = numLEDs*2
-        numGarbageBytes = (15-numLEDBytes)
-        stringFormat = Formatting.Data.LEDGetVal.format(numLEDBytes, numGarbageBytes)
-        numLEDs, ledBytes, garbage = struct.unpack(stringFormat, dataString)
-        self.ledTupleList = list(nebUtilities.grouper(ledBytes, 2))
+        self.ledState = [0]*8
+        self.ledState[0], self.ledState[1], self.ledState[2], \
+        self.ledState[3], self.ledState[4], self.ledState[5], self.ledState[6], \
+        self.ledState[7] = struct.unpack(Formatting.Data.LEDGetVal, dataString)
 
     def __str__(self):
-        return "LED Values: {0}".format(self.ledTupleList)
+        return "LED Values: {0}".format(self.ledState)
 
 ###################################################################################
 
