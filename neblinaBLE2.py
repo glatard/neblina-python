@@ -49,6 +49,9 @@ class NeblinaBLE2(object):
     def isConnected(self):
         raise NotImplementedError("isConnected not override in child.")
 
+    def getBatteryLevel(self):
+        raise NotImplementedError("Not yet implemented.")
+
     def receivedPacket(self):
         raise NotImplementedError("receivedPacket not override in child.")
 

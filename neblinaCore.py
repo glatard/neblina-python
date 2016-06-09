@@ -66,6 +66,16 @@ class NeblinaCore(threading.Thread):
     def isOpened(self):
         return self.device and self.device.isConnected()
 
+    def getBatteryLevel(self):
+        if self.device:
+            if self.interface is Interface.UART:
+                self.sendCommand(SubSystem.Power, Commands.Power.GetBatteryLevel, True)
+                packet = self.waitForAck(SubSystem.Power, Commands.Power.GetBatteryLevel)
+                packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetBatteryLevel)
+                return packet.data.batteryLevel
+            else:
+                self.device.getBatteryLevel()
+
     def run(self):
         if not self.device:
             return

@@ -85,39 +85,39 @@ class UARTIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.uart.debugUnitTestEnable(False)
 
-    def testMotionStreamEulerAngle(self):
-        self.api.streamEulerAngle(True)
-        for i in range(1, 50):
-            self.api.getEulerAngle()
-        self.api.streamEulerAngle(False)
-
-    def testMotionStreamExternalForce(self):
-        self.api.streamExternalForce(True)
-        for i in range(1, 50):
-            self.api.getExternalForce()
-        self.api.streamExternalForce(False)
-
-    def testMotionStreamIMU(self):
-        self.api.streamIMU(True)
-        for i in range(1, 50):
-            self.api.getIMU()
-        self.api.streamIMU(False)
-
-    def testMotionStreamMAG(self):
-        self.api.streamMAG(True)
-        for i in range(1, 50):
-            self.api.getMAG()
-        self.api.streamMAG(False)
-
-    def testMotionStreamQuaternion(self):
-        self.api.streamQuaternion(True)
-        for i in range(1, 50):
-            self.api.getQuaternion()
-        self.api.streamQuaternion(False)
-
+    # def testMotionStreamEulerAngle(self):
+    #     self.api.streamEulerAngle(True)
+    #     for i in range(1, 50):
+    #         self.api.getEulerAngle()
+    #     self.api.streamEulerAngle(False)
+    #
+    # def testMotionStreamExternalForce(self):
+    #     self.api.streamExternalForce(True)
+    #     for i in range(1, 50):
+    #         self.api.getExternalForce()
+    #     self.api.streamExternalForce(False)
+    #
+    # def testMotionStreamIMU(self):
+    #     self.api.streamIMU(True)
+    #     for i in range(1, 50):
+    #         self.api.getIMU()
+    #     self.api.streamIMU(False)
+    #
+    # def testMotionStreamMAG(self):
+    #     self.api.streamMAG(True)
+    #     for i in range(1, 50):
+    #         self.api.getMAG()
+    #     self.api.streamMAG(False)
+    #
+    # def testMotionStreamQuaternion(self):
+    #     self.api.streamQuaternion(True)
+    #     for i in range(1, 50):
+    #         self.api.getQuaternion()
+    #     self.api.streamQuaternion(False)
+    #
     #
     # def testVersion(self):
-    #     versions = self.uart.debugFWVersions()
+    #     versions = self.api.getFirmwareVersion()
     #     logging.info(versions)
     #     self.assertEqual(versions.apiRelease, 1)
     #     for i in range(0, 2):
@@ -126,25 +126,25 @@ class UARTIntegrationTest(unittest.TestCase):
     #
     # def testMEMSComm(self):
     #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-    #     temp = self.uart.getTemperature()
+    #     temp = self.api.getTemperature()
     #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
     #
     # def testPMICComm(self):
-    #     batteryLevel = self.uart.getBatteryLevel()
+    #     batteryLevel = self.api.getBatteryLevel()
     #     logging.info("Board Battery: {0}\%".format(batteryLevel))
     #
     # def testLEDs(self):
     #     for i in range(0, 10):
     #         for j in range(0, 2):
-    #             self.uart.setLED(j, 1)
+    #             self.api.setLED(j, 1)
     #             time.sleep(0.1)
     #         for j in range(0, 2):
-    #             self.uart.setLED(j, 0)
+    #             self.api.setLED(j, 0)
     #             time.sleep(0.1)
     #     for i in range(0, 10):
-    #         self.uart.setLEDs(([0, 1], [1, 1]))
+    #         self.api.setLEDs(([0, 1], [1, 1]))
     #         time.sleep(0.1)
-    #         self.uart.setLEDs(([0, 0], [1, 0]))
+    #         self.api.setLEDs(([0, 0], [1, 0]))
     #         time.sleep(0.1)
     #
     # def testEEPROM(self):
