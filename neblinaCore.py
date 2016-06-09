@@ -115,6 +115,59 @@ class NeblinaCore(threading.Thread):
     def setDelegate(self, delegate):
         self.delegate = delegate
 
+    def storePacketsUntil(self, packetType, subSystem, command):
+        packetList = self.eventLoop.run_until_complete(self.waitForStorePacketUntil(packetType, subSystem, command))
+        return packetList
+
+    async def waitForStorePacketUntil(self, packetType, subSystem, command):
+        packetList = []
+        packet = None
+        while not packet or \
+                (not packet.isPacketValid(packetType, subSystem, command) and
+                 not packet.isPacketError()):
+            try:
+                for i in range(0, len(self.receivedPacket)):
+                    packet = self.receivedPacket[i]
+                    if packet.isPacketValid(packetType, subSystem, command):
+                        logging.info('Total Packets Read: {0}'.format(len(packetList)))
+                        return packetList
+                    packet = None
+
+                for i in range(0, len(self.receivedStream)):
+                    packet = self.receivedStream[i]
+                    if packet:
+                        packetList.append(packet)
+                        self.receivedStream[i] = None
+
+            except NotImplementedError as e:
+                logging.error("Dropped bad packet.")
+                packet = None
+                continue
+            except InvalidPacketFormatError as e:
+                logging.error("InvalidPacketFormatError.")
+                packet = None
+                continue
+            except CRCError as e:
+                logging.error("CRCError : " + str(e))
+                packet = None
+                continue
+            except KeyError as e:
+                logging.error("Tried creating a packet with an invalid subsystem or command : " + str(e))
+                packet = None
+                continue
+            except TimeoutError as e:
+                logging.error('Read timed out.')
+                return None
+            except KeyboardInterrupt as e:
+                logging.error("KeyboardInterrupt.")
+                exit()
+            except:
+                packet = None
+                logging.error("Unexpected error : ", exc_info=True)
+                continue
+
+        return packetList
+
     async def waitForNonEmptyPacketFromReceivedStream(self, command):
         while not self.receivedStream[command]:
             await asyncio.sleep(0.001)

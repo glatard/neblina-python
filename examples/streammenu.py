@@ -275,7 +275,7 @@ class StreamMenu(cmd.Cmd):
     def do_flashState(self, args):
         state = self.uart.flashGetState()
         print('State: {0}'.format(state))
-        sessions = self.uart.flashGetSessions()
+        sessions = self.uart.getSessionCount()
         print('Num of sessions: {0}'.format(sessions))
 
     def do_flashSessionInfo(self, args):
@@ -283,7 +283,7 @@ class StreamMenu(cmd.Cmd):
             sessionID = 65535
         elif(len(args) > 0):
             sessionID = int(args)
-        packet = self.uart.flashGetSessionInfo(sessionID)
+        packet = self.uart.getSessionInfo(sessionID)
         if(packet == None):
             print('Session {0} does not exist on the flash'\
                 .format(sessionID))
@@ -292,7 +292,7 @@ class StreamMenu(cmd.Cmd):
             %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
     def do_flashErase(self, args):
-        self.uart.flashErase()
+        self.uart.eraseStorage()
         print('Flash erase has completed successfully!')
 
     def do_flashRecordIMU(self, args):
@@ -330,7 +330,7 @@ class StreamMenu(cmd.Cmd):
                 dump = True
             else:
                 dump = False
-        self.uart.flashPlayback(mySessionID, dump)
+        self.uart.sessionPlayback(mySessionID, dump)
 
     def do_versions(self, args):
         packet = self.uart.debugFWVersions()

@@ -196,8 +196,8 @@ class BLEIntegrationTest(unittest.TestCase):
         self.assertFalse(motionState.sitStand)
 
     def testFlashErase(self):
-        self.ble.flashErase()
-        num = self.ble.flashGetSessions()
+        self.ble.eraseStorage()
+        num = self.ble.getSessionCount()
         self.assertEqual(num, 0)
 
     def testFlashRecord(self):
@@ -205,7 +205,7 @@ class BLEIntegrationTest(unittest.TestCase):
             self.ble.flashRecord(1, Commands.Motion.Quaternion)
 
     def testStreamExtreme(self):
-        self.ble.flashErase()
+        self.ble.eraseStorage()
 
         streamToUse = 10
 
@@ -231,10 +231,10 @@ class BLEIntegrationTest(unittest.TestCase):
         self.ble.flashRecordStop()
         self.ble.disableStreaming()
 
-        num = self.ble.flashGetSessions()
+        num = self.ble.getSessionCount()
         self.assertEqual(num, 1)
 
-        packet = self.ble.flashGetSessionInfo(0)
+        packet = self.ble.getSessionInfo(0)
         self.assertGreater(packet.sessionLength, 0)
 
     def streamIfRequired(self, id, streamingType, streamToUse):
