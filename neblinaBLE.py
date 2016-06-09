@@ -64,22 +64,6 @@ class NeblinaDelegate(DefaultDelegate):
         self.packets.put(data)
         #logging.debug("Delegate - Received packet : {0}".format(data))
 
-        # try:
-        #     packet = NebResponsePacket(data)
-        # except KeyError as e:
-        #     print("KeyError : " + str(e))
-        # except NotImplementedError as e:
-        #     print("NotImplementedError : " + str(e))
-        # except CRCError as e:
-        #     print("CRCError : " + str(e))
-        # except InvalidPacketFormatError as e:
-        #     print("InvalidPacketFormatError : " + str(e))
-        # except:
-        #     logging.error("Unexpected error : ", exc_info=True)
-        #
-        # self.packet = packet
-        # logging.debug("Delegate - Received packet : {0}".format(packet.data))
-
 ###################################################################################
 
 
