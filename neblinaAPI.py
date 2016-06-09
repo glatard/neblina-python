@@ -353,13 +353,7 @@ class NeblinaAPI(object):
         self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)
         self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
 
-    def flashGetState(self):
-        self.core.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
-        self.core.waitForAck(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
-        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
-        return MotAndFlashRecStateData.recorderStatusStrings[packet.data.recorderStatus]
-
-    def flashErase(self, eraseType=Erase.Quick):
+    def eraseStorage(self, eraseType=Erase.Quick):
         # Step 1 - Initialization
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
@@ -381,27 +375,15 @@ class NeblinaAPI(object):
         self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll)
         logging.info('Flash erase has completed successfully!')
 
-    def flashRecordStart(self, streamingType=None):
-        if streamingType:
-            self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, False)
-            logging.debug('Sending the stop streaming command, and waiting for a response...')
+    def sessionRecord(self, state):
+        # Step 1 - Start recording
+        self.core.sendCommand(SubSystem.Storage, Commands.Storage.Record, state)
+        if state:
+            logging.debug('Sending the command to start the flash recorder, and waiting for a response...')
+        else:
+            logging.debug('Sending the command to stop the flash recorder, and waiting for a response...')
 
-            self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
-            logging.debug('Acknowledge packet was received!')
-
-        # Step 1 - Initialization
-        # self.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
-        # logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
-
-        # Step 2 - wait for ack
-        # self.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
-        # logging.debug('Acknowledge packet was received!')
-
-        # Step 3 - Start recording
-        self.core.sendCommand(SubSystem.Storage, Commands.Storage.Record, True)
-        logging.debug('Sending the command to start the flash recorder, and waiting for a response...')
-
-        # Step 4 - wait for ack and the session number
+        # Step 2 - wait for ack and the session number
         self.core.waitForAck(SubSystem.Storage, Commands.Storage.Record)
         logging.debug("Acknowledge received.")
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
@@ -411,51 +393,9 @@ class NeblinaAPI(object):
             logging.debug('Acknowledge packet was received with the session number {0}!'.format(packet.data.sessionID))
         sessionID = packet.data.sessionID
 
-        if streamingType:
-            # Step 5 - enable streaming
-            self.core.sendCommand(SubSystem.Motion, streamingType, True)
-            logging.debug('Sending the enable streaming command, and waiting for a response...')
-
-            # Step 6 - wait for ack
-            self.core.waitForAck(SubSystem.Motion, streamingType)
-            logging.debug('Acknowledge packet was received!')
-
         return sessionID
 
-    def flashRecordStop(self, streamingType=None):
-        if streamingType:
-            # Step 8 - Stop the streaming
-            self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
-            logging.debug('Sending the stop streaming command, and waiting for a response...')
-
-            # Step 9 - wait for ack
-            self.core.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
-            logging.debug('Acknowledge packet was received!')
-
-        # Step 10 - Stop the recording
-        self.core.sendCommand(SubSystem.Storage, Commands.Storage.Record, False)
-        logging.debug('Sending the command to stop the flash recorder, and waiting for a response...')
-
-        # Step 11 - wait for ack and the closed session confirmation
-        self.core.waitForAck(SubSystem.Storage, Commands.Storage.Record)
-        logging.debug("The acknowledge packet is received")
-        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Record)
-
-        return packet.data.sessionID
-
-    def flashRecord(self, numSamples, streamingType):
-        sessionID = self.flashRecordStart(streamingType)
-
-        # Step 7 Receive Packets
-        for x in range(1, numSamples + 1):
-            packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, streamingType)
-            print('Recording {0} packets, current packet: {1}'.format(numSamples, x), end="\r", flush=True)
-
-        self.flashRecordStop(streamingType)
-
-        logging.info("Session {0} is closed successfully".format(sessionID))
-
-    def flashPlayback(self, pbSessionID, dump=False):
+    def sessionPlayback(self, pbSessionID, dump=False):
         self.core.sendCommand(SubSystem.Storage, Commands.Storage.Playback, True, sessionID=pbSessionID)
         logging.debug('Sent the start playback command, waiting for response...')
         # wait for confirmation
@@ -467,8 +407,8 @@ class NeblinaAPI(object):
         else:
             pbSessionID = packet.data.sessionID
             logging.info('Playback routine started from session number {0}'.format(pbSessionID))
-            packetList = self.storePacketsUntil(PacketType.RegularResponse, SubSystem.Storage,
-                                                Commands.Storage.Playback)
+            packetList = self.core.storePacketsUntil(PacketType.RegularResponse, SubSystem.Storage,
+                                                     Commands.Storage.Playback)
             logging.info('Finished playback from session number {0}!'.format(pbSessionID))
             if dump:
                 logging.info('Saving dump file. Waiting for completion...')
@@ -476,13 +416,13 @@ class NeblinaAPI(object):
                 logging.info('Dump file saving completed.')
             return len(packetList)
 
-    def flashGetSessions(self):
+    def getSessionCount(self):
         self.core.sendCommand(SubSystem.Storage, Commands.Storage.NumSessions)
         packet = self.core.waitForAck(SubSystem.Storage, Commands.Storage.NumSessions)
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.NumSessions)
         return packet.data.numSessions
 
-    def flashGetSessionInfo(self, sessionID):
+    def getSessionInfo(self, sessionID):
         self.core.sendCommand(SubSystem.Storage, Commands.Storage.SessionInfo, sessionID=sessionID)
         self.core.waitForAck(SubSystem.Storage, Commands.Storage.SessionInfo)
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.SessionInfo)
@@ -490,41 +430,6 @@ class NeblinaAPI(object):
             return None
         else:
             return packet.data
-
-    def storePacketsUntil(self, packetType, subSystem, command):
-        packetList = []
-        packet = None
-        while not packet or \
-            not packet.isPacketValid(packetType, subSystem, command):
-            try:
-                if (packet != None and packet.header.subSystem != SubSystem.Debug):
-                    packetList.append(packet)
-                    print('Received {0} packets'.format(len(packetList)), end="\r", flush=True)
-                packet = self.receivePacket()
-            except NotImplementedError as e:
-                packet = None
-                logging.error("Packet {0} - Dropped bad packet : {1}".format(len(packetList), str(e)))
-                continue
-            except KeyError as e:
-                packet = None
-                logging.error("Packet {0} - Tried creating a packet with an invalid subsystem or command : {1}".format(\
-                    len(packetList), str(e)))
-                continue
-            except CRCError as e:
-                packet = None
-                logging.error("Packet {0} - CRCError : {1} ".format(len(packetList), str(e)))
-                continue
-            except Exception as e:
-                packet = None
-                logging.error("Packet {0} - Exception : {1}".format(len(packetList), str(e)))
-                continue
-            except:
-                packet = None
-                logging.error("Packet {0} - Unexpected error".format(len(packetList)), exc_info=True)
-                continue
-
-        logging.info('Total IMU Packets Read: {0}'.format(len(packetList)))
-        return packetList
 
     def getFirmwareVersion(self):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.FWVersions)

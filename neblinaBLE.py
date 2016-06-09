@@ -257,7 +257,7 @@ class NeblinaBLE(NeblinaAPI):
         """
         assert False
 
-    def flashPlayback(self, pbSessionID, destinationFileName=None):
+    def sessionPlayback(self, pbSessionID, destinationFileName=None):
         """
             This function can not be used for BLE communication due to the higher then normal throughput required to
             prevent same record-playback time span.

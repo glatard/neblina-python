@@ -85,7 +85,7 @@ class DUALIntegrationTest(unittest.TestCase):
 
     def testFlashPlaybackDump(self):
         self.connectBLE()
-        self.ble.flashErase()
+        self.ble.eraseStorage()
         self.ble.motionSetDownsample(40)
         self.ble.motionStartStreams(Commands.Motion.IMU)
         self.ble.motionStartStreams(Commands.Motion.MAG)
@@ -106,5 +106,5 @@ class DUALIntegrationTest(unittest.TestCase):
         time.sleep(1)
 
         self.connectUART()
-        self.uart.flashPlayback(0, True)
+        self.uart.sessionPlayback(0, True)
         self.disconnectUART()
