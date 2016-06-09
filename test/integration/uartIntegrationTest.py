@@ -73,66 +73,53 @@ class UARTIntegrationTest(unittest.TestCase):
         self.api.close()
         pass
 
-    # def testMotionEngine(self):
-    #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
-    #     testOutputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineOutputs.csv')
-    #     self.uart.debugUnitTestEnable(True)
-    #     for idx, packetBytes in enumerate(testInputVectorPacketList):
-    #         # logging.debug('Sending {0} to stream'.format(binascii.hexlify(packetBytes)))
-    #         packet = self.uart.debugUnitTestSendBytes(packetBytes)
-    #         self.assertEqual(testOutputVectorPacketList[idx], packet.stringEncode())
-    #         print("Sent %d testVectors out of %d\r" % (idx + 1, len(testInputVectorPacketList)), end="", flush=True)
-    #     print("\r")
-    #     self.uart.debugUnitTestEnable(False)
+    def testMotionStreamEulerAngle(self):
+        self.api.streamEulerAngle(True)
+        for i in range(1, 50):
+            self.api.getEulerAngle()
+        self.api.streamEulerAngle(False)
 
-    # def testMotionStreamEulerAngle(self):
-    #     self.api.streamEulerAngle(True)
-    #     for i in range(1, 50):
-    #         self.api.getEulerAngle()
-    #     self.api.streamEulerAngle(False)
-    #
-    # def testMotionStreamExternalForce(self):
-    #     self.api.streamExternalForce(True)
-    #     for i in range(1, 50):
-    #         self.api.getExternalForce()
-    #     self.api.streamExternalForce(False)
-    #
-    # def testMotionStreamIMU(self):
-    #     self.api.streamIMU(True)
-    #     for i in range(1, 50):
-    #         self.api.getIMU()
-    #     self.api.streamIMU(False)
-    #
-    # def testMotionStreamMAG(self):
-    #     self.api.streamMAG(True)
-    #     for i in range(1, 50):
-    #         self.api.getMAG()
-    #     self.api.streamMAG(False)
-    #
-    # def testMotionStreamQuaternion(self):
-    #     self.api.streamQuaternion(True)
-    #     for i in range(1, 50):
-    #         self.api.getQuaternion()
-    #     self.api.streamQuaternion(False)
-    #
-    #
-    # def testVersion(self):
-    #     versions = self.api.getFirmwareVersion()
-    #     logging.info(versions)
-    #     self.assertEqual(versions.apiRelease, 1)
-    #     for i in range(0, 2):
-    #         self.assertNotEqual(versions.bleFWVersion[i], 255)
-    #         self.assertNotEqual(versions.mcuFWVersion[i], 255)
-    #
-    # def testMEMSComm(self):
-    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-    #     temp = self.api.getTemperature()
-    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-    #
-    # def testPMICComm(self):
-    #     batteryLevel = self.api.getBatteryLevel()
-    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
-    #
+    def testMotionStreamExternalForce(self):
+        self.api.streamExternalForce(True)
+        for i in range(1, 50):
+            self.api.getExternalForce()
+        self.api.streamExternalForce(False)
+
+    def testMotionStreamIMU(self):
+        self.api.streamIMU(True)
+        for i in range(1, 50):
+            self.api.getIMU()
+        self.api.streamIMU(False)
+
+    def testMotionStreamMAG(self):
+        self.api.streamMAG(True)
+        for i in range(1, 50):
+            self.api.getMAG()
+        self.api.streamMAG(False)
+
+    def testMotionStreamQuaternion(self):
+        self.api.streamQuaternion(True)
+        for i in range(1, 50):
+            self.api.getQuaternion()
+        self.api.streamQuaternion(False)
+
+    def testVersion(self):
+        versions = self.api.getFirmwareVersion()
+        logging.info(versions)
+        self.assertEqual(versions.apiRelease, 1)
+        for i in range(0, 2):
+            self.assertNotEqual(versions.bleFWVersion[i], 255)
+            self.assertNotEqual(versions.mcuFWVersion[i], 255)
+
+    def testMEMSComm(self):
+        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+        temp = self.api.getTemperature()
+        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+
+    def testPMICComm(self):
+        batteryLevel = self.api.getBatteryLevel()
+        logging.info("Board Battery: {0}\%".format(batteryLevel))
+
     def testLEDs(self):
         self.api.setLED(0, 1)
         self.api.getLED(0)
@@ -141,103 +128,103 @@ class UARTIntegrationTest(unittest.TestCase):
             self.api.getLED(8)
             self.api.setLED(-1, 1)
             self.api.setLED(8, 1)
-    #
-    # def testEEPROM(self):
-    #     # Verify EEPROM Read/Write limit
-    #     with self.assertRaises(AssertionError):
-    #         self.api.eepromRead(-1)
-    #         self.api.eepromRead(256)
-    #         self.api.eepromWrite(-1, "0xFF")
-    #         self.api.eepromWrite(256, "0xFF")
-    #
-    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-    #     num = 256
-    #     storeBytes = []
-    #     # Store EEPROM state
-    #     for i in range(0, num):
-    #         dataBytes = self.api.eepromRead(i)
-    #         storeBytes.append(dataBytes)
-    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-    #     # Test write/read
-    #     for i in range(0, num):
-    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
-    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-    #         self.api.eepromWrite(i, dataBytes)
-    #     for i in range(0, num):
-    #         dataBytes = self.api.eepromRead(i)
-    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-    #         for j in range(0, 8):
-    #             self.assertEqual(dataBytes[j], i)
-    #     for i in range(0, num):
-    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-    #         self.api.eepromWrite(i, storeBytes[i])
-    #     for i in range(0, num):
-    #         dataBytes = self.api.eepromRead(i)
-    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-    #         self.assertTrue(dataBytes == storeBytes[i])
-    #
-    # def testMotionDownsample(self):
-    #     numPacket = 1
-    #     for i in range(1, 51):
-    #         factor = i * 20
-    #         logging.info("Downsample factor : {0}".format(factor))
-    #         self.api.setDownsample(factor)
-    #         self.api.streamIMU(True)
-    #         dummy = self.api.getIMU().timestamp
-    #         first = self.api.getIMU().timestamp
-    #         second = self.api.getIMU().timestamp
-    #         self.api.streamIMU(False)
-    #         diff = second - first
-    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
-    #         desiredDuration = 1000 * factor
-    #         self.assertAlmostEqual(diff, desiredDuration, delta=1000)
-    #
-    #     with self.assertRaises(AssertionError):
-    #         self.api.setDownsample(1)
-    #         self.api.setDownsample(1001)
-    #     self.api.setDownsample(20)  # Reset to default
-    #
-    # def testMotionAccRange(self):
-    #     with self.assertRaises(AssertionError):
-    #         self.api.setAccelerometerRange(-1)
-    #         self.api.setAccelerometerRange(17)
-    #     self.api.setAccelerometerRange(2)
-    #     self.api.setAccelerometerRange(4)
-    #     self.api.setAccelerometerRange(8)
-    #     self.api.setAccelerometerRange(16)
-    #     self.api.setAccelerometerRange(8)   # Reset to default
-    #
-    # def testMotionStatus(self):
-    #     motionStatus = self.api.getMotionStatus()
-    #     self.assertFalse(motionStatus.distance)
-    #     self.assertFalse(motionStatus.force)
-    #     self.assertFalse(motionStatus.euler)
-    #     self.assertFalse(motionStatus.quaternion)
-    #     self.assertFalse(motionStatus.imuData)
-    #     self.assertFalse(motionStatus.motion)
-    #     self.assertFalse(motionStatus.steps)
-    #     self.assertFalse(motionStatus.magData)
-    #     self.assertFalse(motionStatus.sitStand)
-    #
-    # def testRecorderStatus(self):
-    #     recorderStatus = self.api.getRecorderStatus()
-    #     self.assertEqual(recorderStatus.status, 0)
-    #
-    # def testFlashErase(self):
-    #     self.api.eraseStorage()
-    #     num = self.api.getSessionCount()
-    #     self.assertEqual(num, 0)
-    #
-    # def testFlashRecord(self):
-    #     self.api.sessionRecord(True)
-    #     self.api.streamQuaternion(True)
-    #     self.api.getQuaternion()
-    #     self.api.streamQuaternion(False)
-    #     self.api.sessionRecord(False)
-    #
-    # def testFlashSessionInfo(self):
-    #     self.api.getSessionInfo(0)
-    #
-    # def testFlashSessionPlayback(self):
-    #     self.api.sessionPlayback(0)
+
+    def testEEPROM(self):
+        # Verify EEPROM Read/Write limit
+        with self.assertRaises(AssertionError):
+            self.api.eepromRead(-1)
+            self.api.eepromRead(256)
+            self.api.eepromWrite(-1, "0xFF")
+            self.api.eepromWrite(256, "0xFF")
+
+        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+        num = 256
+        storeBytes = []
+        # Store EEPROM state
+        for i in range(0, num):
+            dataBytes = self.api.eepromRead(i)
+            storeBytes.append(dataBytes)
+            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+        # Test write/read
+        for i in range(0, num):
+            dataBytes = bytes([i, i, i, i, i, i, i, i])
+            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+            self.api.eepromWrite(i, dataBytes)
+        for i in range(0, num):
+            dataBytes = self.api.eepromRead(i)
+            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+            for j in range(0, 8):
+                self.assertEqual(dataBytes[j], i)
+        for i in range(0, num):
+            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+            self.api.eepromWrite(i, storeBytes[i])
+        for i in range(0, num):
+            dataBytes = self.api.eepromRead(i)
+            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+            self.assertTrue(dataBytes == storeBytes[i])
+
+    def testMotionDownsample(self):
+        numPacket = 1
+        for i in range(1, 51):
+            factor = i * 20
+            logging.info("Downsample factor : {0}".format(factor))
+            self.api.setDownsample(factor)
+            self.api.streamIMU(True)
+            dummy = self.api.getIMU().timestamp
+            first = self.api.getIMU().timestamp
+            second = self.api.getIMU().timestamp
+            self.api.streamIMU(False)
+            diff = second - first
+            logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
+            desiredDuration = 1000 * factor
+            self.assertAlmostEqual(diff, desiredDuration, delta=1000)
+
+        with self.assertRaises(AssertionError):
+            self.api.setDownsample(1)
+            self.api.setDownsample(1001)
+        self.api.setDownsample(20)  # Reset to default
+
+    def testMotionAccRange(self):
+        with self.assertRaises(AssertionError):
+            self.api.setAccelerometerRange(-1)
+            self.api.setAccelerometerRange(17)
+        self.api.setAccelerometerRange(2)
+        self.api.setAccelerometerRange(4)
+        self.api.setAccelerometerRange(8)
+        self.api.setAccelerometerRange(16)
+        self.api.setAccelerometerRange(8)   # Reset to default
+
+    def testMotionStatus(self):
+        motionStatus = self.api.getMotionStatus()
+        self.assertFalse(motionStatus.distance)
+        self.assertFalse(motionStatus.force)
+        self.assertFalse(motionStatus.euler)
+        self.assertFalse(motionStatus.quaternion)
+        self.assertFalse(motionStatus.imuData)
+        self.assertFalse(motionStatus.motion)
+        self.assertFalse(motionStatus.steps)
+        self.assertFalse(motionStatus.magData)
+        self.assertFalse(motionStatus.sitStand)
+
+    def testRecorderStatus(self):
+        recorderStatus = self.api.getRecorderStatus()
+        self.assertEqual(recorderStatus.status, 0)
+
+    def testFlashErase(self):
+        self.api.eraseStorage()
+        num = self.api.getSessionCount()
+        self.assertEqual(num, 0)
+
+    def testFlashRecord(self):
+        self.api.sessionRecord(True)
+        self.api.streamQuaternion(True)
+        self.api.getQuaternion()
+        self.api.streamQuaternion(False)
+        self.api.sessionRecord(False)
+
+    def testFlashSessionInfo(self):
+        self.api.getSessionInfo(0)
+
+    def testFlashSessionPlayback(self):
+        self.api.sessionPlayback(0)
 
