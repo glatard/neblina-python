@@ -29,13 +29,8 @@ import logging
 import time
 import unittest
 
-import neblinaUtilities
 from neblina import *
-from neblinaBLE import NeblinaBLE, NeblinaDelegate
-from neblinaError import *
-from neblinaResponsePacket import NebResponsePacket
-from neblinaUtilities import NebUtilities
-from test import neblinaTestUtilities
+from neblinaAPI import NeblinaAPI
 
 ###################################################################################
 
@@ -59,14 +54,17 @@ class BLEIntegrationTest(unittest.TestCase):
         # Give it a break between each test
         time.sleep(2)
 
-        self.ble = NeblinaBLE()
-        self.ble.open(self.deviceAddress)
-        if not self.ble.isOpened():
+        self.api = NeblinaAPI(Interface.BLE)
+        self.api.open(self.deviceAddress)
+        if not self.api.isOpened():
             self.fail("Unable to connect to BLE device.")
+        self.api.disableStreaming()
+        self.api.sessionRecord(False)
 
     def tearDown(self):
-        self.ble.stopEverything()
-        self.ble.close(self.deviceAddress)
+        self.api.disableStreaming()
+        self.api.sessionRecord(False)
+        self.api.close()
 
     # def testMotionEngine(self):
     #     testInputVectorPacketList = neblinaTestUtilities.csvVectorsToList('motEngineInputs.csv')
@@ -80,162 +78,162 @@ class BLEIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.ble.debugUnitTestEnable(False)
 
-    def testMotionStreamEuler(self):
-        self.ble.motionSetDownsample(40)
-        self.ble.motionStream(Commands.Motion.EulerAngle, 100)
-
-    def testMotionStreamIMU(self):
-        self.ble.motionStream(Commands.Motion.IMU, 100)
-
-    def testMotionStreamMAG(self):
-        self.ble.motionStream(Commands.Motion.MAG, 100)
-
-    def testMotionStreamQuaternion(self):
-        self.ble.motionStream(Commands.Motion.Quaternion, 100)
+    # def testMotionStreamEuler(self):
+    #     self.ble.motionSetDownsample(40)
+    #     self.ble.motionStream(Commands.Motion.EulerAngle, 100)
+    #
+    # def testMotionStreamIMU(self):
+    #     self.ble.motionStream(Commands.Motion.IMU, 100)
+    #
+    # def testMotionStreamMAG(self):
+    #     self.ble.motionStream(Commands.Motion.MAG, 100)
+    #
+    # def testMotionStreamQuaternion(self):
+    #     self.ble.motionStream(Commands.Motion.Quaternion, 100)
 
     def testVersion(self):
-        versions = self.ble.debugFWVersions()
+        versions = self.api.getFirmwareVersion()
         logging.info(versions)
         self.assertEqual(versions.apiRelease, 1)
         for i in range(0, 2):
             self.assertNotEqual(versions.bleFWVersion[i], 255)
             self.assertNotEqual(versions.mcuFWVersion[i], 255)
-
-    def testMEMSComm(self):
-        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-        temp = self.ble.getTemperature()
-        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-
-    def testBattery(self):
-        batteryLevel = self.ble.getBatteryLevel()
-        logging.info("Board Battery: {0}\%".format(batteryLevel))
-
-    def testLEDs(self):
-        for i in range(0, 10):
-            self.ble.setLEDs(([0, 1], [1, 0]))
-            self.ble.setLEDs(([0, 0], [1, 1]))
-        for i in range(0, 10):
-            self.ble.setLEDs(([0, 1], [1, 1]))
-            self.ble.setLEDs(([0, 0], [1, 0]))
-
-    def testEEPROM(self):
-        # Verify EEPROM Read/Write limit
-        with self.assertRaises(AssertionError):
-            self.ble.eepromRead(-1)
-            self.ble.eepromRead(256)
-            self.ble.eepromWrite(-1, "0xFF")
-            self.ble.eepromWrite(256, "0xFF")
-
-        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-        num = 256
-        storeBytes = []
-        # Store EEPROM state
-        for i in range(0, num):
-            dataBytes = self.ble.eepromRead(i)
-            storeBytes.append(dataBytes)
-            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-        # Test write/read
-        for i in range(0, num):
-            dataBytes = bytes([i, i, i, i, i, i, i, i])
-            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.ble.eepromWrite(i, dataBytes)
-        for i in range(0, num):
-            dataBytes = self.ble.eepromRead(i)
-            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-            for j in range(0, 8):
-                self.assertEqual(dataBytes[j], i)
-        for i in range(0, num):
-            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.ble.eepromWrite(i, storeBytes[i])
-        for i in range(0, num):
-            dataBytes = self.ble.eepromRead(i)
-            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-            self.assertTrue(dataBytes == storeBytes[i])
-
-    def testMotionDownsample(self):
-        numPacket = 2
-        for i in range(1, 51):
-            factor = i * 20
-            logging.info("Downsample factor : {0}".format(factor))
-            self.ble.motionSetDownsample(factor)
-            start = time.time()
-            self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
-            end = time.time()
-            duration = end - start
-            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
-            desiredDuration = 1/(1000/factor)*numPacket
-            #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
-
-        with self.assertRaises(AssertionError):
-            self.ble.motionSetDownsample(1)
-            self.ble.motionSetDownsample(1001)
-        self.ble.motionSetDownsample(20)  # Reset to default
-
-    def testMotionAccRange(self):
-        with self.assertRaises(AssertionError):
-            self.ble.motionSetAccFullScale(-1)
-            self.ble.motionSetAccFullScale(17)
-        self.ble.motionSetAccFullScale(2)
-        self.ble.motionSetAccFullScale(4)
-        self.ble.motionSetAccFullScale(8)
-        self.ble.motionSetAccFullScale(16)
-        self.ble.motionSetAccFullScale(8)   # Reset to default
-
-    def testMotionState(self):
-        self.ble.motionStopStreams()
-        motionState = self.ble.motionGetStates()
-        self.assertFalse(motionState.distance)
-        self.assertFalse(motionState.force)
-        self.assertFalse(motionState.euler)
-        self.assertFalse(motionState.quaternion)
-        self.assertFalse(motionState.imuData)
-        self.assertFalse(motionState.motion)
-        self.assertFalse(motionState.steps)
-        self.assertFalse(motionState.magData)
-        self.assertFalse(motionState.sitStand)
-        self.assertFalse(motionState.sitStand)
-
-    def testFlashErase(self):
-        self.ble.eraseStorage()
-        num = self.ble.getSessionCount()
-        self.assertEqual(num, 0)
-
-    def testFlashRecord(self):
-        with self.assertRaises(AssertionError):
-            self.ble.flashRecord(1, Commands.Motion.Quaternion)
-
-    def testStreamExtreme(self):
-        self.ble.eraseStorage()
-
-        streamToUse = 10
-
-        self.ble.disableStreaming()
-        self.ble.motionSetDownsample(40)
-        self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
-        self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
-        self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
-        self.streamIfRequired(4,  Commands.Motion.EulerAngle, streamToUse)
-        self.streamIfRequired(5,  Commands.Motion.ExtForce, streamToUse)
-        self.streamIfRequired(6,  Commands.Motion.Pedometer, streamToUse)
-        self.streamIfRequired(7,  Commands.Motion.SittingStanding, streamToUse)
-        self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
-        self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
-        self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
-        self.ble.flashRecordStart()
-
-        count = 0
-        while count < 100:
-            self.ble.receivePacket()
-            count = count + 1
-
-        self.ble.flashRecordStop()
-        self.ble.disableStreaming()
-
-        num = self.ble.getSessionCount()
-        self.assertEqual(num, 1)
-
-        packet = self.ble.getSessionInfo(0)
-        self.assertGreater(packet.sessionLength, 0)
-
-    def streamIfRequired(self, id, streamingType, streamToUse):
-        (lambda: None, lambda: self.ble.motionStartStream(streamingType))[streamToUse >= id]()
+    #
+    # def testMEMSComm(self):
+    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+    #     temp = self.ble.getTemperature()
+    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+    #
+    # def testBattery(self):
+    #     batteryLevel = self.ble.getBatteryLevel()
+    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
+    #
+    # def testLEDs(self):
+    #     for i in range(0, 10):
+    #         self.ble.setLEDs(([0, 1], [1, 0]))
+    #         self.ble.setLEDs(([0, 0], [1, 1]))
+    #     for i in range(0, 10):
+    #         self.ble.setLEDs(([0, 1], [1, 1]))
+    #         self.ble.setLEDs(([0, 0], [1, 0]))
+    #
+    # def testEEPROM(self):
+    #     # Verify EEPROM Read/Write limit
+    #     with self.assertRaises(AssertionError):
+    #         self.ble.eepromRead(-1)
+    #         self.ble.eepromRead(256)
+    #         self.ble.eepromWrite(-1, "0xFF")
+    #         self.ble.eepromWrite(256, "0xFF")
+    #
+    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+    #     num = 256
+    #     storeBytes = []
+    #     # Store EEPROM state
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.eepromRead(i)
+    #         storeBytes.append(dataBytes)
+    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+    #     # Test write/read
+    #     for i in range(0, num):
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+    #         self.ble.eepromWrite(i, dataBytes)
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.eepromRead(i)
+    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+    #         for j in range(0, 8):
+    #             self.assertEqual(dataBytes[j], i)
+    #     for i in range(0, num):
+    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+    #         self.ble.eepromWrite(i, storeBytes[i])
+    #     for i in range(0, num):
+    #         dataBytes = self.ble.eepromRead(i)
+    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+    #         self.assertTrue(dataBytes == storeBytes[i])
+    #
+    # def testMotionDownsample(self):
+    #     numPacket = 2
+    #     for i in range(1, 51):
+    #         factor = i * 20
+    #         logging.info("Downsample factor : {0}".format(factor))
+    #         self.ble.motionSetDownsample(factor)
+    #         start = time.time()
+    #         self.ble.motionStream(Commands.Motion.EulerAngle, numPacket)
+    #         end = time.time()
+    #         duration = end - start
+    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+    #         desiredDuration = 1/(1000/factor)*numPacket
+    #         #self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+    #
+    #     with self.assertRaises(AssertionError):
+    #         self.ble.motionSetDownsample(1)
+    #         self.ble.motionSetDownsample(1001)
+    #     self.ble.motionSetDownsample(20)  # Reset to default
+    #
+    # def testMotionAccRange(self):
+    #     with self.assertRaises(AssertionError):
+    #         self.ble.motionSetAccFullScale(-1)
+    #         self.ble.motionSetAccFullScale(17)
+    #     self.ble.motionSetAccFullScale(2)
+    #     self.ble.motionSetAccFullScale(4)
+    #     self.ble.motionSetAccFullScale(8)
+    #     self.ble.motionSetAccFullScale(16)
+    #     self.ble.motionSetAccFullScale(8)   # Reset to default
+    #
+    # def testMotionState(self):
+    #     self.ble.motionStopStreams()
+    #     motionState = self.ble.motionGetStates()
+    #     self.assertFalse(motionState.distance)
+    #     self.assertFalse(motionState.force)
+    #     self.assertFalse(motionState.euler)
+    #     self.assertFalse(motionState.quaternion)
+    #     self.assertFalse(motionState.imuData)
+    #     self.assertFalse(motionState.motion)
+    #     self.assertFalse(motionState.steps)
+    #     self.assertFalse(motionState.magData)
+    #     self.assertFalse(motionState.sitStand)
+    #     self.assertFalse(motionState.sitStand)
+    #
+    # def testFlashErase(self):
+    #     self.ble.eraseStorage()
+    #     num = self.ble.getSessionCount()
+    #     self.assertEqual(num, 0)
+    #
+    # def testFlashRecord(self):
+    #     with self.assertRaises(AssertionError):
+    #         self.ble.flashRecord(1, Commands.Motion.Quaternion)
+    #
+    # def testStreamExtreme(self):
+    #     self.ble.eraseStorage()
+    #
+    #     streamToUse = 10
+    #
+    #     self.ble.disableStreaming()
+    #     self.ble.motionSetDownsample(40)
+    #     self.streamIfRequired(1,  Commands.Motion.IMU, streamToUse)
+    #     self.streamIfRequired(2,  Commands.Motion.MAG, streamToUse)
+    #     self.streamIfRequired(3,  Commands.Motion.Quaternion, streamToUse)
+    #     self.streamIfRequired(4,  Commands.Motion.EulerAngle, streamToUse)
+    #     self.streamIfRequired(5,  Commands.Motion.ExtForce, streamToUse)
+    #     self.streamIfRequired(6,  Commands.Motion.Pedometer, streamToUse)
+    #     self.streamIfRequired(7,  Commands.Motion.SittingStanding, streamToUse)
+    #     self.streamIfRequired(8,  Commands.Motion.FingerGesture, streamToUse)
+    #     self.streamIfRequired(9,  Commands.Motion.RotationInfo, streamToUse)
+    #     self.streamIfRequired(10, Commands.Motion.MotionState, streamToUse)
+    #     self.ble.flashRecordStart()
+    #
+    #     count = 0
+    #     while count < 100:
+    #         self.ble.receivePacket()
+    #         count = count + 1
+    #
+    #     self.ble.flashRecordStop()
+    #     self.ble.disableStreaming()
+    #
+    #     num = self.ble.getSessionCount()
+    #     self.assertEqual(num, 1)
+    #
+    #     packet = self.ble.getSessionInfo(0)
+    #     self.assertGreater(packet.sessionLength, 0)
+    #
+    # def streamIfRequired(self, id, streamingType, streamToUse):
+    #     (lambda: None, lambda: self.ble.motionStartStream(streamingType))[streamToUse >= id]()
