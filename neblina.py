@@ -120,6 +120,7 @@ class Commands:
         ResetTimeStamp = 0x10  # Reset timestamp
         FingerGesture = 0x11  # Finger Gesture command
         RotationInfo = 0x12  # Rotation info in roll: number of rotations and speed in rpm
+        MotionCount = 0x13  # Keep last with next value
 
     class Storage:
         EraseAll = 0x01  # Full-erase for the on-chip NOR flash memory

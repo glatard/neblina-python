@@ -61,16 +61,16 @@ class UARTIntegrationTest(unittest.TestCase):
         time.sleep(1)
 
         if not self.setupHasAlreadyRun:
-            self.uart = NeblinaUART()
-            self.uart.open(self.comPort)
-            if not self.uart.isOpened(self.comPort):
+            self.api = NeblinaAPI()
+            self.api.open(self.comPort)
+            if not self.api.isOpened():
                 self.fail("Unable to connect to COM port.")
-            self.uart.disableStreaming()
-            self.uart.flashRecordStop()
-            self.uart.setDataPortState(Interface.UART, True)
+            self.api.disableStreaming()
+            self.api.flashRecordStop()
+            self.api.setDataPortState(Interface.UART, True)
 
     def tearDown(self):
-        #self.uart.close()
+        self.api.close()
         pass
 
     # def testMotionEngine(self):
@@ -85,229 +85,248 @@ class UARTIntegrationTest(unittest.TestCase):
     #     print("\r")
     #     self.uart.debugUnitTestEnable(False)
 
-    def testMotionStreamEuler(self):
-        self.uart.motionStream(Commands.Motion.EulerAngle, 100)
+    def testMotionStreamEulerAngle(self):
+        self.api.streamEulerAngle(True)
+        for i in range(1, 50):
+            self.api.getEulerAngle()
+        self.api.streamEulerAngle(False)
+
+    def testMotionStreamExternalForce(self):
+        self.api.streamExternalForce(True)
+        for i in range(1, 50):
+            self.api.getExternalForce()
+        self.api.streamExternalForce(False)
 
     def testMotionStreamIMU(self):
-        self.uart.motionStream(Commands.Motion.IMU, 100)
+        self.api.streamIMU(True)
+        for i in range(1, 50):
+            self.api.getIMU()
+        self.api.streamIMU(False)
 
     def testMotionStreamMAG(self):
-        self.uart.motionStream(Commands.Motion.MAG, 100)
+        self.api.streamMAG(True)
+        for i in range(1, 50):
+            self.api.getMAG()
+        self.api.streamMAG(False)
 
     def testMotionStreamQuaternion(self):
-        self.uart.motionStream(Commands.Motion.Quaternion, 100)
+        self.api.streamQuaternion(True)
+        for i in range(1, 50):
+            self.api.getQuaternion()
+        self.api.streamQuaternion(False)
 
-    def testVersion(self):
-        versions = self.uart.debugFWVersions()
-        logging.info(versions)
-        self.assertEqual(versions.apiRelease, 1)
-        for i in range(0, 2):
-            self.assertNotEqual(versions.bleFWVersion[i], 255)
-            self.assertNotEqual(versions.mcuFWVersion[i], 255)
-
-    def testMEMSComm(self):
-        logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
-        temp = self.uart.getTemperature()
-        logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
-
-    def testPMICComm(self):
-        batteryLevel = self.uart.getBatteryLevel()
-        logging.info("Board Battery: {0}\%".format(batteryLevel))
-
-    def testLEDs(self):
-        for i in range(0, 10):
-            for j in range(0, 2):
-                self.uart.setLED(j, 1)
-                time.sleep(0.1)
-            for j in range(0, 2):
-                self.uart.setLED(j, 0)
-                time.sleep(0.1)
-        for i in range(0, 10):
-            self.uart.setLEDs(([0, 1], [1, 1]))
-            time.sleep(0.1)
-            self.uart.setLEDs(([0, 0], [1, 0]))
-            time.sleep(0.1)
-
-    def testEEPROM(self):
-        # Verify EEPROM Read/Write limit
-        with self.assertRaises(AssertionError):
-            self.uart.eepromRead(-1)
-            self.uart.eepromRead(256)
-            self.uart.eepromWrite(-1, "0xFF")
-            self.uart.eepromWrite(256, "0xFF")
-
-        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-        num = 256
-        storeBytes = []
-        # Store EEPROM state
-        for i in range(0, num):
-            dataBytes = self.uart.eepromRead(i)
-            storeBytes.append(dataBytes)
-            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-        # Test write/read
-        for i in range(0, num):
-            dataBytes = bytes([i, i, i, i, i, i, i, i])
-            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.uart.eepromWrite(i, dataBytes)
-        for i in range(0, num):
-            dataBytes = self.uart.eepromRead(i)
-            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-            for j in range(0, 8):
-                self.assertEqual(dataBytes[j], i)
-        for i in range(0, num):
-            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.uart.eepromWrite(i, storeBytes[i])
-        for i in range(0, num):
-            dataBytes = self.uart.eepromRead(i)
-            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-            self.assertTrue(dataBytes == storeBytes[i])
-
-    def testMotionDownsample(self):
-        numPacket = 1
-        for i in range(1, 51):
-            factor = i * 20
-            logging.info("Downsample factor : {0}".format(factor))
-            self.uart.setDownsample(factor)
-            start = time.time()
-            self.uart.motionStream(Commands.Motion.IMU, numPacket)
-            end = time.time()
-            duration = end - start
-            logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
-            desiredDuration = 1/(1000/factor)*numPacket
-            self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
-
-        with self.assertRaises(AssertionError):
-            self.uart.setDownsample(1)
-            self.uart.setDownsample(1001)
-        self.uart.setDownsample(20)  # Reset to default
-
-    def testMotionAccRange(self):
-        with self.assertRaises(AssertionError):
-            self.uart.setAccelerometerRange(-1)
-            self.uart.setAccelerometerRange(17)
-        self.uart.setAccelerometerRange(2)
-        self.uart.setAccelerometerRange(4)
-        self.uart.setAccelerometerRange(8)
-        self.uart.setAccelerometerRange(16)
-        self.uart.setAccelerometerRange(8)   # Reset to default
-
-    def testMotionStatus(self):
-        motionStatus = self.uart.getMotionStatus()
-        self.assertFalse(motionStatus.distance)
-        self.assertFalse(motionStatus.force)
-        self.assertFalse(motionStatus.euler)
-        self.assertFalse(motionStatus.quaternion)
-        self.assertFalse(motionStatus.imuData)
-        self.assertFalse(motionStatus.motion)
-        self.assertFalse(motionStatus.steps)
-        self.assertFalse(motionStatus.magData)
-        self.assertFalse(motionStatus.sitStand)
-
-    def testRecorderStatus(self):
-        recorderStatus = self.uart.getRecorderStatus()
-        self.assertEqual(recorderStatus.status, 0)
-
-    def testFlashErase(self):
-        self.uart.flashErase()
-        num = self.uart.flashGetSessions()
-        self.assertEqual(num, 0)
-
-    def testFlashRecord(self):
-        self.uart.flashRecord(198, Commands.Motion.Quaternion)
-        time.sleep(1)
-
-        self.uart.flashRecord(199, Commands.Motion.IMU)
-        time.sleep(1)
-
-        self.uart.flashRecord(200, Commands.Motion.MAG)
-        time.sleep(1)
-
-        self.uart.flashRecord(201, Commands.Motion.MAG)
-        time.sleep(1)
-
-    def testFlashSessionInfo(self):
-        packet = self.uart.flashGetSessionInfo(0)
-        self.assertEqual(packet.sessionLength, 198)
-
-        packet = self.uart.flashGetSessionInfo(1)
-        self.assertEqual(packet.sessionLength, 199)
-
-        packet = self.uart.flashGetSessionInfo(2)
-        self.assertEqual(packet.sessionLength, 200)
-
-        packet = self.uart.flashGetSessionInfo(3)
-        self.assertEqual(packet.sessionLength, 201)
-
-    def testFlashSessionPlayback(self):
-        num = self.uart.flashPlayback(0)
-        self.assertEqual(num, 198)
-
-        num = self.uart.flashPlayback(1)
-        self.assertEqual(num, 199)
-
-        num = self.uart.flashPlayback(2)
-        self.assertEqual(num, 200)
-
-        num = self.uart.flashPlayback(3)
-        self.assertEqual(num, 201)
-
-    def testLEDs(self):
-        for i in range(0, 10):
-            for j in range(0, 2):
-                self.uart.setLED(j, 1)
-                time.sleep(0.1)
-            for j in range(0, 2):
-                self.uart.setLED(j, 0)
-                time.sleep(0.1)
-        for i in range(0, 10):
-            self.uart.setLEDs(([0, 1], [1, 1]))
-            time.sleep(0.1)
-            self.uart.setLEDs(([0, 0], [1, 0]))
-            time.sleep(0.1)
-
-    def testFlashErase(self):
-        self.uart.flashErase()
-        num = self.uart.flashGetSessions()
-        self.assertEqual(num, 0)
-
-    def testFlashRecord(self):
-        self.uart.flashRecord(198, Commands.Motion.Quaternion)
-        time.sleep(1)
-
-        self.uart.flashRecord(199, Commands.Motion.IMU)
-        time.sleep(1)
-
-        self.uart.flashRecord(200, Commands.Motion.MAG)
-        time.sleep(1)
-
-        self.uart.flashRecord(201, Commands.Motion.MAG)
-        time.sleep(1)
-
-    def testFlashSessionInfo(self):
-        packet = self.uart.flashGetSessionInfo(0)
-        self.assertEqual(packet.sessionLength, 198)
-
-        packet = self.uart.flashGetSessionInfo(1)
-        self.assertEqual(packet.sessionLength, 199)
-
-        packet = self.uart.flashGetSessionInfo(2)
-        self.assertEqual(packet.sessionLength, 200)
-
-        packet = self.uart.flashGetSessionInfo(3)
-        self.assertEqual(packet.sessionLength, 201)
-
-    def testFlashSessionPlayback(self):
-        num = self.uart.flashPlayback(0)
-        self.assertEqual(num, 198)
-
-        num = self.uart.flashPlayback(1)
-        self.assertEqual(num, 199)
-
-        num = self.uart.flashPlayback(2)
-        self.assertEqual(num, 200)
-
-        num = self.uart.flashPlayback(3)
-        self.assertEqual(num, 201)
+    #
+    # def testVersion(self):
+    #     versions = self.uart.debugFWVersions()
+    #     logging.info(versions)
+    #     self.assertEqual(versions.apiRelease, 1)
+    #     for i in range(0, 2):
+    #         self.assertNotEqual(versions.bleFWVersion[i], 255)
+    #         self.assertNotEqual(versions.mcuFWVersion[i], 255)
+    #
+    # def testMEMSComm(self):
+    #     logging.debug('Checking communication with the LSM9DS1 chip by getting the temperature...')
+    #     temp = self.uart.getTemperature()
+    #     logging.info("Board Temperature: {0} degrees (Celsius)".format(temp))
+    #
+    # def testPMICComm(self):
+    #     batteryLevel = self.uart.getBatteryLevel()
+    #     logging.info("Board Battery: {0}\%".format(batteryLevel))
+    #
+    # def testLEDs(self):
+    #     for i in range(0, 10):
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 1)
+    #             time.sleep(0.1)
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 0)
+    #             time.sleep(0.1)
+    #     for i in range(0, 10):
+    #         self.uart.setLEDs(([0, 1], [1, 1]))
+    #         time.sleep(0.1)
+    #         self.uart.setLEDs(([0, 0], [1, 0]))
+    #         time.sleep(0.1)
+    #
+    # def testEEPROM(self):
+    #     # Verify EEPROM Read/Write limit
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.eepromRead(-1)
+    #         self.uart.eepromRead(256)
+    #         self.uart.eepromWrite(-1, "0xFF")
+    #         self.uart.eepromWrite(256, "0xFF")
+    #
+    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+    #     num = 256
+    #     storeBytes = []
+    #     # Store EEPROM state
+    #     for i in range(0, num):
+    #         dataBytes = self.uart.eepromRead(i)
+    #         storeBytes.append(dataBytes)
+    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+    #     # Test write/read
+    #     for i in range(0, num):
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+    #         self.uart.eepromWrite(i, dataBytes)
+    #     for i in range(0, num):
+    #         dataBytes = self.uart.eepromRead(i)
+    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+    #         for j in range(0, 8):
+    #             self.assertEqual(dataBytes[j], i)
+    #     for i in range(0, num):
+    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+    #         self.uart.eepromWrite(i, storeBytes[i])
+    #     for i in range(0, num):
+    #         dataBytes = self.uart.eepromRead(i)
+    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+    #         self.assertTrue(dataBytes == storeBytes[i])
+    #
+    # def testMotionDownsample(self):
+    #     numPacket = 1
+    #     for i in range(1, 51):
+    #         factor = i * 20
+    #         logging.info("Downsample factor : {0}".format(factor))
+    #         self.uart.setDownsample(factor)
+    #         start = time.time()
+    #         self.uart.motionStream(Commands.Motion.IMU, numPacket)
+    #         end = time.time()
+    #         duration = end - start
+    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
+    #         desiredDuration = 1/(1000/factor)*numPacket
+    #         self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+    #
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.setDownsample(1)
+    #         self.uart.setDownsample(1001)
+    #     self.uart.setDownsample(20)  # Reset to default
+    #
+    # def testMotionAccRange(self):
+    #     with self.assertRaises(AssertionError):
+    #         self.uart.setAccelerometerRange(-1)
+    #         self.uart.setAccelerometerRange(17)
+    #     self.uart.setAccelerometerRange(2)
+    #     self.uart.setAccelerometerRange(4)
+    #     self.uart.setAccelerometerRange(8)
+    #     self.uart.setAccelerometerRange(16)
+    #     self.uart.setAccelerometerRange(8)   # Reset to default
+    #
+    # def testMotionStatus(self):
+    #     motionStatus = self.uart.getMotionStatus()
+    #     self.assertFalse(motionStatus.distance)
+    #     self.assertFalse(motionStatus.force)
+    #     self.assertFalse(motionStatus.euler)
+    #     self.assertFalse(motionStatus.quaternion)
+    #     self.assertFalse(motionStatus.imuData)
+    #     self.assertFalse(motionStatus.motion)
+    #     self.assertFalse(motionStatus.steps)
+    #     self.assertFalse(motionStatus.magData)
+    #     self.assertFalse(motionStatus.sitStand)
+    #
+    # def testRecorderStatus(self):
+    #     recorderStatus = self.uart.getRecorderStatus()
+    #     self.assertEqual(recorderStatus.status, 0)
+    #
+    # def testFlashErase(self):
+    #     self.uart.flashErase()
+    #     num = self.uart.flashGetSessions()
+    #     self.assertEqual(num, 0)
+    #
+    # def testFlashRecord(self):
+    #     self.uart.flashRecord(198, Commands.Motion.Quaternion)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(199, Commands.Motion.IMU)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(200, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(201, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    # def testFlashSessionInfo(self):
+    #     packet = self.uart.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, 198)
+    #
+    #     packet = self.uart.flashGetSessionInfo(1)
+    #     self.assertEqual(packet.sessionLength, 199)
+    #
+    #     packet = self.uart.flashGetSessionInfo(2)
+    #     self.assertEqual(packet.sessionLength, 200)
+    #
+    #     packet = self.uart.flashGetSessionInfo(3)
+    #     self.assertEqual(packet.sessionLength, 201)
+    #
+    # def testFlashSessionPlayback(self):
+    #     num = self.uart.flashPlayback(0)
+    #     self.assertEqual(num, 198)
+    #
+    #     num = self.uart.flashPlayback(1)
+    #     self.assertEqual(num, 199)
+    #
+    #     num = self.uart.flashPlayback(2)
+    #     self.assertEqual(num, 200)
+    #
+    #     num = self.uart.flashPlayback(3)
+    #     self.assertEqual(num, 201)
+    #
+    # def testLEDs(self):
+    #     for i in range(0, 10):
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 1)
+    #             time.sleep(0.1)
+    #         for j in range(0, 2):
+    #             self.uart.setLED(j, 0)
+    #             time.sleep(0.1)
+    #     for i in range(0, 10):
+    #         self.uart.setLEDs(([0, 1], [1, 1]))
+    #         time.sleep(0.1)
+    #         self.uart.setLEDs(([0, 0], [1, 0]))
+    #         time.sleep(0.1)
+    #
+    # def testFlashErase(self):
+    #     self.uart.flashErase()
+    #     num = self.uart.flashGetSessions()
+    #     self.assertEqual(num, 0)
+    #
+    # def testFlashRecord(self):
+    #     self.uart.flashRecord(198, Commands.Motion.Quaternion)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(199, Commands.Motion.IMU)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(200, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    #     self.uart.flashRecord(201, Commands.Motion.MAG)
+    #     time.sleep(1)
+    #
+    # def testFlashSessionInfo(self):
+    #     packet = self.uart.flashGetSessionInfo(0)
+    #     self.assertEqual(packet.sessionLength, 198)
+    #
+    #     packet = self.uart.flashGetSessionInfo(1)
+    #     self.assertEqual(packet.sessionLength, 199)
+    #
+    #     packet = self.uart.flashGetSessionInfo(2)
+    #     self.assertEqual(packet.sessionLength, 200)
+    #
+    #     packet = self.uart.flashGetSessionInfo(3)
+    #     self.assertEqual(packet.sessionLength, 201)
+    #
+    # def testFlashSessionPlayback(self):
+    #     num = self.uart.flashPlayback(0)
+    #     self.assertEqual(num, 198)
+    #
+    #     num = self.uart.flashPlayback(1)
+    #     self.assertEqual(num, 199)
+    #
+    #     num = self.uart.flashPlayback(2)
+    #     self.assertEqual(num, 200)
+    #
+    #     num = self.uart.flashPlayback(3)
+    #     self.assertEqual(num, 201)
 
     # def testFlashXtreme(self):
     #     first = 100
