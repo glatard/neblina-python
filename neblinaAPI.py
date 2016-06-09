@@ -38,8 +38,8 @@ from neblinaUtilities import NebUtilities
 
 class NeblinaAPI(object):
 
-    def __init__(self):
-        self.core = NeblinaCore()
+    def __init__(self, interface):
+        self.core = NeblinaCore(interface)
 
     def close(self):
         self.core.close()

@@ -61,7 +61,7 @@ class UARTIntegrationTest(unittest.TestCase):
         time.sleep(1)
 
         if not self.setupHasAlreadyRun:
-            self.api = NeblinaAPI()
+            self.api = NeblinaAPI(Interface.UART)
             self.api.open(self.comPort)
             if not self.api.isOpened():
                 self.fail("Unable to connect to COM port.")
@@ -70,6 +70,8 @@ class UARTIntegrationTest(unittest.TestCase):
             self.api.setDataPortState(Interface.UART, True)
 
     def tearDown(self):
+        self.api.disableStreaming()
+        self.api.sessionRecord(False)
         self.api.close()
         pass
 
