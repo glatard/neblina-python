@@ -181,36 +181,36 @@ class UARTIntegrationTest(unittest.TestCase):
     #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
     #         self.assertTrue(dataBytes == storeBytes[i])
     #
-    def testMotionDownsample(self):
-        numPacket = 1
-        for i in range(1, 51):
-            factor = i * 20
-            logging.info("Downsample factor : {0}".format(factor))
-            self.api.setDownsample(factor)
-            self.api.streamIMU(True)
-            dummy = self.api.getIMU().timestamp
-            first = self.api.getIMU().timestamp
-            second = self.api.getIMU().timestamp
-            self.api.streamIMU(False)
-            diff = second - first
-            logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
-            desiredDuration = 1000 * factor
-            self.assertAlmostEqual(diff, desiredDuration, delta=1000)
+    # def testMotionDownsample(self):
+    #     numPacket = 1
+    #     for i in range(1, 51):
+    #         factor = i * 20
+    #         logging.info("Downsample factor : {0}".format(factor))
+    #         self.api.setDownsample(factor)
+    #         self.api.streamIMU(True)
+    #         dummy = self.api.getIMU().timestamp
+    #         first = self.api.getIMU().timestamp
+    #         second = self.api.getIMU().timestamp
+    #         self.api.streamIMU(False)
+    #         diff = second - first
+    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
+    #         desiredDuration = 1000 * factor
+    #         self.assertAlmostEqual(diff, desiredDuration, delta=1000)
     #
     #     with self.assertRaises(AssertionError):
-    #         self.uart.setDownsample(1)
-    #         self.uart.setDownsample(1001)
-    #     self.uart.setDownsample(20)  # Reset to default
+    #         self.api.setDownsample(1)
+    #         self.api.setDownsample(1001)
+    #     self.api.setDownsample(20)  # Reset to default
     #
     # def testMotionAccRange(self):
     #     with self.assertRaises(AssertionError):
-    #         self.uart.setAccelerometerRange(-1)
-    #         self.uart.setAccelerometerRange(17)
-    #     self.uart.setAccelerometerRange(2)
-    #     self.uart.setAccelerometerRange(4)
-    #     self.uart.setAccelerometerRange(8)
-    #     self.uart.setAccelerometerRange(16)
-    #     self.uart.setAccelerometerRange(8)   # Reset to default
+    #         self.api.setAccelerometerRange(-1)
+    #         self.api.setAccelerometerRange(17)
+    #     self.api.setAccelerometerRange(2)
+    #     self.api.setAccelerometerRange(4)
+    #     self.api.setAccelerometerRange(8)
+    #     self.api.setAccelerometerRange(16)
+    #     self.api.setAccelerometerRange(8)   # Reset to default
     #
     # def testMotionStatus(self):
     #     motionStatus = self.uart.getMotionStatus()
