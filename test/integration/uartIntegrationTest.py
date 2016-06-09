@@ -213,7 +213,7 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.api.setAccelerometerRange(8)   # Reset to default
     #
     # def testMotionStatus(self):
-    #     motionStatus = self.uart.getMotionStatus()
+    #     motionStatus = self.api.getMotionStatus()
     #     self.assertFalse(motionStatus.distance)
     #     self.assertFalse(motionStatus.force)
     #     self.assertFalse(motionStatus.euler)
@@ -225,7 +225,7 @@ class UARTIntegrationTest(unittest.TestCase):
     #     self.assertFalse(motionStatus.sitStand)
     #
     # def testRecorderStatus(self):
-    #     recorderStatus = self.uart.getRecorderStatus()
+    #     recorderStatus = self.api.getRecorderStatus()
     #     self.assertEqual(recorderStatus.status, 0)
     #
     # def testFlashErase(self):
