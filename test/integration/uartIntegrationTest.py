@@ -150,50 +150,52 @@ class UARTIntegrationTest(unittest.TestCase):
     # def testEEPROM(self):
     #     # Verify EEPROM Read/Write limit
     #     with self.assertRaises(AssertionError):
-    #         self.uart.eepromRead(-1)
-    #         self.uart.eepromRead(256)
-    #         self.uart.eepromWrite(-1, "0xFF")
-    #         self.uart.eepromWrite(256, "0xFF")
+    #         self.api.eepromRead(-1)
+    #         self.api.eepromRead(256)
+    #         self.api.eepromWrite(-1, "0xFF")
+    #         self.api.eepromWrite(256, "0xFF")
     #
     #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
     #     num = 256
     #     storeBytes = []
     #     # Store EEPROM state
     #     for i in range(0, num):
-    #         dataBytes = self.uart.eepromRead(i)
+    #         dataBytes = self.api.eepromRead(i)
     #         storeBytes.append(dataBytes)
     #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
     #     # Test write/read
     #     for i in range(0, num):
     #         dataBytes = bytes([i, i, i, i, i, i, i, i])
     #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-    #         self.uart.eepromWrite(i, dataBytes)
+    #         self.api.eepromWrite(i, dataBytes)
     #     for i in range(0, num):
-    #         dataBytes = self.uart.eepromRead(i)
+    #         dataBytes = self.api.eepromRead(i)
     #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
     #         for j in range(0, 8):
     #             self.assertEqual(dataBytes[j], i)
     #     for i in range(0, num):
     #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-    #         self.uart.eepromWrite(i, storeBytes[i])
+    #         self.api.eepromWrite(i, storeBytes[i])
     #     for i in range(0, num):
-    #         dataBytes = self.uart.eepromRead(i)
+    #         dataBytes = self.api.eepromRead(i)
     #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
     #         self.assertTrue(dataBytes == storeBytes[i])
     #
-    # def testMotionDownsample(self):
-    #     numPacket = 1
-    #     for i in range(1, 51):
-    #         factor = i * 20
-    #         logging.info("Downsample factor : {0}".format(factor))
-    #         self.uart.setDownsample(factor)
-    #         start = time.time()
-    #         self.uart.motionStream(Commands.Motion.IMU, numPacket)
-    #         end = time.time()
-    #         duration = end - start
-    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, duration))
-    #         desiredDuration = 1/(1000/factor)*numPacket
-    #         self.assertAlmostEqual(duration, desiredDuration, delta=0.02)
+    def testMotionDownsample(self):
+        numPacket = 1
+        for i in range(1, 51):
+            factor = i * 20
+            logging.info("Downsample factor : {0}".format(factor))
+            self.api.setDownsample(factor)
+            self.api.streamIMU(True)
+            dummy = self.api.getIMU().timestamp
+            first = self.api.getIMU().timestamp
+            second = self.api.getIMU().timestamp
+            self.api.streamIMU(False)
+            diff = second - first
+            logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
+            desiredDuration = 1000 * factor
+            self.assertAlmostEqual(diff, desiredDuration, delta=1000)
     #
     #     with self.assertRaises(AssertionError):
     #         self.uart.setDownsample(1)
