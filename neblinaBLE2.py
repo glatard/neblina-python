@@ -57,7 +57,7 @@ class BLEDelegate(DefaultDelegate):
 
     def handleNotification(self, cHandle, data):
         self.packets.put(data)
-        logging.debug("handleNotification")
+        logging.debug("handleNotification : {0}".format(data))
 
 ###################################################################################
 
@@ -78,6 +78,7 @@ class NeblinaBLE2(object):
         self.readNeblinaCh = None
 
     def connect(self):
+        logging.debug("Opening BLE address : {0}".format(self.address))
         connected = False
         peripheral = None
         count = 0
@@ -106,8 +107,11 @@ class NeblinaBLE2(object):
             self.enableNeblinaNotification()
 
     def disconnect(self):
+        logging.debug("Closing BLE address : {0}".format(self.address))
         if self.connected:
+            self.disableNeblinaNotification()
             self.peripheral.disconnect()
+            self.connected = False
 
     def isConnected(self):
         return self.connected
@@ -124,13 +128,15 @@ class NeblinaBLE2(object):
 
     def receivedPacket(self):
         packet = None
-        self.waitForNotification(0.01)
         try:
-            data = self.delegate.packets.get(False)
-            return data
-        except queue.Empty:
-            return None
-        return None
+            self.waitForNotification(0.01)
+            if not self.delegate.packets.empty():
+                data = self.delegate.packets.get(False)
+                return data
+            else:
+                return None
+        except BTLEException as e:
+            logging.error("BTLEException : {0}".format(e))
 
     def sendPacket(self, packet):
         self.writeNeblinaCh.write(packet)
