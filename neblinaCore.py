@@ -51,6 +51,7 @@ class NeblinaCore(threading.Thread):
         self.isPause = False
         self.receivedPacket = list()
         self.receivedStream = [None]*Commands.Motion.MotionCount
+        self.sendQueue = queue.Queue()
         self.stopRequested = False
 
     def close(self):
@@ -84,33 +85,37 @@ class NeblinaCore(threading.Thread):
             if self.isPause:
                 continue
 
-            if self.device.isConnected():
-                try:
-                    packet = self.device.receivedPacket()
-                    if packet:
-                        packet = NebResponsePacket(packet)
-                        if packet.header.packetType is PacketType.RegularResponse and \
-                            packet.header.subSystem == SubSystem.Motion:
-                            if self.delegate:
-                                self.delegate.handle(packet)
-                            else:
-                                logging.debug("Received Stream : {0}".format(packet.data))
-                                self.receivedStream[packet.header.command] = packet
+            while not self.sendQueue.empty():
+                packet = self.sendQueue.get()
+                self.device.sendPacket(packet)
+
+            try:
+                packet = self.device.receivedPacket()
+                if packet:
+                    packet = NebResponsePacket(packet)
+                    if packet.header.packetType is PacketType.RegularResponse and \
+                        packet.header.subSystem == SubSystem.Motion:
+                        if self.delegate:
+                            self.delegate.handle(packet)
                         else:
-                            logging.debug("Received Packet : {0}".format(packet.data))
-                            self.receivedPacket.append(packet)
-                except Exception:
-                    logging.error("Unexpected error : ", exc_info=True)
-                    break
+                            logging.debug("Received Stream : {0}".format(packet.data))
+                            self.receivedStream[packet.header.command] = packet
+                    else:
+                        logging.debug("Received Packet : {0}".format(packet.data))
+                        self.receivedPacket.append(packet)
+            except Exception:
+                logging.error("Unexpected error : ", exc_info=True)
+                break
 
     def stop(self):
         self.stopRequested = True
         self.join()
+        self.device.disconnect()
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):
         if self.device:
             packet = NebCommandPacket(subSystem, command, enable, **kwargs)
-            self.device.sendPacket(packet.stringEncode())
+            self.sendQueue.put(packet.stringEncode())
 
     def setDelegate(self, delegate):
         self.delegate = delegate
@@ -160,6 +165,7 @@ class NeblinaCore(threading.Thread):
                 return None
             except KeyboardInterrupt as e:
                 logging.error("KeyboardInterrupt.")
+                self.stop()
                 exit()
             except:
                 packet = None
@@ -205,6 +211,8 @@ class NeblinaCore(threading.Thread):
                 return None
             except KeyboardInterrupt as e:
                 logging.error("KeyboardInterrupt.")
+                self.eventLoop.stop()
+                self.stop()
                 exit()
             except:
                 packet = None
