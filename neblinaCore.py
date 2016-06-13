@@ -231,5 +231,11 @@ class NeblinaCore(threading.Thread):
             self.receivedStream[command] = None
             return packet
 
-        packet = self.eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedPacket(packetType, subSystem, command))
+        try:
+            packet = self.eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedPacket(packetType, subSystem, command))
+        except KeyboardInterrupt as e:
+            logging.error("KeyboardInterrupt.")
+            self.eventLoop.stop()
+            self.stop()
+            exit()
         return packet
