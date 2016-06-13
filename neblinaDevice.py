@@ -28,8 +28,14 @@
 import threading
 
 from neblina import *
-from neblinaBLE2 import NeblinaBLE2
 from neblinaUART2 import NeblinaUART2
+
+bleSupported = True
+try:
+    from neblinaBLE2 import NeblinaBLE2
+except ImportError:
+    print("Unable to import BLE. BLE is unsupported and can not be used.")
+    bleSupported = False
 
 ###################################################################################
 
@@ -42,6 +48,7 @@ class NeblinaDevice(object):
         if interface is Interface.UART:
             self.communication = NeblinaUART2(self.address)
         else:
+            assert bleSupported
             self.communication = NeblinaBLE2(self.address)
 
     def connect(self):
