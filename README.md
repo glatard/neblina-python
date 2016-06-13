@@ -13,9 +13,7 @@ This repository provides a Python interface that interacts with and simulates th
 * 3ft Micro USB cable
 
 # ProMotion board hardware setup
-```
-www.quickstart_hardware_setup_link.pdf //add the correct link later
-```
+Download the [Quick Start guide](https://drive.google.com/file/d/0B92ySxNucL7jYi1ESHFjcDI5NFU/view?usp=sharing).
 
 # Python Installation
 
