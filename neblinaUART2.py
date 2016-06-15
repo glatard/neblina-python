@@ -66,8 +66,12 @@ class NeblinaUART2(NeblinaCommunication):
     def isConnected(self):
         return self.sc and self.sc.is_open
 
-    def receivedPacket(self):
-        packet = self.comslip.receivePacketFromStream(self.sc)
+    def receivePacket(self):
+        packet = None
+        try:
+            packet = self.comslip.receivePacketFromStream(self.sc)
+        except KeyboardInterrupt:
+            pass
         return packet
 
     def sendPacket(self, packet):

@@ -50,8 +50,8 @@ class NeblinaAPI(object):
     def isOpened(self, port=None):
         return self.core.isOpened()
 
-    def receivePacket(self):
-        raise NotImplementedError("receivePacket not override in child.")
+    def setDelegate(self, delegate):
+        self.core.setDelegate(delegate)
 
     def getBatteryLevel(self):
         return self.core.getBatteryLevel()

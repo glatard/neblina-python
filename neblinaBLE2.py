@@ -150,7 +150,7 @@ class NeblinaBLE2(NeblinaCommunication):
         batteryLevel = self.readBatteryCh.read()
         return struct.unpack("<B", batteryLevel)[0]
 
-    def receivedPacket(self):
+    def receivePacket(self):
         packet = None
         if not self.delegate.packets.empty():
             data = self.delegate.packets.get(False)

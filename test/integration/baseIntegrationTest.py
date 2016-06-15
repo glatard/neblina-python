@@ -26,11 +26,47 @@
 ###################################################################################
 
 import unittest
-import time
 import logging
 
-from neblina import *
-from neblinaAPI import NeblinaAPI
+from neblinaDelegate import NeblinaDelegate
+
+###################################################################################
+
+
+class TestDelegate(NeblinaDelegate):
+    def handleEulerAngle(self, data):
+        logging.debug("Euler Angle: {0}".format(data))
+
+    def handleExternalForce(self, data):
+        logging.debug("External Force: {0}".format(data))
+
+    def handleFingerGesture(self, data):
+        logging.debug("Finger Gesture: {0}".format(data))
+
+    def handleIMU(self, data):
+        logging.debug("IMU: {0}".format(data))
+
+    def handleMAG(self, data):
+        logging.debug("MAG: {0}".format(data))
+
+    def handleMotionState(self, data):
+        logging.debug("Motion State: {0}".format(data))
+
+    def handlePedometer(self, data):
+        logging.debug("Pedometer: {0}".format(data))
+
+    def handleQuaternion(self, data):
+        logging.debug("Quaternion: {0}".format(data))
+
+    def handleRotationInfo(self, data):
+        logging.debug("Rotation Info: {0}".format(data))
+
+    def handleSittingStanding(self, data):
+        logging.debug("Sitting Standing: {0}".format(data))
+
+    def handleTrajectoryInfo(self, data):
+        logging.debug("Trajectory Info: {0}".format(data))
+
 
 ###################################################################################
 
@@ -38,37 +74,39 @@ from neblinaAPI import NeblinaAPI
 class BaseIntegrationTest(unittest.TestCase):
     setupHasAlreadyRun = False
     comPort = None
+    api = None
 
-    # def testMotionStreamEulerAngle(self):
-    #     self.api.streamEulerAngle(True)
-    #     for i in range(1, 50):
-    #         self.api.getEulerAngle()
-    #     self.api.streamEulerAngle(False)
-    #
-    # def testMotionStreamExternalForce(self):
-    #     self.api.streamExternalForce(True)
-    #     for i in range(1, 50):
-    #         self.api.getExternalForce()
-    #     self.api.streamExternalForce(False)
-    #
-    # def testMotionStreamIMU(self):
-    #     self.api.streamIMU(True)
-    #     for i in range(1, 50):
-    #         self.api.getIMU()
-    #     self.api.streamIMU(False)
-    #
-    # def testMotionStreamMAG(self):
-    #     self.api.streamMAG(True)
-    #     for i in range(1, 50):
-    #         self.api.getMAG()
-    #     self.api.streamMAG(False)
-    #
-    # def testMotionStreamQuaternion(self):
-    #     self.api.streamQuaternion(True)
-    #     for i in range(1, 50):
-    #         self.api.getQuaternion()
-    #     self.api.streamQuaternion(False)
-    #
+    def testMotionStreamEulerAngle(self):
+        self.api.setDelegate(TestDelegate())
+        self.api.streamEulerAngle(True)
+        for i in range(1, 50):
+            self.api.getEulerAngle()
+        self.api.streamEulerAngle(False)
+
+    def testMotionStreamExternalForce(self):
+        self.api.streamExternalForce(True)
+        for i in range(1, 50):
+            self.api.getExternalForce()
+        self.api.streamExternalForce(False)
+
+    def testMotionStreamIMU(self):
+        self.api.streamIMU(True)
+        for i in range(1, 50):
+            self.api.getIMU()
+        self.api.streamIMU(False)
+
+    def testMotionStreamMAG(self):
+        self.api.streamMAG(True)
+        for i in range(1, 50):
+            self.api.getMAG()
+        self.api.streamMAG(False)
+
+    def testMotionStreamQuaternion(self):
+        self.api.streamQuaternion(True)
+        for i in range(1, 50):
+            self.api.getQuaternion()
+        self.api.streamQuaternion(False)
+
     # def testVersion(self):
     #     versions = self.api.getFirmwareVersion()
     #     logging.info(versions)
@@ -94,40 +132,40 @@ class BaseIntegrationTest(unittest.TestCase):
     #         self.api.getLED(8)
     #         self.api.setLED(-1, 1)
     #         self.api.setLED(8, 1)
-    #
-    def testEEPROM(self):
-        # Verify EEPROM Read/Write limit
-        with self.assertRaises(AssertionError):
-            self.api.eepromRead(-1)
-            self.api.eepromRead(256)
-            self.api.eepromWrite(-1, "0xFF")
-            self.api.eepromWrite(256, "0xFF")
 
-        # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
-        num = 256
-        storeBytes = []
-        # Store EEPROM state
-        for i in range(0, num):
-            dataBytes = self.api.eepromRead(i)
-            storeBytes.append(dataBytes)
-            logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
-        # Test write/read
-        for i in range(0, num):
-            dataBytes = bytes([i, i, i, i, i, i, i, i])
-            logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
-            self.api.eepromWrite(i, dataBytes)
-        for i in range(0, num):
-            dataBytes = self.api.eepromRead(i)
-            logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
-            for j in range(0, 8):
-                self.assertEqual(dataBytes[j], i)
-        for i in range(0, num):
-            logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
-            self.api.eepromWrite(i, storeBytes[i])
-        for i in range(0, num):
-            dataBytes = self.api.eepromRead(i)
-            logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
-            self.assertTrue(dataBytes == storeBytes[i])
+    # def testEEPROM(self):
+    #     # Verify EEPROM Read/Write limit
+    #     with self.assertRaises(AssertionError):
+    #         self.api.eepromRead(-1)
+    #         self.api.eepromRead(256)
+    #         self.api.eepromWrite(-1, "0xFF")
+    #         self.api.eepromWrite(256, "0xFF")
+    #
+    #     # Test Write/Read. Make sure to store current bytes for each page and rewrite it after test.
+    #     num = 256
+    #     storeBytes = []
+    #     # Store EEPROM state
+    #     for i in range(0, num):
+    #         dataBytes = self.api.eepromRead(i)
+    #         storeBytes.append(dataBytes)
+    #         logging.debug("EEPROMRead store {0}: {1}".format(i, dataBytes))
+    #     # Test write/read
+    #     for i in range(0, num):
+    #         dataBytes = bytes([i, i, i, i, i, i, i, i])
+    #         logging.debug("EEPROMWrite {0} : {1}".format(i, dataBytes))
+    #         self.api.eepromWrite(i, dataBytes)
+    #     for i in range(0, num):
+    #         dataBytes = self.api.eepromRead(i)
+    #         logging.debug("EEPROMRead {0} : {1}".format(i, dataBytes))
+    #         for j in range(0, 8):
+    #             self.assertEqual(dataBytes[j], i)
+    #     for i in range(0, num):
+    #         logging.debug("EEPROMWrite store {0} : {1}".format(i, storeBytes[i]))
+    #         self.api.eepromWrite(i, storeBytes[i])
+    #     for i in range(0, num):
+    #         dataBytes = self.api.eepromRead(i)
+    #         logging.debug("EEPROMRead store {0} : {1}".format(i, dataBytes))
+    #         self.assertTrue(dataBytes == storeBytes[i])
     #
     # def testMotionDownsample(self):
     #     numPacket = 1
@@ -141,7 +179,7 @@ class BaseIntegrationTest(unittest.TestCase):
     #         second = self.api.getIMU().timestamp
     #         self.api.streamIMU(False)
     #         diff = second - first
-    #         logging.info("Downsample factor {0} took {1} seconds".format(factor, diff))
+    #         logging.info("Downsample factor {0} took {1} us".format(factor, diff))
     #         desiredDuration = 1000 * factor
     #         self.assertAlmostEqual(diff, desiredDuration, delta=1000)
     #

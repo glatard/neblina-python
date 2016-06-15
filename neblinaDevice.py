@@ -52,8 +52,7 @@ class NeblinaDevice(object):
             self.communication = NeblinaBLE2(self.address)
 
     def connect(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.communication.connect())
+        self.communication.connect()
 
     def disconnect(self):
         self.communication.disconnect()
@@ -61,9 +60,9 @@ class NeblinaDevice(object):
     def isConnected(self):
         return self.communication.isConnected()
 
-    def receivedPacket(self):
+    def receivePacket(self):
         if self.isConnected():
-            return self.communication.receivedPacket()
+            return self.communication.receivePacket()
         else:
             return None
 
