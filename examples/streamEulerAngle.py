@@ -42,7 +42,8 @@ class GracefulKiller:
         signal.signal(signal.SIGINT, self.exit)
         signal.signal(signal.SIGTERM, self.exit)
 
-    def exit(self):
+    def exit(self, signum, frame):
+        print("Signal received: {0}.".format(signum))
         self.isKilled = True
 
 ###################################################################################
@@ -60,12 +61,12 @@ def main(address):
     print("Opening UART streaming port")
     api.setDataPortState(Interface.UART, True)
 
-    print("Starting Quaternion Streaming")
-    api.streamQuaternion(True)
+    print("Starting EulerAngle Streaming")
+    api.streamEulerAngle(True)
     while not signalKiller.isKilled:
-        print(api.getQuaternion())
-    print("Stopping Quaternion Streaming")
-    api.streamQuaternion(False)
+        print(api.getEulerAngle())
+    print("Stopping EulerAngle Streaming")
+    api.streamEulerAngle(False)
 
 ###################################################################################
 
