@@ -25,12 +25,7 @@
 #
 ###################################################################################
 
-import asyncio
-import functools
 import logging
-import queue
-import signal
-import threading
 
 from neblina import *
 from neblinaCommandPacket import NebCommandPacket
@@ -40,33 +35,13 @@ from neblinaResponsePacket import NebResponsePacket
 
 ###################################################################################
 
-eventLoop = asyncio.get_event_loop()
-for signame in ('SIGINT', 'SIGTERM'):
-    eventLoop.add_signal_handler(getattr(signal, signame),
-                                 functools.partial(exit, signame))
 
-###################################################################################
-
-
-def exit(signame):
-    logging.error("Signal received: {0}. Exitting.".format(signame))
-    eventLoop.stop()
-
-###################################################################################
-
-
-class NeblinaCore(threading.Thread):
+class NeblinaCore(object):
 
     def __init__(self, interface=Interface.UART):
-        threading.Thread.__init__(self)
         self.delegate = None
         self.device = None
         self.interface = interface
-        self.isPause = False
-        self.receivedPacket = list()
-        self.receivedStream = [None]*Commands.Motion.MotionCount
-        self.sendQueue = queue.Queue()
-        self.stopRequested = False
 
     def close(self):
         self.stop()
@@ -76,7 +51,6 @@ class NeblinaCore(threading.Thread):
     def open(self, address):
         self.device = NeblinaDevice(address, self.interface)
         self.device.connect()
-        self.start()
 
     def isOpened(self):
         return self.device and self.device.isConnected()
@@ -91,73 +65,32 @@ class NeblinaCore(threading.Thread):
             else:
                 self.device.getBatteryLevel()
 
-    def run(self):
-        if not self.device:
-            return
-
-        while not self.stopRequested:
-            if self.isPause:
-                continue
-
-            while not self.sendQueue.empty():
-                packet = self.sendQueue.get()
-                self.device.sendPacket(packet)
-
-            try:
-                packet = self.device.receivedPacket()
-                if packet:
-                    packet = NebResponsePacket(packet)
-                    if packet.header.packetType is PacketType.RegularResponse and \
-                        packet.header.subSystem == SubSystem.Motion:
-                        if self.delegate:
-                            self.delegate.handle(packet)
-                        else:
-                            logging.debug("Received Stream : {0}".format(packet.data))
-                            self.receivedStream[packet.header.command] = packet
-                    else:
-                        logging.debug("Received Packet : {0}".format(packet.data))
-                        self.receivedPacket.append(packet)
-            except Exception:
-                logging.error("Unexpected error : ", exc_info=True)
-                break
-
     def stop(self):
-        self.stopRequested = True
-        self.join()
         self.device.disconnect()
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):
         if self.device:
             packet = NebCommandPacket(subSystem, command, enable, **kwargs)
-            self.sendQueue.put(packet.stringEncode())
+            self.device.sendPacket(packet.stringEncode())
 
     def setDelegate(self, delegate):
         self.delegate = delegate
 
     def storePacketsUntil(self, packetType, subSystem, command):
-        packetList = eventLoop.run_until_complete(self.waitForStorePacketUntil(packetType, subSystem, command))
-        return packetList
-
-    async def waitForStorePacketUntil(self, packetType, subSystem, command):
         packetList = []
         packet = None
         while not packet or \
                 (not packet.isPacketValid(packetType, subSystem, command) and
                  not packet.isPacketError()):
             try:
-                for i in range(0, len(self.receivedPacket)):
-                    packet = self.receivedPacket[i]
-                    if packet.isPacketValid(packetType, subSystem, command):
-                        logging.info('Total Packets Read: {0}'.format(len(packetList)))
-                        return packetList
+                if packet and packet.header.subSystem != SubSystem.Debug:
+                    packetList.append(packet)
+                    print('Received {0} packets'.format(len(packetList)), end="\r", flush=True)
+                bytes = self.device.receivePacket()
+                if bytes:
+                    packet = NebResponsePacket(bytes)
+                else:
                     packet = None
-
-                for i in range(0, len(self.receivedStream)):
-                    packet = self.receivedStream[i]
-                    if packet:
-                        packetList.append(packet)
-                        self.receivedStream[i] = None
-
             except NotImplementedError as e:
                 logging.error("Dropped bad packet.")
                 packet = None
@@ -179,37 +112,33 @@ class NeblinaCore(threading.Thread):
                 return None
             except KeyboardInterrupt as e:
                 logging.error("KeyboardInterrupt.")
-                # self.stop()
-                # exit()
+                return None
             except:
                 packet = None
                 logging.error("Unexpected error : ", exc_info=True)
                 continue
-
         return packetList
 
-    async def waitForNonEmptyPacketFromReceivedStream(self, command):
-        while not self.receivedStream[command]:
-            await asyncio.sleep(0.001)
+    def waitForAck(self, subSystem, command):
+        ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
+        return ackPacket
 
-    async def waitForNonEmptyPacketFromReceivedPacket(self, packetType, subSystem, command):
+    def waitForPacket(self, packetType, subSystem, command):
         packet = None
         while not packet or \
                 (not packet.isPacketValid(packetType, subSystem, command) and
                  not packet.isPacketError()):
             try:
-                for i in range(0, len(self.receivedPacket)):
-                    packet = self.receivedPacket[i]
-                    if packet.isPacketValid(packetType, subSystem, command):
-                        return self.receivedPacket.pop(i)
-                packet = None
-
+                bytes = self.device.receivePacket()
+                if bytes:
+                    packet = NebResponsePacket(bytes)
+                else:
+                    packet = None
             except NotImplementedError as e:
                 logging.error("Dropped bad packet.")
                 packet = None
                 continue
             except InvalidPacketFormatError as e:
-                logging.error("InvalidPacketFormatError.")
                 packet = None
                 continue
             except CRCError as e:
@@ -223,22 +152,11 @@ class NeblinaCore(threading.Thread):
             except TimeoutError as e:
                 logging.error('Read timed out.')
                 return None
+            except KeyboardInterrupt as e:
+                logging.error("KeyboardInterrupt.")
+                return None
             except:
                 packet = None
                 logging.error("Unexpected error : ", exc_info=True)
                 continue
-
-    def waitForAck(self, subSystem, command):
-        ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
-        return ackPacket
-
-    def waitForPacket(self, packetType, subSystem, command):
-        packet = None
-        if packetType is PacketType.RegularResponse and subSystem is SubSystem.Motion:
-            eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedStream(command))
-            packet = self.receivedStream[command]
-            self.receivedStream[command] = None
-            return packet
-
-        packet = eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedPacket(packetType, subSystem, command))
         return packet

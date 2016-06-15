@@ -45,7 +45,7 @@ class NeblinaCommunication(threading.Thread):
     def isConnected(self):
         raise NotImplementedError("isConnected not override in child.")
 
-    def receivedPacket(self):
+    def receivePacket(self):
         raise NotImplementedError("receivedPacket not override in child.")
 
     def run(self):
