@@ -25,13 +25,18 @@
 #
 ###################################################################################
 
+import threading
 
-class NeblinaCommunication(object):
+###################################################################################
+
+
+class NeblinaCommunication(threading.Thread):
 
     def __init__(self, address):
+        threading.Thread.__init__(self)
         self.address = address
 
-    def connect(self):
+    async def connect(self):
         raise NotImplementedError("connect not override in child.")
 
     def disconnect(self):
@@ -42,6 +47,9 @@ class NeblinaCommunication(object):
 
     def receivedPacket(self):
         raise NotImplementedError("receivedPacket not override in child.")
+
+    def run(self):
+        raise NotImplementedError("run not override in child.")
 
     def sendPacket(self, packet):
         raise NotImplementedError("sendPacket not override in child.")

@@ -25,7 +25,7 @@
 #
 ###################################################################################
 
-import threading
+import asyncio
 
 from neblina import *
 from neblinaUART2 import NeblinaUART2
@@ -52,7 +52,8 @@ class NeblinaDevice(object):
             self.communication = NeblinaBLE2(self.address)
 
     def connect(self):
-        self.communication.connect()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.communication.connect())
 
     def disconnect(self):
         self.communication.disconnect()
