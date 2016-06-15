@@ -25,6 +25,7 @@
 #
 ###################################################################################
 
+import asyncio
 import logging
 import queue
 import time
@@ -62,7 +63,7 @@ class BLEDelegate(DefaultDelegate):
 ###################################################################################
 
 
-class NeblinaBLE2(object):
+class NeblinaBLE2(NeblinaCommunication):
 
     def __init__(self, address):
         NeblinaCommunication.__init__(self, address)
@@ -77,7 +78,31 @@ class NeblinaBLE2(object):
         self.writeNeblinaCh = None
         self.readNeblinaCh = None
 
-    def connect(self):
+        self.sendQueue = queue.Queue()
+
+    def run(self):
+        self.connectInternal()
+
+        while self.isConnected():
+            while not self.sendQueue.empty():
+                command = self.sendQueue.get()
+                self.writeNeblinaCh.write(command)
+
+            try:
+                self.waitForNotification(0.01)
+            except KeyboardInterrupt:
+                break
+
+        if self.peripheral:
+            self.disableNeblinaNotification()
+            self.peripheral.disconnect()
+
+    async def connect(self):
+        self.start()
+        while not self.isConnected():
+            await asyncio.sleep(0.001)
+
+    def connectInternal(self):
         logging.debug("Opening BLE address : {0}".format(self.address))
         connected = False
         peripheral = None
@@ -109,9 +134,8 @@ class NeblinaBLE2(object):
     def disconnect(self):
         logging.debug("Closing BLE address : {0}".format(self.address))
         if self.connected:
-            self.disableNeblinaNotification()
-            self.peripheral.disconnect()
             self.connected = False
+            self.join()
 
     def isConnected(self):
         return self.connected
@@ -128,18 +152,14 @@ class NeblinaBLE2(object):
 
     def receivedPacket(self):
         packet = None
-        try:
-            self.waitForNotification(0.01)
-            if not self.delegate.packets.empty():
-                data = self.delegate.packets.get(False)
-                return data
-            else:
-                return None
-        except BTLEException as e:
-            logging.error("BTLEException : {0}".format(e))
+        if not self.delegate.packets.empty():
+            data = self.delegate.packets.get(False)
+            return data
+        else:
+            return None
 
     def sendPacket(self, packet):
-        self.writeNeblinaCh.write(packet)
+        self.sendQueue.put(packet)
 
     def enableNeblinaNotification(self):
         self.peripheral.writeCharacteristic(self.readNeblinaCh.handle + 2, struct.pack('<bb', 0x01, 0x00))
