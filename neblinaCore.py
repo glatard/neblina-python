@@ -26,16 +26,31 @@
 ###################################################################################
 
 import asyncio
+import functools
 import logging
 import queue
+import signal
 import threading
 
 from neblina import *
 from neblinaCommandPacket import NebCommandPacket
 from neblinaDevice import NeblinaDevice
 from neblinaError import *
-from neblinaHeader import NebHeader
 from neblinaResponsePacket import NebResponsePacket
+
+###################################################################################
+
+eventLoop = asyncio.get_event_loop()
+for signame in ('SIGINT', 'SIGTERM'):
+    eventLoop.add_signal_handler(getattr(signal, signame),
+                                 functools.partial(exit, signame))
+
+###################################################################################
+
+
+def exit(signame):
+    logging.error("Signal received: {0}. Exitting.".format(signame))
+    eventLoop.stop()
 
 ###################################################################################
 
@@ -46,7 +61,6 @@ class NeblinaCore(threading.Thread):
         threading.Thread.__init__(self)
         self.delegate = None
         self.device = None
-        self.eventLoop = asyncio.get_event_loop()
         self.interface = interface
         self.isPause = False
         self.receivedPacket = list()
@@ -121,7 +135,7 @@ class NeblinaCore(threading.Thread):
         self.delegate = delegate
 
     def storePacketsUntil(self, packetType, subSystem, command):
-        packetList = self.eventLoop.run_until_complete(self.waitForStorePacketUntil(packetType, subSystem, command))
+        packetList = eventLoop.run_until_complete(self.waitForStorePacketUntil(packetType, subSystem, command))
         return packetList
 
     async def waitForStorePacketUntil(self, packetType, subSystem, command):
@@ -165,8 +179,8 @@ class NeblinaCore(threading.Thread):
                 return None
             except KeyboardInterrupt as e:
                 logging.error("KeyboardInterrupt.")
-                self.stop()
-                exit()
+                # self.stop()
+                # exit()
             except:
                 packet = None
                 logging.error("Unexpected error : ", exc_info=True)
@@ -209,11 +223,6 @@ class NeblinaCore(threading.Thread):
             except TimeoutError as e:
                 logging.error('Read timed out.')
                 return None
-            except KeyboardInterrupt as e:
-                logging.error("KeyboardInterrupt.")
-                self.eventLoop.stop()
-                self.stop()
-                exit()
             except:
                 packet = None
                 logging.error("Unexpected error : ", exc_info=True)
@@ -226,16 +235,10 @@ class NeblinaCore(threading.Thread):
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
         if packetType is PacketType.RegularResponse and subSystem is SubSystem.Motion:
-            self.eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedStream(command))
+            eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedStream(command))
             packet = self.receivedStream[command]
             self.receivedStream[command] = None
             return packet
 
-        try:
-            packet = self.eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedPacket(packetType, subSystem, command))
-        except KeyboardInterrupt as e:
-            logging.error("KeyboardInterrupt.")
-            self.eventLoop.stop()
-            self.stop()
-            exit()
+        packet = eventLoop.run_until_complete(self.waitForNonEmptyPacketFromReceivedPacket(packetType, subSystem, command))
         return packet
