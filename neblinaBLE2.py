@@ -107,8 +107,11 @@ class NeblinaBLE2(NeblinaCommunication):
     def disconnect(self):
         logging.debug("Closing BLE address : {0}".format(self.address))
         if self.connected:
-            self.disableNeblinaNotification()
-            self.peripheral.disconnect()
+            try:
+                self.disableNeblinaNotification()
+                self.peripheral.disconnect()
+            except BrokenPipeError:
+                pass
             self.connected = False
 
     def isConnected(self):
@@ -130,7 +133,12 @@ class NeblinaBLE2(NeblinaCommunication):
             return None
 
     def sendPacket(self, packet):
-        self.writeNeblinaCh.write(packet)
+        try:
+            self.writeNeblinaCh.write(packet)
+        except BTLEException as e:
+            logging.error("BTLEException : {0}".format(e))
+        except BrokenPipeError:
+            return
 
     def enableNeblinaNotification(self):
         self.peripheral.writeCharacteristic(self.readNeblinaCh.handle + 2, struct.pack('<bb', 0x01, 0x00))
