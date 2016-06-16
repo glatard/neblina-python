@@ -25,14 +25,10 @@
 #
 ###################################################################################
 
-import asyncio
 import logging
 import queue
-import time
 
 from neblinaCommunication import NeblinaCommunication
-from neblinaError import *
-from neblinaResponsePacket import NebResponsePacket
 
 try:
     from bluepy.btle import *
@@ -54,6 +50,7 @@ ServiceNeblinaDataUUID = "0DF9F022-1532-11E5-8960-0002A5D5C51B"
 class BLEDelegate(DefaultDelegate):
 
     def __init__(self):
+        DefaultDelegate.__init__(self)
         self.packets = queue.Queue()
 
     def handleNotification(self, cHandle, data):
@@ -78,31 +75,7 @@ class NeblinaBLE2(NeblinaCommunication):
         self.writeNeblinaCh = None
         self.readNeblinaCh = None
 
-        self.sendQueue = queue.Queue()
-
-    def run(self):
-        self.connectInternal()
-
-        while self.isConnected():
-            while not self.sendQueue.empty():
-                command = self.sendQueue.get()
-                self.writeNeblinaCh.write(command)
-
-            try:
-                self.waitForNotification(0.01)
-            except KeyboardInterrupt:
-                break
-
-        if self.peripheral:
-            self.disableNeblinaNotification()
-            self.peripheral.disconnect()
-
-    async def connect(self):
-        self.start()
-        while not self.isConnected():
-            await asyncio.sleep(0.001)
-
-    def connectInternal(self):
+    def connect(self):
         logging.debug("Opening BLE address : {0}".format(self.address))
         connected = False
         peripheral = None
@@ -118,8 +91,8 @@ class NeblinaBLE2(NeblinaCommunication):
             time.sleep(1)
 
         if connected:
-            self.peripheral = peripheral
             self.connected = True
+            self.peripheral = peripheral
 
             self.serviceBattery = self.peripheral.getServiceByUUID(ServiceBatteryUUID)
             self.readBatteryCh = self.serviceBattery.getCharacteristics(ServiceBatteryDataUUID)[0]
@@ -134,24 +107,22 @@ class NeblinaBLE2(NeblinaCommunication):
     def disconnect(self):
         logging.debug("Closing BLE address : {0}".format(self.address))
         if self.connected:
+            self.disableNeblinaNotification()
+            self.peripheral.disconnect()
             self.connected = False
-            self.join()
 
     def isConnected(self):
         return self.connected
 
     def getBatteryLevel(self):
         if self.connected:
-            bytes = self.readBattery()
-            return bytes
+            batteryLevel = self.readBatteryCh.read()
+            return struct.unpack("<B", batteryLevel)[0]
+
         return None
 
-    def readBattery(self):
-        batteryLevel = self.readBatteryCh.read()
-        return struct.unpack("<B", batteryLevel)[0]
-
     def receivePacket(self):
-        packet = None
+        self.peripheral.waitForNotifications(None)
         if not self.delegate.packets.empty():
             data = self.delegate.packets.get(False)
             return data
@@ -159,7 +130,7 @@ class NeblinaBLE2(NeblinaCommunication):
             return None
 
     def sendPacket(self, packet):
-        self.sendQueue.put(packet)
+        self.writeNeblinaCh.write(packet)
 
     def enableNeblinaNotification(self):
         self.peripheral.writeCharacteristic(self.readNeblinaCh.handle + 2, struct.pack('<bb', 0x01, 0x00))
@@ -167,5 +138,3 @@ class NeblinaBLE2(NeblinaCommunication):
     def disableNeblinaNotification(self):
         self.peripheral.writeCharacteristic(self.readNeblinaCh.handle + 2, struct.pack('<bb', 0x00, 0x00))
 
-    def waitForNotification(self, timeout):
-        return self.peripheral.waitForNotifications(timeout)

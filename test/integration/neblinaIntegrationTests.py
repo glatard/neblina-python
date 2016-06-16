@@ -46,7 +46,7 @@ def getSuite(comPort, deviceAddress):
     suite.addTest(uartIntegrationTest.getSuite(comPort))
 
     if bleSupported:
-        # suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
+        suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
         # suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
         pass
 

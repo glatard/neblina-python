@@ -25,15 +25,10 @@
 #
 ###################################################################################
 
-import threading
 
-###################################################################################
-
-
-class NeblinaCommunication(threading.Thread):
+class NeblinaCommunication(object):
 
     def __init__(self, address):
-        threading.Thread.__init__(self)
         self.address = address
 
     def connect(self):
