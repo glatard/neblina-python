@@ -36,7 +36,7 @@ class NeblinaCommunication(threading.Thread):
         threading.Thread.__init__(self)
         self.address = address
 
-    async def connect(self):
+    def connect(self):
         raise NotImplementedError("connect not override in child.")
 
     def disconnect(self):
