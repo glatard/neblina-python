@@ -7,7 +7,7 @@ This repository provides a Python interface that interacts with and simulates th
 # Requirements
 * python3
 * pyserial
-* bluepy
+* bluepy (Linux-only)
 * Windows or Linux
 * ProMotion board
 * 3ft Micro USB cable
@@ -23,8 +23,17 @@ $ git clone https://github.com/Motsai/neblina-python.git
 ```
 
 ## Install dependencies:
+It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
+
+These are the minimum requirement:
 ```
+$ apt-get install python-pip
 $ pip3 install pyserial
+```
+
+To be able to use Bluetooth Smart (BLE), you must install these dependencies:
+```
+$ apt-get install libglib2.0-dev
 $ pip3 install bluepy
 ```
 
