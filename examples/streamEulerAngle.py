@@ -53,13 +53,17 @@ def main(address):
     signalKiller = GracefulKiller()
 
     print("Initialize NeblinaAPI")
-    api = NeblinaAPI(Interface.UART)
+    api = NeblinaAPI(Interface.BLE)
     print("Opening device: {0}".format(address))
     api.open(address)
     if not api.isOpened():
         exit("Unable to connect to device.")
-    print("Opening UART streaming port")
-    api.setDataPortState(Interface.UART, True)
+    print("Opening BLE streaming port")
+    api.setDataPortState(Interface.BLE, True)
+
+    # It is required to downsample streaming rate to 25Hz (40ms delay) or more to ensure
+    # reception of all incoming streaming packet and other packet when using BLE on Python.
+    api.setDownsample(40)
 
     print("Starting EulerAngle Streaming")
     api.streamEulerAngle(True)
