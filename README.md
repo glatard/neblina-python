@@ -80,6 +80,13 @@ The unit tests allow for the validation of the decoding and encoding process of 
 ./runNeblinaDataTests.sh
 ```
 
+## Execute Euler Angle streaming example (Linux-only):
+```
+python3 examples/streamEulerAngle.py -a <MAC_ADDRESS>
+```
+
+You can stop the streaming at any time by hitting Ctrl+C, otherwise it will stream forever.
+
 ## Execute the interaction shell (Linux):
 ```
 cd examples
@@ -106,7 +113,7 @@ streamQuaternion
 The quaternion data will then be streamed to the console. The information includes a timestamp in microseconds, which is followed by the four elements of a unit-length quaternion vector. 
 ![Path](http://i.imgur.com/E8wbtgX.png)
 
-You can stop the streaming at any time by hitting ctrl+C.
+You can stop the streaming at any time by hitting Ctrl+C.
 
 ### Example 2: stream Euler angles
 ```
