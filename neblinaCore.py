@@ -151,12 +151,12 @@ class NeblinaCore(object):
                 continue
             except TimeoutError as e:
                 logging.error('Read timed out.')
-                return None
+                return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
             except KeyboardInterrupt as e:
                 logging.error("KeyboardInterrupt.")
-                return None
+                return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
             except:
                 packet = None
                 logging.error("Unexpected error : ", exc_info=True)
-                continue
+                return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
         return packet
