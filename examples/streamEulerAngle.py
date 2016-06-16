@@ -55,7 +55,7 @@ def main(address):
     print("Initialize NeblinaAPI")
     api = NeblinaAPI(Interface.UART)
     print("Opening device: {0}".format(address))
-    api.open(address)        # Change address here
+    api.open(address)
     if not api.isOpened():
         exit("Unable to connect to device.")
     print("Opening UART streaming port")
