@@ -164,4 +164,4 @@ EEPROMRead <page_number>
 ```
 ![Path](http://i.imgur.com/CrijxdY.png)
 
-For more information on streammenu are any other command, please refer to the [reference guide](documentation.motsai.com)
+For more information on streammenu commands or to see all available commands, please refer to the [reference guide](documentation.motsai.com)
