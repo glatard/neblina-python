@@ -62,22 +62,21 @@ class StreamMenu(cmd.Cmd):
         self.signalKiller = GracefulKiller()
 
         self.bigLine = '-------------------------------------------------------------------\n'
-        self.configFileName = 'streamconfig.txt'
         self.prompt = '>>'
         self.intro = "Welcome to the Neblina Streaming Menu!"
 
         self.api = NeblinaAPI(Interface.UART)
-        print("Setting up the connection...") # initial delay needed for the device to synchronize its processors
+        print("Setting up the connection...")  # initial delay needed for the device to synchronize its processors
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
-        self.api.open(address) # all the commands including this one should be sent after the initial delay to guarantee the initializaion and synchronization of all the processors on Neblina
-        global initialmotionstate # the global variable that stores the initial motion engine state
-        initialmotionstate = self.api.getMotionStatus() # get the initial motion engine state
-        self.api.disableStreaming() # disable all streaming options after storing the initial state
+        self.api.open(address)
+        global initialmotionstate  # the global variable that stores the initial motion engine state
+        initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
+        self.api.disableStreaming()  # disable all streaming options after storing the initial state
         self.api.setDataPortState(Interface.BLE, False)  # Close BLE streaming to prevent slowed streaming
         self.api.setDataPortState(Interface.UART, True)  # Open UART streaming
 
