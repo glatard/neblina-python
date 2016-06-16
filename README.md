@@ -106,11 +106,6 @@ streamQuaternion
 The quaternion data will then be streamed to the console. The information includes a timestamp in microseconds, which is followed by the four elements of a unit-length quaternion vector. 
 ![Path](http://i.imgur.com/E8wbtgX.png)
 
-The quaternion entries are represented as 16-bit signed integer values covering the range of [-1,1]. For more information regarding the quaternion data format please refer to the reference guide:
-```
-API_link.pdf //to be added later
-```
-
 You can stop the streaming at any time by hitting ctrl+C.
 
 ### Example 2: stream Euler angles
@@ -127,10 +122,6 @@ streamIMU
 To stream the 3-axis accelerometer and magnetometer data:
 ```
 streamMAG
-```
-The streaming can be stopped by hitting ctrl+C. The sensor ranges are also discussed in the reference guide:
-```
-API_link.pdf //to be added later
 ```
 
 ### Example 4: get the battery level and temperature of the board
@@ -173,7 +164,4 @@ EEPROMRead <page_number>
 ```
 ![Path](http://i.imgur.com/CrijxdY.png)
 
-There are more commands in the streammenu, for which you can find more information in the reference guide:
-```
-API_link.pdf //to be added later
-```
+For more information on streammenu are any other command, please refer to the [reference guide](documentation.motsai.com)
