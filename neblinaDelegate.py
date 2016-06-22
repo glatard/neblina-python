@@ -25,31 +25,45 @@
 #
 ###################################################################################
 
-import unittest
-
-bleSupported = True
-try:
-    from test.integration import bleIntegrationTest
-    from test.integration import dualIntegrationTest
-except ImportError:
-    print("Unable to import BLE and Dual BLE-UART. Skipping tests.")
-    bleSupported = False
-
-from test.integration import uartIntegrationTest
+import logging
 
 ###################################################################################
 
 
-def getSuite(comPort, deviceAddress):
-    suite = unittest.TestSuite()
+class NeblinaDelegate(object):
 
-    suite.addTest(uartIntegrationTest.getSuite(comPort))
-
-    if bleSupported:
-        suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
-        # suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
+    def __init__(self):
         pass
 
-    return suite
+    def handleEulerAngle(self, data):
+        logging.debug("Euler Angle: {0}".format(data))
 
+    def handleExternalForce(self, data):
+        logging.debug("External Force: {0}".format(data))
 
+    def handleFingerGesture(self, data):
+        logging.debug("Finger Gesture: {0}".format(data))
+
+    def handleIMU(self, data):
+        logging.debug("IMU: {0}".format(data))
+
+    def handleMAG(self, data):
+        logging.debug("MAG: {0}".format(data))
+
+    def handleMotionState(self, data):
+        logging.debug("Motion State: {0}".format(data))
+
+    def handlePedometer(self, data):
+        logging.debug("Pedometer: {0}".format(data))
+
+    def handleQuaternion(self, data):
+        logging.debug("Quaternion: {0}".format(data))
+
+    def handleRotationInfo(self, data):
+        logging.debug("Rotation Info: {0}".format(data))
+
+    def handleSittingStanding(self, data):
+        logging.debug("Sitting Standing: {0}".format(data))
+
+    def handleTrajectoryInfo(self, data):
+        logging.debug("Trajectory Info: {0}".format(data))

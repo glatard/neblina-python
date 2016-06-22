@@ -27,43 +27,29 @@
 
 import logging
 import serial
-import serial.tools.list_ports
 import time
 
-from pyslip import slip
+from neblinaCommunication import NeblinaCommunication
 
-from neblina import *
-from neblinaAPI import NeblinaAPI
-from neblinaCommandPacket import NebCommandPacket
-from neblinaResponsePacket import NebResponsePacket
+from pyslip import slip
 
 ###################################################################################
 
 
-class NeblinaUART(NeblinaAPI):
-    """
-        NeblinaUART serves as the UART communication protocol.
+class NeblinaUART2(NeblinaCommunication):
 
-        This supports only 1 UART COM port.
-    """
-    def __init__(self):
-        NeblinaAPI.__init__(self)
+    def __init__(self, address):
+        NeblinaCommunication.__init__(self, address)
         self.comslip = slip.slip()
-        self.comPort = None
         self.sc = None
 
-    def close(self, port=None):
-        logging.debug("Closing COM port : {0}".format(self.comPort))
-        self.sc.close()
-
-    def open(self, port):
-        self.comPort = port
-
+    def connect(self):
         # Try to open the serial COM port
+        logging.debug("Opening COM port : {0}".format(self.address))
         self.sc = None
         while self.sc is None:
             try:
-                self.sc = serial.Serial(port=self.comPort, baudrate=500000)
+                self.sc = serial.Serial(port=self.address, baudrate=500000)
             except serial.serialutil.SerialException as se:
                 if 'Device or resource busy:' in se.__str__():
                     logging.info('Opening COM port is taking a little while, please stand by...')
@@ -73,23 +59,20 @@ class NeblinaUART(NeblinaAPI):
 
         self.sc.flushInput()
 
-    def isOpened(self, port=None):
+    def disconnect(self):
+        logging.debug("Closing COM port : {0}".format(self.address))
+        self.sc.close()
+
+    def isConnected(self):
         return self.sc and self.sc.is_open
 
-    def sendCommand(self, subSystem, command, enable=True, **kwargs):
-        commandPacket = NebCommandPacket(subSystem, command, enable, **kwargs)
-        self.sendCommandBytes(commandPacket.stringEncode())
-
-    def sendCommandBytes(self, bytes):
-        self.comslip.sendPacketToStream(self.sc, bytes)
-
     def receivePacket(self):
-        bytes = self.comslip.receivePacketFromStream(self.sc)
-        packet = NebResponsePacket(bytes)
+        packet = None
+        try:
+            packet = self.comslip.receivePacketFromStream(self.sc)
+        except KeyboardInterrupt:
+            pass
         return packet
 
-    def getBatteryLevel(self):
-        self.sendCommand(SubSystem.Power, Commands.Power.GetBatteryLevel, True)
-        packet = self.waitForAck(SubSystem.Power, Commands.Power.GetBatteryLevel)
-        packet = self.waitForPacket(PacketType.RegularResponse, SubSystem.Power, Commands.Power.GetBatteryLevel)
-        return packet.data.batteryLevel
+    def sendPacket(self, packet):
+        self.comslip.sendPacketToStream(self.sc, packet)

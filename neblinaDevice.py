@@ -25,31 +25,47 @@
 #
 ###################################################################################
 
-import unittest
+import asyncio
+
+from neblina import *
+from neblinaUART2 import NeblinaUART2
 
 bleSupported = True
 try:
-    from test.integration import bleIntegrationTest
-    from test.integration import dualIntegrationTest
+    from neblinaBLE2 import NeblinaBLE2
 except ImportError:
-    print("Unable to import BLE and Dual BLE-UART. Skipping tests.")
+    print("Unable to import BLE. BLE is unsupported and can not be used.")
     bleSupported = False
-
-from test.integration import uartIntegrationTest
 
 ###################################################################################
 
 
-def getSuite(comPort, deviceAddress):
-    suite = unittest.TestSuite()
+class NeblinaDevice(object):
 
-    suite.addTest(uartIntegrationTest.getSuite(comPort))
+    def __init__(self, address, interface):
+        self.address = address
 
-    if bleSupported:
-        suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
-        # suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
-        pass
+        if interface is Interface.UART:
+            self.communication = NeblinaUART2(self.address)
+        else:
+            assert bleSupported
+            self.communication = NeblinaBLE2(self.address)
 
-    return suite
+    def connect(self):
+        self.communication.connect()
 
+    def disconnect(self):
+        self.communication.disconnect()
+
+    def isConnected(self):
+        return self.communication.isConnected()
+
+    def receivePacket(self):
+        if self.isConnected():
+            return self.communication.receivePacket()
+        else:
+            return None
+
+    def sendPacket(self, packet):
+        self.communication.sendPacket(packet)
 

@@ -25,31 +25,26 @@
 #
 ###################################################################################
 
-import unittest
 
-bleSupported = True
-try:
-    from test.integration import bleIntegrationTest
-    from test.integration import dualIntegrationTest
-except ImportError:
-    print("Unable to import BLE and Dual BLE-UART. Skipping tests.")
-    bleSupported = False
+class NeblinaCommunication(object):
 
-from test.integration import uartIntegrationTest
+    def __init__(self, address):
+        self.address = address
 
-###################################################################################
+    def connect(self):
+        raise NotImplementedError("connect not override in child.")
 
+    def disconnect(self):
+        raise NotImplementedError("disconnect not override in child.")
 
-def getSuite(comPort, deviceAddress):
-    suite = unittest.TestSuite()
+    def isConnected(self):
+        raise NotImplementedError("isConnected not override in child.")
 
-    suite.addTest(uartIntegrationTest.getSuite(comPort))
+    def receivePacket(self):
+        raise NotImplementedError("receivedPacket not override in child.")
 
-    if bleSupported:
-        suite.addTest(bleIntegrationTest.getSuite(deviceAddress))
-        # suite.addTest(dualIntegrationTest.getSuite(comPort, deviceAddress))
-        pass
+    def run(self):
+        raise NotImplementedError("run not override in child.")
 
-    return suite
-
-
+    def sendPacket(self, packet):
+        raise NotImplementedError("sendPacket not override in child.")

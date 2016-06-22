@@ -79,7 +79,6 @@ def testIntegration(comPort, deviceAddress):
 
 ###################################################################################
 
-
 def main( argv ):
     comPort = None
     deviceAddress = None

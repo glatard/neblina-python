@@ -36,7 +36,7 @@ except ImportError:
     raise ImportError("Unable to locate bluepy. It is a required module to use neblinaBLE API.")
 
 from neblina import *
-from neblinaAPIBase import NeblinaAPIBase
+from neblinaAPI import NeblinaAPI
 from neblinaCommandPacket import NebCommandPacket
 from neblinaError import *
 from neblinaResponsePacket import NebResponsePacket
@@ -63,22 +63,6 @@ class NeblinaDelegate(DefaultDelegate):
     def handleNotification(self, cHandle, data):
         self.packets.put(data)
         #logging.debug("Delegate - Received packet : {0}".format(data))
-
-        # try:
-        #     packet = NebResponsePacket(data)
-        # except KeyError as e:
-        #     print("KeyError : " + str(e))
-        # except NotImplementedError as e:
-        #     print("NotImplementedError : " + str(e))
-        # except CRCError as e:
-        #     print("CRCError : " + str(e))
-        # except InvalidPacketFormatError as e:
-        #     print("InvalidPacketFormatError : " + str(e))
-        # except:
-        #     logging.error("Unexpected error : ", exc_info=True)
-        #
-        # self.packet = packet
-        # logging.debug("Delegate - Received packet : {0}".format(packet.data))
 
 ###################################################################################
 
@@ -199,13 +183,13 @@ class NeblinaCtrl(threading.Thread):
 ###################################################################################
 
 
-class NeblinaBLE(NeblinaAPIBase):
+class NeblinaBLE(NeblinaAPI):
     """
         NeblinaBLE is the Neblina Bluetooth Low Energy (BLE) Application Program Interface (API)
     """
 
     def __init__(self):
-        NeblinaAPIBase.__init__(self)
+        NeblinaAPI.__init__(self)
         self.ctrl = NeblinaCtrl()
 
     def close(self, deviceAddress=None):
@@ -273,7 +257,7 @@ class NeblinaBLE(NeblinaAPIBase):
         """
         assert False
 
-    def flashPlayback(self, pbSessionID, destinationFileName=None):
+    def sessionPlayback(self, pbSessionID, destinationFileName=None):
         """
             This function can not be used for BLE communication due to the higher then normal throughput required to
             prevent same record-playback time span.

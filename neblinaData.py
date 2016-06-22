@@ -66,12 +66,50 @@ class BlankData(object):
 ###################################################################################
 
 
+class MotionStatusData(object):
+    def __init__(self, distance=False, force=False, euler=False, quaternion=False, imu=False,
+                 motion=False, steps=False, mag=False, sitStand=False):
+        self.distance = distance
+        self.force = force
+        self.euler = euler
+        self.quaternion = quaternion
+        self.imu = imu
+        self.motion = motion
+        self.steps = steps
+        self.mag = mag
+        self.sitStand = sitStand
+
+    def __str__(self):
+        return "Distance: {0}, Force:{1}, Euler:{2}, Quaternion:{3}, IMUData:{4}, Motion:{5}, Steps:{6}, MAGData:{7}, SitStand:{8}"\
+        .format(self.distance, self.force, self.euler, self.quaternion,\
+                self.imuData, self.motion, self.steps, self.magData,\
+                self.sitStand)
+
+###################################################################################
+
+
+class RecorderStatusData(object):
+    recorderStatusStrings = {
+        0:"Off",
+        1:"Recording",
+        2:"Playback",
+    }
+
+    def __init__(self, status=0):
+        self.status = 0
+
+    def __str__(self):
+        return "RecorderStatus:{0}"\
+            .format(RecorderStatusData.recorderStatusStrings[self.status])
+
+###################################################################################
+
+
 class MotAndFlashRecStateData(object):
     """ Neblina motion and flash recording state
 
         Formatting:
         - Timestamp (unused for now)
-        - Downsampling factor
     """
 
     recorderStatusStrings = {
@@ -81,28 +119,29 @@ class MotAndFlashRecStateData(object):
     }
 
     def __init__(self, dataString):
+        self.motionStatus = MotionStatusData()
+        self.recorderStatus = RecorderStatusData()
+
         self.timestamp, \
         motionEngineStatusBytes,\
-        self.recorderStatus,\
+        self.recorderStatus.status,\
         garbage = struct.unpack(Formatting.Data.MotionAndFlash, dataString)
 
         # Extract motion engine state
-        self.distance = ((motionEngineStatusBytes[0]  & 0x01) == 1)
-        self.force = (((motionEngineStatusBytes[0] & 0x02 ) >> 1) == 1)
-        self.euler = (((motionEngineStatusBytes[0] & 0x04 ) >> 2) == 1)
-        self.quaternion = (((motionEngineStatusBytes[0] & 0x08 ) >> 3) == 1)
-        self.imuData = (((motionEngineStatusBytes[0] & 0x10 ) >> 4) == 1)
-        self.motion = (((motionEngineStatusBytes[0] & 0x20 ) >> 5) == 1)
-        self.steps = (((motionEngineStatusBytes[0] & 0x40 ) >> 6) == 1)
-        self.magData = (((motionEngineStatusBytes[0] & 0x80 ) >> 7) == 1)
-        self.sitStand = ((motionEngineStatusBytes[1] & 0x01) == 1)
+        self.motionStatus = MotionStatusData()
+        self.motionStatus.distance = ((motionEngineStatusBytes[0] & 0x01) == 1)
+        self.motionStatus.force = (((motionEngineStatusBytes[0] & 0x02) >> 1) == 1)
+        self.motionStatus.euler = (((motionEngineStatusBytes[0] & 0x04) >> 2) == 1)
+        self.motionStatus.quaternion = (((motionEngineStatusBytes[0] & 0x08) >> 3) == 1)
+        self.motionStatus.imuData = (((motionEngineStatusBytes[0] & 0x10) >> 4) == 1)
+        self.motionStatus.motion = (((motionEngineStatusBytes[0] & 0x20) >> 5) == 1)
+        self.motionStatus.steps = (((motionEngineStatusBytes[0] & 0x40) >> 6) == 1)
+        self.motionStatus.magData = (((motionEngineStatusBytes[0] & 0x80) >> 7) == 1)
+        self.motionStatus.sitStand = ((motionEngineStatusBytes[1] & 0x01) == 1)
 
     def __str__(self):
-        return "Distance: {0}, Force:{1}, Euler:{2}, Quaternion:{3}, IMUData:{4}, Motion:{5}, Steps:{6}, MAGData:{7}, SitStand:{8}, RecorderStatus:{9}"\
-        .format(self.distance, self.force, self.euler, self.quaternion,\
-                            self.imuData, self.motion, self.steps, self.magData,\
-                            self.sitStand,\
-                            MotAndFlashRecStateData.recorderStatusStrings[self.recorderStatus])
+        return "{0}. {1}"\
+            .format(self.motionStatus, self.recorderStatus)
 
 ###################################################################################
 
@@ -134,15 +173,13 @@ class LEDGetValData(object):
         - LED Value (one for each LEDs)
     """
     def __init__(self, dataString):
-        numLEDs = int(dataString[0])
-        numLEDBytes = numLEDs*2
-        numGarbageBytes = (15-numLEDBytes)
-        stringFormat = Formatting.Data.LEDGetVal.format(numLEDBytes, numGarbageBytes)
-        numLEDs, ledBytes, garbage = struct.unpack(stringFormat, dataString)
-        self.ledTupleList = list(nebUtilities.grouper(ledBytes, 2))
+        self.ledState = [0]*8
+        self.ledState[0], self.ledState[1], self.ledState[2], \
+        self.ledState[3], self.ledState[4], self.ledState[5], self.ledState[6], \
+        self.ledState[7] = struct.unpack(Formatting.Data.LEDGetVal, dataString)
 
     def __str__(self):
-        return "LED Values: {0}".format(self.ledTupleList)
+        return "LED Values: {0}".format(self.ledState)
 
 ###################################################################################
 
