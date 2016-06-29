@@ -60,13 +60,18 @@ $ git clone https://github.com/Motsai/neblina-python.git
 ```
 
 #### Install dependencies:
-These are the minimum requirement:
+On Linux here are the minimum requirements:
 ```
 $ apt-get install python-pip
 $ pip3 install pyserial
 ```
+On Windows, you can first install [pip](https://pip.pypa.io/en/latest/installing/) and then simply try:
+```
+$ pip3 install pyserial
+```
+Note that if you are using Python 3.4 or higher, the pip is already installed on your machine.
 
-To be able to use Bluetooth Smart (BLE), you must install these dependencies:
+To be able to use Bluetooth Smart (BLE) on Linux, you must also install these dependencies:
 ```
 $ apt-get install libglib2.0-dev
 $ pip3 install bluepy
