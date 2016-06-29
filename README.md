@@ -15,7 +15,7 @@ This repository is part of the development kit that provides a Python interface 
 * python3
 * pyserial
 * bluepy (Linux-only)
-* Windows or Ubuntu 14.04 LTS 64-bit
+* Windows 10 64-bit or Ubuntu 14.04 LTS 64-bit
 * ProMotion board
 * Micro USB cable
 
@@ -51,6 +51,8 @@ $ ./runNeblinaDataTests.sh
 ```
 
 ## Python Installation
+It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
+
 ### Ubuntu 14.04 LTS
 #### Install the source locally
 ```
@@ -58,8 +60,6 @@ $ git clone https://github.com/Motsai/neblina-python.git
 ```
 
 #### Install dependencies:
-It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
-
 These are the minimum requirement:
 ```
 $ apt-get install python-pip
