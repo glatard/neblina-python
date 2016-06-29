@@ -100,10 +100,10 @@ Note that if you are using Python 3.4 or higher, the pip is already installed on
 ## How-to
 ### Execute Euler Angle streaming example using Bluetooth Low Energy (Linux-only):
 ```
-python3 examples/streamEulerAngle.py -a <BLE Device's MAC ADDRESS>
+python3 examples/streamEulerAngle.py -a <BLE Device's MAC Address>
 ```
 
-You can stop the streaming at any time by hitting Ctrl+C, otherwise it will stream forever.
+You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming.
 
 ### Execute the interaction shell:
 ```
