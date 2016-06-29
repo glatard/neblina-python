@@ -98,6 +98,7 @@ class NebUtilities(object):
         eulerpath = os.path.join(indexPath, "euler.csv")
         forcepath = os.path.join(indexPath, "force.csv")
         pedopath = os.path.join(indexPath, "pedometer.csv")
+        rotatepath = os.path.join(indexPath, "rotation.csv")
 
         for packet in packetList:
             NebUtilities.appendToFile(dumppath, packet.stringEncode())
@@ -114,6 +115,8 @@ class NebUtilities(object):
                 NebUtilities.appendToFile(forcepath, packet.data.csvString())
             elif packet.header.command == Commands.Motion.Pedometer:
                 NebUtilities.appendToFile(pedopath, packet.data.csvString());
+            elif packet.header.command == Commands.Motion.RotationInfo:
+                NebUtilities.appendToFile(rotatepath, packet.data.csvString());
             else:
                 assert False
 
