@@ -1,29 +1,64 @@
 [![Build Status](https://travis-ci.org/Motsai/neblina-python.svg)](https://travis-ci.org/Motsai/neblina-python)
-# Neblina<sup>TM</sup> ProMotion Development Kit Python Scripts
+# Neblina&trade; ProMotion Development Kit Python Scripts
 ![Python](https://www.python.org/static/community_logos/python-logo-master-v3-TM.png)
 ![ProMotion Board](http://i.imgur.com/FvKbWka.jpg)
 
-This repository provides a Python interface that interacts with and simulates the behaviour of Neblina, a Motion Capture module developed by Motsai. Here, we present a quick guide to use Python to communicate with the ProMotion board (http://promotion.motsai.com/), which adds storage, USB and battery connectivity, as well as I/O expansion to Neblina.  
-# Requirements
+## Neblina&trade;
+The Neblina&trade; module is a low-power self-contained [AHRS](https://en.wikipedia.org/wiki/Attitude_and_heading_reference_system), [VRU](https://en.wikipedia.org/wiki/Inertial_measurement_unit) and [IMU](https://en.wikipedia.org/wiki/Inertial_measurement_unit) with [Bluetooth&reg; SMART](https://en.wikipedia.org/wiki/Bluetooth_low_energy) connectivity developed by Motsai. The miniature board built with the latest [HDI PCB](https://en.wikipedia.org/wiki/Microvia) technology, features a high-performance patent-pending sensor fusion algorithm on-board, that makes it perfect for [wearable technology devices](https://en.wikipedia.org/wiki/Wearable_technology) in applications such as [biomechanical analysis](https://en.wikipedia.org/wiki/Biomechanics), [sports performance analytics](https://en.wikipedia.org/wiki/Sports_biomechanics), remote [physical therapy](https://en.wikipedia.org/wiki/Physical_therapy) monitoring, [quantified self](https://en.wikipedia.org/wiki/Quantified_Self) , [health and fitness tracking](https://en.wikipedia.org/wiki/Activity_tracker), among others.
+
+## ProMotion Development Kit
+The [ProMotion Development Kit](http://promotion.motsai.com/) serves as a reference design for Neblina integration; adding storage, micro-USB port, battery, and I/O expansion to the Neblina. A NOR flash recorder and an EEPROM module are also included on the ProMotion board. The development kit with the extensive software support allows system integrators and evaluators to start development within minutes.
+
+This repository is part of the development kit that provides a Python interface to interact with and simulate the behaviour of Neblina.
+
+## Requirements
 * python3
 * pyserial
 * bluepy (Linux-only)
-* Windows or Linux
+* Windows or Ubuntu 14.04 LTS 64-bit
 * ProMotion board
-* 3ft Micro USB cable
+* Micro USB cable
 
-# ProMotion board hardware setup
-Download the [Quick Start guide](https://drive.google.com/file/d/0B92ySxNucL7jYi1ESHFjcDI5NFU/view?usp=sharing).
+## ProMotion board hardware setup
+Refer to the [Quick Start guide](http://nebdox.motsai.com/ProMotion_DevKit/Getting_Started) to learn about the hardware.
 
-# Python Installation
+### Retrieve COM port name
+In order to connect neblina to the computer, the COM port name is required. Follow these steps to retrieve the COM port name associated with Neblina, depending on your platform.
 
-## Install the source locally:
+#### Windows
+* Disconnect `ProMotion` from the computer, if already connected, and then turn it off.
+* Prior to connecting `ProMotion`, open `Device Manager` and navigate to `Ports (COM & LTP)`.
+* Connect `ProMotion` to the computer using the micro-USB port. Note that `ProMotion` should be turned off when plugging it into the computer.
+* Monitor the change to the list of COM ports. The COM ports names follow the `COMx` pattern (where `x` is the associated COM port number)
+
+#### Ubuntu 14.04 LTS
+* Disconnect `ProMotion` from the computer, if already connected, and then turn it off.
+* Prior to connecting `ProMotion`, execute the following command at the terminal.
+```
+$ ls /dev/ttyACM*
+```
+* Connect `ProMotion` to the computer using the micro-USB port. Note that `ProMotion` should be turned off when plugging it into the computer.
+* Run `ls /dev/ttyACM*` again and find the change to the list of ports. The COM ports names follow the `/dev/ttyACMx` pattern (where `x` is the associated COM port number)
+* It is required to give permissions to use the COM port. Set with the following command by replace `x` with the associated COM port number, and `<username>` by the currently logged in user:
+```
+$ chown <username> /dev/ttyACMx
+```
+
+### Running the unit tests (Linux-only, optional)
+The unit tests allow for the validation of the decoding and encoding process of the packets transferred between the computer and the board. Make sure the pyslip submodule has been cloned (see below) and then you can run the unit tests by executing the script:
+```
+$ ./runNeblinaDataTests.sh
+```
+
+## Python Installation
+### Ubuntu 14.04 LTS
+#### Install the source locally
 ```
 $ git clone https://github.com/Motsai/neblina-python.git
 ```
 
-## Install dependencies:
-It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
+#### Install dependencies:
+It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
 These are the minimum requirement:
 ```
@@ -42,52 +77,27 @@ To be able to run interaction scripts, you must first instantiate the pyslip sub
 $ git submodule init
 $ git submodule update
 ```
-
-## Windows
-### Include directories to the Python Environment
-![Path](http://i.imgur.com/ftOUSVX.png?1)
-
-## Linux
-### Include directories to the Python Environment
+#### Include directories to the Python Environment
 In order to include the directories required to run `neblina-python`, add the following lines at the end of `~/.bashrc` by replacing `/path/to/the/repo/` with the path where `neblina-python` folder is located:
 ```
-export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python"
+$ export PYTHONPATH="${PYTHONPATH}:/path/to/the/repo/neblina-python"
 ```
 
 It is recommended to run `source ~/.bashrc` to execute the file you just modify to apply the changes. Otherwise, you need to open a new shell.
 
-# How-to
-## Retrieve COM port name
-In order to connect neblina to the computer, the COM port name is required. Follow these steps to retrieve the COM port name associated with neblina, depending on your platform.
-* Disconnect `ProMotion` from the computer, if already connected, and then turn it off.
-* Follow these steps prior to connecting `ProMotion`
-    * On Windows, open `Device Manager` and navigate to `Ports (COM & LTP)`.
-    * On Linux, execute the following command.
-    ```
-    ls /dev/ttyACM*
-    ```
-* Now connect `ProMotion` and monitor the changes from the previous step. Note that `ProMotion` should be turned off, when you plug it in the computer.
-    * On Windows, the COM port name follow the `COMx` pattern (where `x` is the associated COM port number)
-    * On Linux, the COM port name follow the `/dev/ttyACMx` pattern (where `x` is the associated COM port number)
-* On Linux, it is required to give permissions to use the COM port. Set with the following command by replace `x` with the associated COM port number:
-```
-chown user /dev/ttyACMx
-```
+### Windows
+#### Include directories to the Python Environment
+![Path](http://i.imgur.com/ftOUSVX.png?1)
 
-## Running the unit tests (optional)
-The unit tests allow for the validation of the decoding and encoding process of the packets transferred between the computer and the board. Make sure the pyslip submodule has been cloned and then you can now run the unit tests by executing the designated bash script:
-```
-./runNeblinaDataTests.sh
-```
-
-## Execute Euler Angle streaming example (Linux-only):
+## How-to
+### Execute Euler Angle streaming example (Linux-only):
 ```
 python3 examples/streamEulerAngle.py -a <MAC_ADDRESS>
 ```
 
 You can stop the streaming at any time by hitting Ctrl+C, otherwise it will stream forever.
 
-## Execute the interaction shell (Linux):
+### Execute the interaction shell (Linux):
 ```
 cd examples
 python3 streammenu.py
@@ -96,7 +106,7 @@ python3 streammenu.py
 On the execution of the shell script, the program will ask you for the name of the COM port to connect to. Type the name of the COM port associated with the module and press 'Enter'.
 
 
-## Stream menu commands:
+### Stream menu commands:
 To explore different streaming features of the ProMotion board, run the stream menu shell script, and type "help" to see the available commands:
 ```
 help
@@ -106,22 +116,22 @@ help
 Through the rest of this guide, we will go through a number of examples to explore the streaming features of the ProMotion board.
 
 
-### Example 1: stream quaternion orientation data
+#### Example 1: stream quaternion orientation data
 ```
 streamQuaternion
 ```
-The quaternion data will then be streamed to the console. The information includes a timestamp in microseconds, which is followed by the four elements of a unit-length quaternion vector. 
+The quaternion data will then be streamed to the console. The information includes a timestamp in microseconds, which is followed by the four elements of a unit-length quaternion vector.
 ![Path](http://i.imgur.com/E8wbtgX.png)
 
 You can stop the streaming at any time by hitting Ctrl+C.
 
-### Example 2: stream Euler angles
+#### Example 2: stream Euler angles
 ```
 streamEulerAngle
 ```
 This will stream the Yaw, Pitch and Roll angles in degrees using the aerospace rotation sequence, where Yaw takes place first, and is then followed by Pitch and Roll. The timestamp value in microseconds is also provided. The streaming can be stopped by hitting ctrl+C.
 
-### Example 3: stream raw sensor data
+#### Example 3: stream raw sensor data
 To stream the 3-axis accelerometer and gyroscope data:
 ```
 streamIMU
@@ -131,14 +141,14 @@ To stream the 3-axis accelerometer and magnetometer data:
 streamMAG
 ```
 
-### Example 4: get the battery level and temperature of the board
+#### Example 4: get the battery level and temperature of the board
 ```
 getBatteryLevel
 getTemperature
 ```
 ![Path](http://i.imgur.com/SplE2nk.png)
 
-### Example 5: record motion data on chip
+#### Example 5: record motion data on chip
 To record, and playback a specific motion feature:
 ```
 storageErase //erase the on-chip recorder (optional)
@@ -164,7 +174,7 @@ getSessionCount //returns the total number of recorded sessions in the NOR flash
 getSessionInfo <Session ID>  //returns the length of a recorder session
 ```
 
-### Example 6: Read and Write to the EEPROM
+#### Example 6: Read and Write to the EEPROM
 ```
 EEPROMWrite <page_number> <string>
 EEPROMRead <page_number>
