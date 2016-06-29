@@ -53,11 +53,17 @@ $ ./runNeblinaDataTests.sh
 ## Python Installation
 It is suggested to install these dependencies in a virtual environment. More information [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
-### Ubuntu 14.04 LTS
-#### Install the source locally
+### Install the source locally
 ```
 $ git clone https://github.com/Motsai/neblina-python.git
 ```
+To be able to run interaction scripts, you must also instantiate the pyslip submodule:
+```
+$ git submodule init
+$ git submodule update
+```
+
+### Ubuntu 14.04 LTS
 
 #### Install dependencies:
 On Linux here are the minimum requirements:
@@ -65,23 +71,12 @@ On Linux here are the minimum requirements:
 $ apt-get install python-pip
 $ pip3 install pyserial
 ```
-On Windows, you can first install [pip](https://pip.pypa.io/en/latest/installing/) and then simply try:
-```
-$ pip3 install pyserial
-```
-Note that if you are using Python 3.4 or higher, the pip is already installed on your machine.
-
-To be able to use Bluetooth Smart (BLE) on Linux, you must also install these dependencies:
+To be able to use Bluetooth Low Energy (BLE) on Linux, you must also install these dependencies:
 ```
 $ apt-get install libglib2.0-dev
 $ pip3 install bluepy
 ```
 
-To be able to run interaction scripts, you must first instantiate the pyslip submodule:
-```
-$ git submodule init
-$ git submodule update
-```
 #### Include directories to the Python Environment
 In order to include the directories required to run `neblina-python`, add the following lines at the end of `~/.bashrc` by replacing `/path/to/the/repo/` with the path where `neblina-python` folder is located:
 ```
@@ -94,15 +89,23 @@ It is recommended to run `source ~/.bashrc` to execute the file you just modify 
 #### Include directories to the Python Environment
 ![Path](/docs/img/env_variables.png)
 
-## How-to
-### Execute Euler Angle streaming example (Linux-only):
+#### Install dependencies:
+On Windows, you can first install [pip](https://pip.pypa.io/en/latest/installing/) and then simply try:
 ```
-python3 examples/streamEulerAngle.py -a <MAC_ADDRESS>
+$ pip3 install pyserial
+```
+Note that if you are using Python 3.4 or higher, the pip is already installed on your machine. Currently, the BLE package is not available on Windows.
+
+
+## How-to
+### Execute Euler Angle streaming example using Bluetooth Low Energy (Linux-only):
+```
+python3 examples/streamEulerAngle.py -a <BLE Device's MAC ADDRESS>
 ```
 
 You can stop the streaming at any time by hitting Ctrl+C, otherwise it will stream forever.
 
-### Execute the interaction shell (Linux):
+### Execute the interaction shell:
 ```
 cd examples
 python3 streammenu.py
