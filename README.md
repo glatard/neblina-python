@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/Motsai/neblina-python.svg)](https://travis-ci.org/Motsai/neblina-python)
 # Neblina&trade; ProMotion Development Kit Python Scripts
-![Python](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/python_logo.png)
-![ProMotion Board](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/promotion.jpg)
+![Python](/docs/img/python_logo.png)
+![ProMotion Board](/docs/img/promotion.jpg)
 
 ## Neblina&trade;
 The Neblina&trade; module is a low-power self-contained [AHRS](https://en.wikipedia.org/wiki/Attitude_and_heading_reference_system), [VRU](https://en.wikipedia.org/wiki/Inertial_measurement_unit) and [IMU](https://en.wikipedia.org/wiki/Inertial_measurement_unit) with [Bluetooth&reg; SMART](https://en.wikipedia.org/wiki/Bluetooth_low_energy) connectivity developed by Motsai. The miniature board built with the latest [HDI PCB](https://en.wikipedia.org/wiki/Microvia) technology, features a high-performance patent-pending sensor fusion algorithm on-board, that makes it perfect for [wearable technology devices](https://en.wikipedia.org/wiki/Wearable_technology) in applications such as [biomechanical analysis](https://en.wikipedia.org/wiki/Biomechanics), [sports performance analytics](https://en.wikipedia.org/wiki/Sports_biomechanics), remote [physical therapy](https://en.wikipedia.org/wiki/Physical_therapy) monitoring, [quantified self](https://en.wikipedia.org/wiki/Quantified_Self) , [health and fitness tracking](https://en.wikipedia.org/wiki/Activity_tracker), among others.
@@ -87,7 +87,7 @@ It is recommended to run `source ~/.bashrc` to execute the file you just modify 
 
 ### Windows
 #### Include directories to the Python Environment
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/env_variables.png)
+![Path](/docs/img/env_variables.png)
 
 ## How-to
 ### Execute Euler Angle streaming example (Linux-only):
@@ -111,7 +111,7 @@ To explore different streaming features of the ProMotion board, run the stream m
 ```
 help
 ```
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/streammenu_start.png)
+![Path](/docs/img/streammenu_start.png)
 
 Through the rest of this guide, we will go through a number of examples to explore the streaming features of the ProMotion board.
 
@@ -121,7 +121,7 @@ Through the rest of this guide, we will go through a number of examples to explo
 streamQuaternion
 ```
 The quaternion data will then be streamed to the console. The information includes a timestamp in microseconds, which is followed by the four elements of a unit-length quaternion vector.
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/stream_quat.png)
+![Path](/docs/img/stream_quat.png)
 
 You can stop the streaming at any time by hitting Ctrl+C.
 
@@ -146,7 +146,7 @@ streamMAG
 getBatteryLevel
 getTemperature
 ```
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/get_battery.png)
+![Path](/docs/img/get_battery.png)
 
 #### Example 5: record motion data on chip
 To record, and playback a specific motion feature:
@@ -156,11 +156,11 @@ storageRecordQuaternion <number of samples> //by default, the streaming frequenc
 storagePlayback <session ID> <dump to file option> //use the same session ID as returned by the record command
 ```
 
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/record_data.png)
+![Path](/docs/img/record_data.png)
 
 Note from the above snapshot that the session ID "0" has been returned after the recording is issued. Consequently, the playback command should define the session ID "0" to point to the right session on the NOR flash. Furthermore, the `<dump to file>` option is enabled above to store the data into a csv file. The dump file will be stored in the "record" folder:
 
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/record_csv.png)
+![Path](/docs/img/record_csv.png)
 
 You can also try recording the IMU raw sensor data, or Euler angles using the following commands:
 ```
@@ -179,6 +179,6 @@ getSessionInfo <Session ID>  //returns the length of a recorder session
 EEPROMWrite <page_number> <string>
 EEPROMRead <page_number>
 ```
-![Path](https://github.com/Motsai/neblina-python/blob/omid_readme/docs/img/eeprom.png)
+![Path](/docs/img/eeprom.png)
 
 For more information on streammenu commands or to see all available commands, please refer to the [reference guide](http://documentation.motsai.com)
