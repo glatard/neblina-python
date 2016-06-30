@@ -347,7 +347,7 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionPlayback(mySessionID, dump)
 
     def do_versions(self, args):
-        packet = self.api.debugFWVersions()
+        packet = self.api.getFirmwareVersion()
         apiRelease = packet.apiRelease
         mcuFWVersion = packet.mcuFWVersion
         bleFWVersion = packet.bleFWVersion
