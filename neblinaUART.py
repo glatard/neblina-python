@@ -27,6 +27,7 @@
 
 import logging
 import serial
+import sys
 import time
 
 from neblinaCommunication import NeblinaCommunication
@@ -64,7 +65,10 @@ class NeblinaUART(NeblinaCommunication):
         self.sc.close()
 
     def isConnected(self):
-        return self.sc and self.sc.is_open
+        if sys.name == "posix":
+            return self.sc and self.sc.is_open
+        else:
+            return self.sc and self.sc.isOpen()
 
     def receivePacket(self):
         packet = None
