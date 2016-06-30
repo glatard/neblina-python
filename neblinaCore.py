@@ -139,6 +139,7 @@ class NeblinaCore(object):
                 packet = None
                 continue
             except InvalidPacketFormatError as e:
+                logging.error("InvalidPacketFormatError")
                 packet = None
                 continue
             except CRCError as e:

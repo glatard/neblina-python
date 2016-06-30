@@ -72,7 +72,7 @@ class NeblinaAPI(object):
     def setInterface(self, interface=Interface.BLE):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
         logging.debug('Waiting for the module to switch its interface...')
-        packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
+        packet = self.core.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
         logging.debug("Module has switched its interface.")
         numTries = 0
         while (packet == None):
@@ -82,7 +82,7 @@ class NeblinaAPI(object):
                 exit()
             logging.warning('Trying again...')
             self.core.sendCommand(SubSystem.Debug, Commands.Debug.SetInterface, interface)
-            packet = self.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
+            packet = self.core.waitForAck(SubSystem.Debug, Commands.Debug.SetInterface)
 
     def getMotionStatus(self):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.MotAndFlashRecState)
