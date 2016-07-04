@@ -105,7 +105,7 @@ python3 <base dir>/examples/streamEulerAngle.py -a <BLE Device's MAC Address>
 
 The BLE device's MAC address can be found by opening the Bluetooth icon in the top panel on your Linux machine, and doing a scan over the available BLE devices. You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming. 
 
-The list of all available features that can be streamed to both BLE and USB interfaces is available on the Neblina firmware's [Release Notes](/docs/datasheets/ReleaseNotes).
+The list of all available features that can be streamed to both BLE and USB interfaces is available on the Neblina firmware's [Release Notes](/docs/datasheets/ReleaseNotes.pdf).
 
 ### Execute the interaction shell:
 The interactive shell currently supports only USB (not BLE). However, both Windows and Linux machines are supported. 
