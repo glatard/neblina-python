@@ -100,10 +100,10 @@ Note that if you are using Python 3.4 or higher, the pip is already installed on
 ## How-to
 ### Execute Euler Angle streaming example using Bluetooth Low Energy (Linux-only):
 ```
-python3 <base dir>/examples/streamEulerAngle.py -a <BLE Device's MAC Address>
+python3 <base dir>/examples/streamEulerAngle.py -a <ProMotion MAC Address>
 ```
 
-The BLE device's MAC address can be found by opening the Bluetooth icon in the top panel on your Linux machine, and doing a scan over the available BLE devices. You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming. 
+The ProMotion's MAC address can be found by opening the Bluetooth icon in the top panel on your Linux machine, and doing a scan over the available BLE devices. You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming. 
 
 The list of all available features that can be streamed to both BLE and USB interfaces is available on the Neblina firmware's [Release Notes](/docs/datasheets/ReleaseNotes.pdf).
 
