@@ -175,6 +175,12 @@ class NeblinaAPI(object):
         logging.debug("Received TrajectoryInfo.")
         return packet.data
 
+    def recordTrajectory(self, state):
+        self.core.sendCommand(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop, state)
+        logging.debug("Sending recordTrajectory. Waiting for aknowledge.")
+        self.core.waitForAck(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop)
+        logging.debug("Acknowledgment received.")
+
     def streamEulerAngle(self, state):
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.EulerAngle, state)
         logging.debug("Sending streamEulerAngle. Waiting for acknowledge.")
