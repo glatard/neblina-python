@@ -417,10 +417,10 @@ class NeblinaAPI(object):
         else:
             return packet.data
 
-    def getFirmwareVersion(self):
+    def getFirmwareVersions(self):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.FWVersions)
-        versionPacket = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.FWVersions)
-        return versionPacket.data
+        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.FWVersions)
+        return packet.data
 
     def debugUnitTestEnable(self, enable=True):
         self.core.sendCommand(SubSystem.Debug, Commands.Debug.StartUnitTestMotion, enable)
