@@ -59,12 +59,12 @@ class BLEIntegrationTest(BaseIntegrationTest):
         self.api.open(self.deviceAddress)
         if not self.api.isOpened():
             self.fail("Unable to connect to BLE device.")
-        self.api.disableStreaming()
+        self.api.streamDisableAll()
         self.api.sessionRecord(False)
         self.api.setDataPortState(Interface.BLE, True)
 
     def tearDown(self):
-        self.api.disableStreaming()
+        self.api.streamDisableAll()
         self.api.sessionRecord(False)
         self.api.close()
     #
