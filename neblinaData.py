@@ -294,7 +294,7 @@ class FlashNumSessionsData(object):
 ###################################################################################
 
 
-class FWVersionsData(object):
+class FirmwareVersionsData(object):
     """ Neblina firmware versions data
 
         Formatting:
