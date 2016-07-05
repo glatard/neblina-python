@@ -76,7 +76,7 @@ class StreamMenu(cmd.Cmd):
         self.api.open(address)
         global initialmotionstate  # the global variable that stores the initial motion engine state
         initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
-        self.api.disableStreaming()  # disable all streaming options after storing the initial state
+        self.api.streamDisableAll()  # disable all streaming options after storing the initial state
         self.api.setDataPortState(Interface.BLE, False)  # Close BLE streaming to prevent slowed streaming
         self.api.setDataPortState(Interface.UART, True)  # Open UART streaming
 
@@ -179,7 +179,7 @@ class StreamMenu(cmd.Cmd):
         except UnicodeDecodeError as ude:
             print('Got {0} at page #{1}'.format(dataBytes, readPageNumber))
 
-    def do_motionState(self, args):
+    def do_getMotionStatus(self, args):
         states = self.api.getMotionStatus()
         print("Distance: {0}\nForce:{1}\nEuler:{2}\nQuaternion:{3}\nIMUData:{4}\nMotion:{5}\nSteps:{6}\nMAGData:{7}\nSitStand:{8}"\
         .format(states.distance, states.force, states.euler, states.quaternion,\
@@ -241,14 +241,14 @@ class StreamMenu(cmd.Cmd):
             print(self.api.getFingerGesture())
         self.api.streamFingerGesture(False)
 
-    def do_streamTrajectory(self, args):
-        self.api.sendCommand(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop, True) # start recording a reference orientation trajectory
-        packet = self.api.waitForAck(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop)
-        print("Recording a reference trajectory...")
-        self.api.motionStream(Commands.Motion.TrajectoryInfo)
+    def do_streamTrajectoryInfo(self, args):
+        self.api.streamTrajectoryInfo(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getTrajectoryInfo())
+        self.api.streamTrajectoryInfo(False)
 
-    def do_stopStreams(self, args):
-        self.api.motionStopStreams()
+    def do_streamDisableAll(self, args):
+        self.api.stream()
 
     def do_resetTimestamp(self, args):
         self.api.motionResetTimestamp()

@@ -114,7 +114,7 @@ class NeblinaAPI(object):
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.ResetTimeStamp, True)
         self.core.waitForAck(SubSystem.Motion, Commands.Motion.ResetTimeStamp)
 
-    def disableStreaming(self):
+    def streamDisableAll(self):
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         logging.debug("Sending disable streaming command. Waiting for acknowledge.")
         self.core.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
