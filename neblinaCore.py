@@ -44,7 +44,6 @@ class NeblinaCore(object):
         self.interface = interface
 
     def close(self):
-        self.stop()
         if self.device:
             self.device.disconnect()
 
@@ -64,9 +63,6 @@ class NeblinaCore(object):
                 return packet.data.batteryLevel
             else:
                 self.device.getBatteryLevel()
-
-    def stop(self):
-        self.device.disconnect()
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):
         if self.device:
