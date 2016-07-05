@@ -171,7 +171,6 @@ sessionPlayback <session ID> <dump to file option> //use the same session ID as 
 
 Note from the above snapshot that the session ID "0" has been returned after the recording is issued. Consequently, the playback command should define the session ID "0" to point to the right session on the NOR flash. Furthermore, the `<dump to file>` option is enabled above to store the data into a csv file. The dump file will be stored in the "record" folder:
 
-![Path](/docs/img/record_csv.png)
 
 You can also try recording the IMU raw sensor data, or Euler angles using the following commands:
 ```
