@@ -316,7 +316,9 @@ class StreamMenu(cmd.Cmd):
         else:
             numSamples = int(args)
 
-        self.api.sessionRecord(True)
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
         self.api.streamIMU(True)
 
         sampleCount = 0
@@ -334,7 +336,9 @@ class StreamMenu(cmd.Cmd):
         else:
             numSamples = int(args)
 
-        self.api.sessionRecord(True)
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
         self.api.streamEulerAngle(True)
 
         sampleCount = 0
@@ -351,7 +355,9 @@ class StreamMenu(cmd.Cmd):
         else:
             numSamples = int(args)
 
-        self.api.sessionRecord(True)
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
         self.api.streamQuaternion(True)
 
         sampleCount = 0
@@ -379,6 +385,7 @@ class StreamMenu(cmd.Cmd):
             else:
                 dump = False
         self.api.sessionPlayback(mySessionID, dump)
+        print("sessionPlayback completed")
 
     def do_getFirmwareVersions(self, args):
         packet = self.api.getFirmwareVersions()
