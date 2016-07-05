@@ -116,13 +116,14 @@ python3 streammenu.py -a <>
 
 On the execution of the shell script, the program will ask you for the name of the COM port to connect to. Type the name of the COM port associated with the module and press 'Enter'.
 
+![Path](/docs/img/startup.png)
 
 ### Stream menu commands:
 To explore different streaming features of the ProMotion board, run the stream menu shell script, and type "help" to see the available commands:
 ```
 help
 ```
-![Path](/docs/img/streammenu_start.png)
+![Path](/docs/img/help.png)
 
 Through the rest of this guide, we will go through a number of examples to explore the streaming features of the ProMotion board.
 
