@@ -67,5 +67,6 @@ class NeblinaDevice(object):
             return None
 
     def sendPacket(self, packet):
-        self.communication.sendPacket(packet)
+        if self.isConnected():
+            self.communication.sendPacket(packet)
 
