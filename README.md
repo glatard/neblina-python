@@ -162,9 +162,9 @@ getTemperature
 #### Example 5: record motion data on chip
 To record, and playback a specific motion feature:
 ```
-storageErase //erase the on-chip recorder (optional)
-storageRecordQuaternion <number of samples> //by default, the streaming frequency is 50 Hz.
-storagePlayback <session ID> <dump to file option> //use the same session ID as returned by the record command
+eraseStorage //erase the on-chip recorder (optional)
+sessionRecordQuaternion <number of samples> //by default, the streaming frequency is 50 Hz.
+sessionPlayback <session ID> <dump to file option> //use the same session ID as returned by the record command
 ```
 
 ![Path](/docs/img/record_data.png)
@@ -175,8 +175,8 @@ Note from the above snapshot that the session ID "0" has been returned after the
 
 You can also try recording the IMU raw sensor data, or Euler angles using the following commands:
 ```
-storageRecordEulerAngles <number of samples>
-storageRecordIMU <number of samples>
+sessionRecordEulerAngles <number of samples>
+sessionRecordIMU <number of samples>
 ```
 
 At any time, you can inquire about the number of sessions present in the recorder, as well as the length of each session:
