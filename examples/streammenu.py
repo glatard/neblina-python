@@ -138,7 +138,7 @@ class StreamMenu(cmd.Cmd):
         ## The only reason to define this method is for the help text in the doc string
         cmd.Cmd.do_help(self, args)
 
-    def do_EEPROMWrite(self, args):
+    def do_eepromWrite(self, args):
         arguments = args.split(' ')
 
         if len(arguments) < 2:
@@ -159,7 +159,7 @@ class StreamMenu(cmd.Cmd):
         print('Write to page #{0} of dataBytes {1} was successful.'\
             .format(writePageNumber, writeBytes))
 
-    def do_EEPROMRead(self, args):
+    def do_eepromRead(self, args):
         arguments = args.split(' ')
         print(arguments)
         print(len(arguments))
@@ -193,7 +193,7 @@ class StreamMenu(cmd.Cmd):
         temp = self.api.getTemperature()
         print('Board Temperature: {0} degrees (Celsius)'.format(temp))
 
-    def do_streamEuler(self, args):
+    def do_streamEulerAngle(self, args):
         self.api.streamEulerAngle(True)
         while not self.signalKiller.isKilled:
             print(self.api.getEulerAngle())
@@ -205,7 +205,7 @@ class StreamMenu(cmd.Cmd):
             print(self.api.getIMU())
         self.api.streamIMU(False)
 
-    def do_streamQuat(self, args):
+    def do_streamQuaternion(self, args):
         self.api.streamQuaternion(True)
         while not self.signalKiller.isKilled:
             print(self.api.getQuaternion())
@@ -217,13 +217,13 @@ class StreamMenu(cmd.Cmd):
             print(self.api.getMAG())
         self.api.streamMAG(False)
 
-    def do_streamForce(self, args):
+    def do_streamExternalForce(self, args):
         self.api.streamExternalForce(True)
         while not self.signalKiller.isKilled:
             print(self.api.getExternalForce())
         self.api.streamExternalForce(False)
 
-    def do_streamRotation(self, args):
+    def do_streamRotationInfo(self, args):
         self.api.streamRotationInfo(True)
         while not self.signalKiller.isKilled:
             print(self.api.getRotationInfo())
@@ -235,25 +235,27 @@ class StreamMenu(cmd.Cmd):
             print(self.api.getPedometer())
         self.api.streamPedometer(False)
 
-    def do_streamGesture(self, args):
+    def do_streamFingerGesture(self, args):
         self.api.streamFingerGesture(True)
         while not self.signalKiller.isKilled:
             print(self.api.getFingerGesture())
         self.api.streamFingerGesture(False)
 
     def do_streamTrajectoryInfo(self, args):
+        self.api.recordTrajectory(True)
         self.api.streamTrajectoryInfo(True)
         while not self.signalKiller.isKilled:
             print(self.api.getTrajectoryInfo())
         self.api.streamTrajectoryInfo(False)
+        self.api.recordTrajectory(False)
 
     def do_streamDisableAll(self, args):
-        self.api.stream()
+        self.api.streamDisableAll()
 
     def do_resetTimestamp(self, args):
-        self.api.motionResetTimestamp()
+        self.api.resetTimestamp()
 
-    def do_downsample(self, args):
+    def do_setDownsample(self, args):
         if(len(args) <= 0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
@@ -261,9 +263,9 @@ class StreamMenu(cmd.Cmd):
         if ((n % 20)!=0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
-        self.api.motionSetDownsample(n)
+        self.api.setDownsample(n)
 
-    def do_setAccFullScale(self, args):
+    def setAccelerometerRange(self, args):
         possibleFactors = [2,4,8,16]
         if(len(args) <= 0):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
@@ -272,9 +274,9 @@ class StreamMenu(cmd.Cmd):
         if(factor not in possibleFactors):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
             return
-        self.api.motionSetAccFullScale(factor)
+        self.api.setAccelerometerRange(factor)
 
-    def do_setled(self, args):
+    def do_setLED(self, args):
         arguments = args.split(' ')
         if len(arguments) != 2:
             print('setled <ledNumber> <value>')
@@ -286,13 +288,12 @@ class StreamMenu(cmd.Cmd):
             return
         self.api.setLED(ledIndex, ledValue)
 
-    def do_flashState(self, args):
-        state = self.api.flashGetState()
-        print('State: {0}'.format(state))
+    def do_getSessionCount(self, args):
         sessions = self.api.getSessionCount()
         print('Num of sessions: {0}'.format(sessions))
 
-    def do_flashSessionInfo(self, args):
+    def do_getSessionInfo(self, args):
+        sessionID = 65535
         if(len(args) <= 0):
             sessionID = 65535
         elif(len(args) > 0):
@@ -305,33 +306,66 @@ class StreamMenu(cmd.Cmd):
             print( "Session %d: %d packets (%d bytes)"\
             %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
-    def do_flashErase(self, args):
+    def do_eraseStorage(self, args):
         self.api.eraseStorage()
         print('Flash erase has completed successfully!')
 
-    def do_flashRecordIMU(self, args):
+    def do_sessionRecordIMU(self, args):
         if(len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.api.flashRecord(numSamples, Commands.Motion.IMU)
 
-    def do_flashRecordEuler(self, args):
-        if(len(args) <= 0):
+        self.api.sessionRecord(True)
+        self.api.streamIMU(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getIMU()
+            sampleCount += 1
+
+        self.api.streamIMU(False)
+        self.api.sessionRecord(False)
+
+
+    def do_sessionRecordEuler(self, args):
+        if (len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.api.flashRecord(numSamples, Commands.Motion.EulerAngle)
 
-    def do_flashRecordQuaternion(self, args):
-        if(len(args) <= 0):
+        self.api.sessionRecord(True)
+        self.api.streamEulerAngle(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getEulerAngle()
+            sampleCount += 1
+
+        self.api.streamEulerAngle(False)
+        self.api.sessionRecord(False)
+
+    def do_sessionRecordQuaternion(self, args):
+        if (len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.api.flashRecord(numSamples, Commands.Motion.Quaternion)
 
-    def do_flashPlayback(self, args):
+        self.api.sessionRecord(True)
+        self.api.streamQuaternion(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getQuaternion()
+            sampleCount += 1
+
+        self.api.streamQuaternion(False)
+        self.api.sessionRecord(False)
+
+    def do_sessionPlayback(self, args):
         arguments = args.split(' ')
+        dump = False
+        mySessionID = 65535
         if(len(args) <= 0):
             mySessionID = 65535
             dump = False
@@ -346,7 +380,7 @@ class StreamMenu(cmd.Cmd):
                 dump = False
         self.api.sessionPlayback(mySessionID, dump)
 
-    def do_versions(self, args):
+    def do_getFirmwareVersions(self, args):
         packet = self.api.getFirmwareVersions()
         apiRelease = packet.apiRelease
         mcuFWVersion = packet.mcuFWVersion
