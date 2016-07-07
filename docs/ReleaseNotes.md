@@ -1,7 +1,7 @@
-# Neblina Firmware Release Notes
+# Neblina Firmware Release Notes - v1.0.0
 Last updated: June 2, 2016
 
-New
+## New
 
 - Simultaneous BLE (Bluetooth Low Energy) and UART communication
 - Multiple interaction command for various subsystem
@@ -21,7 +21,7 @@ New
 - Application-specific EEPROM space of 2 KB (only with ProMotion)
 - Support battery power (only with ProMotion)
 
-Known Issues
+## Known Issues
 
 - Hardware
   - UART communication freeze when powering up. Requires power cycling.
