@@ -4,7 +4,6 @@ var searchData=
   ['sessionrecord',['sessionRecord',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a6a73e3fffbabd1ca7b8cffcacee54cd3',1,'neblinaAPI::NeblinaAPI']]],
   ['setaccelerometerrange',['setAccelerometerRange',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a97ff8b5eac3bcb5d5e2bb5a3bcc53ad7',1,'neblinaAPI::NeblinaAPI']]],
   ['setdataportstate',['setDataPortState',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#acda55cb8ada3778f03fa4f2344eb6c98',1,'neblinaAPI::NeblinaAPI']]],
-  ['setdelegate',['setDelegate',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a5cc86d2ccac1a9f252ffef9c1cb2405e',1,'neblinaAPI::NeblinaAPI']]],
   ['setdownsample',['setDownsample',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aea6bf6d99a6397dbe89c9ba9197f7f4b',1,'neblinaAPI::NeblinaAPI']]],
   ['setinterface',['setInterface',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aae4de5227fd24756ce36d4ae79f787f9',1,'neblinaAPI::NeblinaAPI']]],
   ['setled',['setLED',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#af0600702d9bb41f4a24d190eeac2bb34',1,'neblinaAPI::NeblinaAPI']]],

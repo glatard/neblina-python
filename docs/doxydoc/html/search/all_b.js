@@ -7,7 +7,7 @@ var searchData=
   ['mcufwversion',['mcuFWVersion',['../classneblina_data_1_1_firmware_versions_data.html#a691dff7a6552c8ebb3fec26cd11ed631',1,'neblinaData::FirmwareVersionsData']]],
   ['motandflashrecstate',['MotAndFlashRecState',['../classneblina_1_1_commands_1_1_debug.html#a4034d1d85e94112766293640c8f4e807',1,'neblina::Commands::Debug']]],
   ['motandflashrecstatedata',['MotAndFlashRecStateData',['../classneblina_data_1_1_mot_and_flash_rec_state_data.html',1,'neblinaData']]],
-  ['motion',['Motion',['../classneblina_1_1_sub_system.html#a6c64f145260b7dbe6d245a77a4dea836',1,'neblina.SubSystem.Motion()'],['../classneblina_data_1_1_motion_status_data.html#a11743c773706a2a1922fb8fd713c740d',1,'neblinaData.MotionStatusData.motion()']]],
+  ['motion',['motion',['../classneblina_data_1_1_motion_status_data.html#a11743c773706a2a1922fb8fd713c740d',1,'neblinaData.MotionStatusData.motion()'],['../classneblina_1_1_sub_system.html#a6c64f145260b7dbe6d245a77a4dea836',1,'neblina.SubSystem.Motion()']]],
   ['motion',['Motion',['../classneblina_1_1_commands_1_1_motion.html',1,'neblina::Commands']]],
   ['motionandflash',['MotionAndFlash',['../classneblina_1_1_formatting_1_1_data.html#aeba9e461d75afb0d0953f094731084a7',1,'neblina::Formatting::Data']]],
   ['motioncount',['MotionCount',['../classneblina_1_1_commands_1_1_motion.html#a40fbedc56bf68a95a0c3164d95bb5c04',1,'neblina::Commands::Motion']]],

@@ -123,10 +123,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8639372c33e15084a7f7c4d9d87b7bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f9ed45ad0bd82de9f7ec86d5fbc42bf"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#a9f9ed45ad0bd82de9f7ec86d5fbc42bf">open</a> (self, address)</td></tr>
 <tr class="separator:a9f9ed45ad0bd82de9f7ec86d5fbc42bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0f889141e41393f67b9b86a4f24dd8d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#ab0f889141e41393f67b9b86a4f24dd8d">isOpened</a> (self, port=None)</td></tr>
-<tr class="separator:ab0f889141e41393f67b9b86a4f24dd8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cc86d2ccac1a9f252ffef9c1cb2405e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#a5cc86d2ccac1a9f252ffef9c1cb2405e">setDelegate</a> (self, delegate)</td></tr>
-<tr class="separator:a5cc86d2ccac1a9f252ffef9c1cb2405e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44c1a3140dede6a60c6c4305c9c06696"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#a44c1a3140dede6a60c6c4305c9c06696">isOpened</a> (self)</td></tr>
+<tr class="separator:a44c1a3140dede6a60c6c4305c9c06696"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93c314f6c740550b8eeca1a67d601eeb"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#a93c314f6c740550b8eeca1a67d601eeb">getBatteryLevel</a> (self)</td></tr>
 <tr class="separator:a93c314f6c740550b8eeca1a67d601eeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68039191cd34d552a9b21f613cf9b272"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html#a68039191cd34d552a9b21f613cf9b272">getTemperature</a> (self)</td></tr>
@@ -224,7 +222,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ab65a1cfe05166d06195718a9587d7b86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><pre class="fragment">    @brief Todo !!!
+<div class="textblock"><pre class="fragment">    Neblina Application Programming Interface.
+
+    This is used to communicate with Neblina.
 </pre> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="acbb63c00055c9a0fe2b04064e89e4074"></a>
 <div class="memitem">
@@ -249,7 +249,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Constructor
 
+    :param interface: Neblina communication interface. See Neblina.Interface.
+</pre> 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -266,7 +269,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">    Close communication with Neblina.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="aa178f609b070c3f2ac08f30c908acbe5"></a>
@@ -292,7 +296,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">    Debugging/Testing function only.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="af29946d7f19bd11eb993e62e9592ec3a"></a>
@@ -318,7 +323,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">    Debugging/Testing function only.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="afc280d6b8d97736a77aa6e426ef5715b"></a>
@@ -344,7 +350,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Read a page from EEPROM
 
+    :param readPageNumber: EEPROM page number to read.
+    :return: EEPROMReadData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a70fd6d4e3667b646c71c38abf4a9f14b"></a>
@@ -376,7 +386,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Write a page to EEPROM.
 
+    :param writePageNumber: EEPROM page number to write.
+    :param dataString: 8-byte data string to write.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="af7598cc1f4ef319bfed2dbc90064ab97"></a>
@@ -402,7 +416,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Erase storage.
+    Full erase can take up to 3 minute to complete.
 
+    :param eraseType: Erase Type. Quick or Full.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a93c314f6c740550b8eeca1a67d601eeb"></a>
@@ -418,7 +436,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve battery level.
 
+    :return: Battery Level (0-100%)
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a4ba64a2c9b2af40446e199dc22bfefb5"></a>
@@ -434,7 +455,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Euler Angle.
+    This is a blocking function until an Euler Angle is retrieve.
+    Requires that Euler Angle streaming is activated, otherwise will hang forever.
 
+    :return: EulerAngleData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a6114573b549303efacb046607d1c28ce"></a>
@@ -450,7 +476,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve External Force.
+    This is a blocking function until an External Force is retrieve.
+    Requires that External Force streaming is activated, otherwise will hang forever.
 
+    :return: ExternalForceData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a3b129419610acc1c24f1b9f23400bf99"></a>
@@ -466,7 +497,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Finger Gesture.
+    This is a blocking function until a Finger Gesture is retrieve.
+    Requires that Finger Gesture streaming is activated, otherwise will hang forever.
 
+    :return: FingerGestureData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a23c0c5702a56855f7b0fa9554bd63673"></a>
@@ -482,7 +518,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve firmware versions.
 
+    :return: FirmwareVersionsData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="ace0b8c1c8335c64cfcfa28e894edf871"></a>
@@ -498,7 +537,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve IMU (Inertial Motion Unit).
+    This is a blocking function until an IMU is retrieve.
+    Requires that IMU streaming is activated, otherwise will hang forever.
 
+    :return: IMUData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a9be96b2188db792f4bd131b52978779b"></a>
@@ -524,7 +568,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve LED state.
 
+    :param index: LED index to retrieve.
+    :return: LEDGetValData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="aa00bd6f7626e7abcda39701d24065dca"></a>
@@ -540,7 +588,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve MAG (Magnetometer).
+    This is a blocking function until a MAG is retrieve.
+    Requires that MAG streaming is activated, otherwise will hang forever.
 
+    :return: MAGData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a50f036151abb600469bff704ebfeb521"></a>
@@ -556,7 +609,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Motion State.
+    This is a blocking function until a Motion State is retrieve.
+    Requires that Motion State streaming is activated, otherwise will hang forever.
 
+    :return: MotionStateData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a82d7c8a8abf1a39a453abb65af3bba48"></a>
@@ -572,7 +630,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve current motion streaming status.
 
+    :return: MotionStatusData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a854e2799d336c715d7a56922d02c34c2"></a>
@@ -588,7 +649,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Pedometer.
+    This is a blocking function until a Pedometer is retrieve.
+    Requires that Pedometer streaming is activated, otherwise will hang forever.
 
+    :return: PedometerData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a1e5617d099caeb3edd9bfde446ad2be4"></a>
@@ -604,7 +670,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Quaternion.
+    This is a blocking function until a Quaternion is retrieve.
+    Requires that Quaternion streaming is activated, otherwise will hang forever.
 
+    :return: QuaternionData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="ab3632fc7bd99d3d6e0e3b0e6a1d36d30"></a>
@@ -620,7 +691,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve current recording status
 
+    :return: RecorderStatusData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a0ed894def0833487730c77602cc32511"></a>
@@ -636,7 +710,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Rotation Information.
+    This is a blocking function until a Rotation Information is retrieve.
+    Requires that Rotation Information streaming is activated, otherwise will hang forever.
 
+    :return: RotationData instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a691bdb3a2d01f66b32fcffac4cee9787"></a>
@@ -652,7 +731,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve number of session recording
 
+    :return: Recorded session count.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a2c716fde406d4eda97a0e28869b061b9"></a>
@@ -678,7 +760,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve a session information.
 
+    :param sessionID: Recorded session identifier
+    :return: FlashSessionInfo instance.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="afa6107078218c23b2d7190388f573284"></a>
@@ -694,7 +780,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Sitting/Standing.
+    This is a blocking function until a Sitting/Standing is retrieve.
+    Requires that Sitting/Standing streaming is activated, otherwise will hang forever.
 
+    :return:
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a68039191cd34d552a9b21f613cf9b272"></a>
@@ -710,7 +801,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve internal temperature
 
+    :return: Temperature (in Celsius)
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a3ed0a253f96612f8b7e206899205417f"></a>
@@ -726,10 +820,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Retrieve Trajectory Information.
+    This is a blocking function until a Trajectory Information is retrieve.
+    Requires that Trajectory Information is recording and streaming, otherwise will hang forever.
 
+    :return: EulerAngleData instance.
+</pre> 
 </div>
 </div>
-<a class="anchor" id="ab0f889141e41393f67b9b86a4f24dd8d"></a>
+<a class="anchor" id="a44c1a3140dede6a60c6c4305c9c06696"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -737,22 +836,15 @@ Public Attributes</h2></td></tr>
           <td class="memname">def isOpened </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>self</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>port</em> = <code>None</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Is communication opened ?
 
+    :return: True, if communication opened. False, otherwise.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a9f9ed45ad0bd82de9f7ec86d5fbc42bf"></a>
@@ -778,7 +870,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Open communication with Neblina.
 
+    :param address: Neblina address to reach. It can be UART
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a504c0f314f96454ae1c357e61e502ab2"></a>
@@ -804,7 +899,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Record trajectory information.
 
+    :param state: True, to start recording. False, to stop recording.
+:return:
+</pre> 
 </div>
 </div>
 <a class="anchor" id="af73545683366f6b66991616907be7e9a"></a>
@@ -820,7 +919,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">    Reset timestamp
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a67fa27e98abc66c35a5cab24a7b22ab9"></a>
@@ -852,7 +952,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Playback a recorded session.
 
+    :param pbSessionID: Recorded session identifier.
+    :param dump: True, to dump recorded data to file. False, to skip.
+    :return: Number of data retrieved.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a6a73e3fffbabd1ca7b8cffcacee54cd3"></a>
@@ -878,7 +983,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop recording a session.
 
+    :param state: True, to start recording. False, to stop recording.
+    :return: Recording session identifier.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a97ff8b5eac3bcb5d5e2bb5a3bcc53ad7"></a>
@@ -904,7 +1013,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Set accelerometer range. Must be 2, 4, 8 or 16.
 
+    :param factor:  Accelerometer range to use.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="acda55cb8ada3778f03fa4f2344eb6c98"></a>
@@ -936,33 +1048,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Set data port state
 
-</div>
-</div>
-<a class="anchor" id="a5cc86d2ccac1a9f252ffef9c1cb2405e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def setDelegate </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>delegate</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
+    :param interface: Neblina.Interface to set.
+    :param state: True, to open data port. False, to close data port.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="aea6bf6d99a6397dbe89c9ba9197f7f4b"></a>
@@ -988,7 +1078,12 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Set motion streaming downsampling.
+    Downsampling must be between 20 and 1000, and a multiple of 20.
+    This represent the time in ms between each packet.
 
+    :param factor:  Downsampling factor to use.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="aae4de5227fd24756ce36d4ae79f787f9"></a>
@@ -1014,7 +1109,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Set communication interface.
 
+    :param interface: Neblina.Interface to used.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="af0600702d9bb41f4a24d190eeac2bb34"></a>
@@ -1046,7 +1144,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Set LED state.
 
+    :param ledIndex: LED index to use.
+    :param ledValue: LED state. True, open. False, close.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="abc6dba92d8e8fc1a6c65dbae16d5bcdd"></a>
@@ -1062,7 +1164,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">    Disable all streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a6d8ed7b746ca5f2d8f76ddf89de404c5"></a>
@@ -1088,7 +1191,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Euler Angle streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a2be1ef2c8cb01ac203a95a5cfe6fd7de"></a>
@@ -1114,7 +1220,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop External Force streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="ab7a8e561816d1ebd753a01c2ff15ed3e"></a>
@@ -1140,7 +1249,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Finger Gesture streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="ad3ce31c634a124b4a32ca46128a05311"></a>
@@ -1166,7 +1278,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop IMU streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="ad95a8cb6d23ab551f9f77dd6668f1698"></a>
@@ -1192,7 +1307,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop MAG streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a2d5b32bbf79ead5e979c89edbaa7b877"></a>
@@ -1218,7 +1336,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Motion State streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a7891405509a9456be85f39fe3df48fe8"></a>
@@ -1244,7 +1365,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Pedometer streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a8c7502c4248185cb49471d835808be37"></a>
@@ -1270,7 +1394,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Quaternion streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a61a62f02f5f4b8a15ef26f015c632cfe"></a>
@@ -1296,7 +1423,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Rotation Information streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a50f86362f8ce030e3851d34e70a3e79a"></a>
@@ -1322,7 +1452,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Sitting/Standing streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <a class="anchor" id="a82eecbb2119294df82a4d3fd2e0f1508"></a>
@@ -1348,7 +1481,10 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<pre class="fragment">    Start/Stop Trajectory Information streaming.
 
+    :param state: True, to start streaming. False, to stop streaming.
+</pre> 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -1373,7 +1509,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespaceneblina_a_p_i.html">neblinaAPI</a></li><li class="navelem"><a class="el" href="classneblina_a_p_i_1_1_neblina_a_p_i.html">NeblinaAPI</a></li>
-    <li class="footer">Generated on Mon Jul 11 2016 08:54:35 for neblina-python by
+    <li class="footer">Generated on Mon Jul 11 2016 09:45:51 for neblina-python by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.11 </li>
   </ul>

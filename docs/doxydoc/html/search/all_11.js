@@ -7,10 +7,9 @@ var searchData=
   ['setaccelerometerrange',['setAccelerometerRange',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a97ff8b5eac3bcb5d5e2bb5a3bcc53ad7',1,'neblinaAPI::NeblinaAPI']]],
   ['setconfig',['SetConfig',['../classneblina_1_1_commands_1_1_digital_i_o.html#a03bad728f6ca159e56d3f85197f0478d',1,'neblina::Commands::DigitalIO']]],
   ['setdataportstate',['setDataPortState',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#acda55cb8ada3778f03fa4f2344eb6c98',1,'neblinaAPI.NeblinaAPI.setDataPortState()'],['../classneblina_1_1_formatting_1_1_command_data.html#abcf24a281babd038d7487ad7f3970c37',1,'neblina.Formatting.CommandData.SetDataPortState()']]],
-  ['setdelegate',['setDelegate',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a5cc86d2ccac1a9f252ffef9c1cb2405e',1,'neblinaAPI::NeblinaAPI']]],
   ['setdownsample',['setDownsample',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aea6bf6d99a6397dbe89c9ba9197f7f4b',1,'neblinaAPI::NeblinaAPI']]],
   ['setfusiontype',['SetFusionType',['../classneblina_1_1_commands_1_1_motion.html#a5833838b2d66c4bcc026585ba68f081f',1,'neblina::Commands::Motion']]],
-  ['setinterface',['setInterface',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aae4de5227fd24756ce36d4ae79f787f9',1,'neblinaAPI.NeblinaAPI.setInterface()'],['../classneblina_1_1_commands_1_1_debug.html#aaa11a21f6b0d32f781124534d85dfec5',1,'neblina.Commands.Debug.SetInterface()']]],
+  ['setinterface',['SetInterface',['../classneblina_1_1_commands_1_1_debug.html#aaa11a21f6b0d32f781124534d85dfec5',1,'neblina.Commands.Debug.SetInterface()'],['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aae4de5227fd24756ce36d4ae79f787f9',1,'neblinaAPI.NeblinaAPI.setInterface()']]],
   ['setled',['setLED',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#af0600702d9bb41f4a24d190eeac2bb34',1,'neblinaAPI.NeblinaAPI.setLED()'],['../classneblina_1_1_formatting_1_1_command_data.html#a2d9db888caba552d52a8c7db3ce389af',1,'neblina.Formatting.CommandData.SetLED()']]],
   ['setval',['SetVal',['../classneblina_1_1_commands_1_1_l_e_d.html#ab6d341d078930e1de757ba9f7df414fd',1,'neblina::Commands::LED']]],
   ['setvalue',['SetValue',['../classneblina_1_1_commands_1_1_digital_i_o.html#a07fc7e76af0b5eb8515f3215d1a1d18e',1,'neblina::Commands::DigitalIO']]],
@@ -36,6 +35,6 @@ var searchData=
   ['streamsittingstanding',['streamSittingStanding',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a50f86362f8ce030e3851d34e70a3e79a',1,'neblinaAPI::NeblinaAPI']]],
   ['streamtrajectoryinfo',['streamTrajectoryInfo',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a82eecbb2119294df82a4d3fd2e0f1508',1,'neblinaAPI::NeblinaAPI']]],
   ['string',['String',['../classneblina_1_1_packet_type_1_1_string.html',1,'neblina::PacketType']]],
-  ['subsystem',['SubSystem',['../classneblina_1_1_sub_system.html',1,'neblina']]],
-  ['subsystem',['SubSystem',['../classneblina_1_1_bit_mask.html#a5169904370b85376ba0bbed4f2ab903a',1,'neblina::BitMask']]]
+  ['subsystem',['SubSystem',['../classneblina_1_1_bit_mask.html#a5169904370b85376ba0bbed4f2ab903a',1,'neblina::BitMask']]],
+  ['subsystem',['SubSystem',['../classneblina_1_1_sub_system.html',1,'neblina']]]
 ];

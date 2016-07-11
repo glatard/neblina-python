@@ -5,5 +5,5 @@ var searchData=
   ['imudata',['IMUData',['../classneblina_data_1_1_i_m_u_data.html',1,'neblinaData']]],
   ['interface',['Interface',['../classneblina_1_1_interface.html',1,'neblina']]],
   ['interfacestate',['InterfaceState',['../classneblina_1_1_commands_1_1_debug.html#a5162cfb51fbf9f104899e9b9e8a62b0d',1,'neblina::Commands::Debug']]],
-  ['isopened',['isOpened',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#ab0f889141e41393f67b9b86a4f24dd8d',1,'neblinaAPI::NeblinaAPI']]]
+  ['isopened',['isOpened',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a44c1a3140dede6a60c6c4305c9c06696',1,'neblinaAPI::NeblinaAPI']]]
 ];
