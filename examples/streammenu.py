@@ -33,6 +33,7 @@ import signal
 import sys
 import time
 import logging
+import math
 
 from neblina import *
 from neblinaAPI import NeblinaAPI
@@ -394,6 +395,104 @@ class StreamMenu(cmd.Cmd):
         bleFWVersion = packet.bleFWVersion
         deviceID = packet.deviceID
         print(packet)
+
+    def do_test(self,args):
+        self.api.streamQuaternion(True)
+        packet = self.api.getQuaternion()
+        a2 = 0.7071068
+        b2 = 0
+        c2 = -0.7071068
+        d2 = 0
+        #a2 = 1
+        #b2 = 0
+        #c2 = 0
+        #d2 = 0
+        a1 = packet.quaternions[0]/32768
+        b1 = -packet.quaternions[1]/32768
+        c1 = -packet.quaternions[2]/32768
+        d1 = -packet.quaternions[3]/32768
+
+        q_base = packet
+        q_base.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+        q_base.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+        q_base.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+        q_base.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+        #q0 = q_base.quaternions[0]
+        #q1 = q_base.quaternions[1]
+        #q2 = q_base.quaternions[2]
+        #q3 = q_base.quaternions[3]
+        #q_abs = math.sqrt(q0*q0+q1*q1+q2*q2+q3*q3)
+        #q_base.quaternions[0] = q0/q_abs
+        #q_base.quaternions[1] = q1/q_abs
+        #q_base.quaternions[2] = q2/q_abs
+        #q_base.quaternions[3] = q3/q_abs
+
+        print(q_base)
+
+        sampleCount = 0
+        while sampleCount<4:
+            packet = self.api.getQuaternion()
+            a2 = q_base.quaternions[0]
+            b2 = q_base.quaternions[1]
+            c2 = q_base.quaternions[2]
+            d2 = q_base.quaternions[3]
+            a1 = packet.quaternions[0]/32768
+            b1 = packet.quaternions[1]/32768
+            c1 = packet.quaternions[2]/32768
+            d1 = packet.quaternions[3]/32768
+
+            q_final = packet
+            q_final.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+            q_final.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+            q_final.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+            q_final.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+            q0 = q_final.quaternions[0]
+            q1 = q_final.quaternions[1]
+            q2 = q_final.quaternions[2]
+            q3 = q_final.quaternions[3]
+            if abs(q0)>abs(q1) and abs(q0)>abs(q2) and abs(q0)>abs(q3) and (q0)<-0.9:
+                q0 = -q0
+            #q_abs = math.sqrt(q0*q0+q1*q1+q2*q2+q3*q3)
+            #q0 = q0/q_abs
+            #q1 = q1/q_abs
+            #q2 = q2/q_abs
+            #q3 = q3/q_abs
+            x = 1-2*(q2*q2+q3*q3)
+            y = 2*(q0*q3+q2*q1)
+            z = 2*(q0*q2-q1*q3)
+            if sampleCount==0:
+                x_ref = 1
+                y_ref = 0
+                z_ref = 0
+                str1 = "Hit Left! (1 0 0)"
+            elif sampleCount==1:
+                x_ref = 0
+                y_ref = 1
+                z_ref = 0
+                str1 = "Hit Front! (0 1 0)"
+            elif sampleCount==2:
+                x_ref = -1
+                y_ref = 0
+                z_ref = 0
+                str1 = "Hit Right! (-1 0 0)"
+            elif sampleCount==3:
+                x_ref = 0
+                y_ref = 0
+                z_ref = 1
+                str1 = "Hit Up! (0 0 1)"
+            else:
+                x_ref = 0
+                y_ref = 0
+                z_ref = 0
+            if abs(x-x_ref)<0.2 and abs(y-y_ref)<0.2 and abs(z-z_ref)<0.2:
+                #print(str1)
+                sampleCount = sampleCount + 1
+            print(str1)
+            print(x,y,z)
+            #print(q_final)
+        self.api.streamQuaternion(False)
+        str1 = "Done! Good Job!"
+        print(str1)
 
     ## Override methods in Cmd object ##
     def preloop(self):
