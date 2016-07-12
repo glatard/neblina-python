@@ -68,7 +68,7 @@ $ git submodule update
 #### Install dependencies:
 On Linux here are the minimum requirements:
 ```
-$ apt-get install python-pip
+$ apt-get install python-pip3
 $ pip3 install pyserial
 ```
 To be able to use Bluetooth Low Energy (BLE) on Linux, you must also install these dependencies:
@@ -99,11 +99,19 @@ Note that if you are using Python 3.4 or higher, the pip is already installed on
 
 ## How-to
 ### Execute Euler Angle streaming example using Bluetooth Low Energy (Linux-only):
+This demo is to demonstrate the capability of the ProMotion board to stream Euler angles through BLE and a Bluetooth dongle. Start by turning on your ProMotion kit by pressing the side button for 3 seconds. Once the LED lights up, you know it turned on. The device should be broadcasting its MAC address to all who can hear.
+
+The ProMotion's MAC address can be found by opening the Bluetooth icon in the top panel on your Linux machine, and doing a scan over the available BLE devices. Alternatively, it can be found by using the bluez utility *hcitool*.
+
+![Path](/docs/img/getMAC.png)
+
 ```
 python3 <base dir>/examples/streamEulerAngle.py -a <ProMotion MAC Address>
 ```
 
-The ProMotion's MAC address can be found by opening the Bluetooth icon in the top panel on your Linux machine, and doing a scan over the available BLE devices. You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming. 
+![Path](/docs/img/bleStream.png)
+
+You can stop the streaming at any time by hitting Ctrl+C, otherwise it will continue streaming. 
 
 The list of all available features that can be streamed to both BLE and USB interfaces is available on the Neblina firmware's [Release Notes](/docs/ReleaseNotes.md).
 
