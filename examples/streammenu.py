@@ -396,7 +396,7 @@ class StreamMenu(cmd.Cmd):
         deviceID = packet.deviceID
         print(packet)
 
-    def do_test(self,args):
+    def do_test(self, args):
         self.api.streamQuaternion(True)
         packet = self.api.getQuaternion()
         a2 = 0.7071068
@@ -450,8 +450,6 @@ class StreamMenu(cmd.Cmd):
             q1 = q_final.quaternions[1]
             q2 = q_final.quaternions[2]
             q3 = q_final.quaternions[3]
-            if abs(q0)>abs(q1) and abs(q0)>abs(q2) and abs(q0)>abs(q3) and (q0)<-0.9:
-                q0 = -q0
             #q_abs = math.sqrt(q0*q0+q1*q1+q2*q2+q3*q3)
             #q0 = q0/q_abs
             #q1 = q1/q_abs
@@ -460,21 +458,25 @@ class StreamMenu(cmd.Cmd):
             x = 1-2*(q2*q2+q3*q3)
             y = 2*(q0*q3+q2*q1)
             z = 2*(q0*q2-q1*q3)
+            xyz = math.sqrt(x*x+y*y+z*z)
+            x = x/xyz
+            y = y/xyz
+            z = z/xyz
             if sampleCount==0:
+                x_ref = 0
+                y_ref = -1
+                z_ref = 0
+                str1 = "Hit Left! (0 -1 0)"
+            elif sampleCount==1:
                 x_ref = 1
                 y_ref = 0
                 z_ref = 0
-                str1 = "Hit Left! (1 0 0)"
-            elif sampleCount==1:
+                str1 = "Hit Front! (1 0 0)"
+            elif sampleCount==2:
                 x_ref = 0
                 y_ref = 1
                 z_ref = 0
-                str1 = "Hit Front! (0 1 0)"
-            elif sampleCount==2:
-                x_ref = -1
-                y_ref = 0
-                z_ref = 0
-                str1 = "Hit Right! (-1 0 0)"
+                str1 = "Hit Right! (0 1 0)"
             elif sampleCount==3:
                 x_ref = 0
                 y_ref = 0
@@ -484,11 +486,14 @@ class StreamMenu(cmd.Cmd):
                 x_ref = 0
                 y_ref = 0
                 z_ref = 0
-            if abs(x-x_ref)<0.2 and abs(y-y_ref)<0.2 and abs(z-z_ref)<0.2:
+            diff = (x-x_ref)*(x-x_ref) + (y-y_ref)*(y-y_ref) + (z-z_ref)*(z-z_ref)
+            diff = math.sqrt(diff)
+            #if abs(x-x_ref)<0.2 and abs(y-y_ref)<0.2 and abs(z-z_ref)<0.2:
+            if diff<0.3:
                 #print(str1)
                 sampleCount = sampleCount + 1
             print(str1)
-            print(x,y,z)
+            #print(x,y,z)
             #print(q_final)
         self.api.streamQuaternion(False)
         str1 = "Done! Good Job!"
