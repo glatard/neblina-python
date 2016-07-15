@@ -266,7 +266,7 @@ class StreamMenu(cmd.Cmd):
             return
         self.api.setDownsample(n)
 
-    def setAccelerometerRange(self, args):
+    def do_setAccelerometerRange(self, args):
         possibleFactors = [2,4,8,16]
         if(len(args) <= 0):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
@@ -399,24 +399,74 @@ class StreamMenu(cmd.Cmd):
     def do_test(self, args):
         self.api.streamQuaternion(True)
         packet = self.api.getQuaternion()
-        a2 = 0.7071068
-        b2 = 0
-        c2 = -0.7071068
-        d2 = 0
+        #a2 = 0.7071068
+        #b2 = 0
+        #c2 = -0.7071068
+        #d2 = 0
         #a2 = 1
         #b2 = 0
         #c2 = 0
         #d2 = 0
         a1 = packet.quaternions[0]/32768
-        b1 = -packet.quaternions[1]/32768
-        c1 = -packet.quaternions[2]/32768
-        d1 = -packet.quaternions[3]/32768
+        b1 = packet.quaternions[1]/32768
+        c1 = packet.quaternions[2]/32768
+        d1 = packet.quaternions[3]/32768
 
+        #sin_tmp = 2*(a1*d1+b1*c1)
+        #cos_tmp = 1 - 2*(d1*d1+c1*c1)
+        teta = math.atan2(2*(a1*d1+b1*c1),1-2*(d1*d1+c1*c1))
+        teta = teta/2
+        cos_teta2 = math.cos(teta)
+        sin_teta2 = math.sin(teta)
+
+        a2 = cos_teta2
+        b2 = 0
+        c2 = 0
+        d2 = -sin_teta2
+
+        #correct heading
         q_base = packet
+        #packet.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+        #packet.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+        #packet.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+        #packet.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+        #a1 = packet.quaternions[0]
+        #b1 = -packet.quaternions[1]
+        #c1 = -packet.quaternions[2]
+        #d1 = -packet.quaternions[3]
+
+        b1 = -b1
+        c1 = -c1
+        d1 = -d1
+        #a2 = 0.7071068
+        #b2 = 0
+        #c2 = -0.7071068
+        #d2 = 0
+        a2 = 1
+        b2 = 0
+        c2 = 0
+        d2 = 0
+
+        #pitch and roll correction
         q_base.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
         q_base.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
         q_base.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
         q_base.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+
+        #final quaternion corrector
+        a2 = q_base.quaternions[0]
+        b2 = q_base.quaternions[1]
+        c2 = q_base.quaternions[2]
+        d2 = q_base.quaternions[3]
+        a1 = cos_teta2
+        b1 = 0
+        c1 = 0
+        d1 = -sin_teta2
+        #q_base.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+        #q_base.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+        #q_base.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+        #q_base.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+
         #q0 = q_base.quaternions[0]
         #q1 = q_base.quaternions[1]
         #q2 = q_base.quaternions[2]
@@ -427,10 +477,43 @@ class StreamMenu(cmd.Cmd):
         #q_base.quaternions[2] = q2/q_abs
         #q_base.quaternions[3] = q3/q_abs
 
+        a1 = packet.quaternions[0]
+        b1 = packet.quaternions[1]
+        c1 = packet.quaternions[2]
+        d1 = packet.quaternions[3]
+
+        a2 = 0.7071068
+        b2 = 0
+        c2 = -0.7071068
+        d2 = 0
+
+
+        qw = q_base.quaternions[0]
+        qx = q_base.quaternions[1]
+        qy = q_base.quaternions[2]
+        qz = q_base.quaternions[3]
+
+        R11 = 1-2*qy*qy-2*qz*qz
+        R12 = 2*qx*qy-2*qz*qw
+        R13 = 2*qx*qz+2*qy*qw
+        R21 = 2*qx*qy+2*qz*qw
+        R22 = 1-2*qx*qx-2*qz*qz
+        R23 = 2*qy*qz-2*qx*qw
+        R31 = 2*qx*qz-2*qy*qw
+        R32 = 2*qy*qz+2*qx*qw
+        R33 = 1-2*qx*qx-2*qy*qy
+
         print(q_base)
 
+        #q_base.quaternions[0] = a1
+        #q_base.quaternions[1] = b1
+        #q_base.quaternions[2] = c1
+        #q_base.quaternions[3] = d1
+
+
+
         sampleCount = 0
-        while sampleCount<4:
+        while sampleCount<150:
             packet = self.api.getQuaternion()
             a2 = q_base.quaternions[0]
             b2 = q_base.quaternions[1]
@@ -441,11 +524,28 @@ class StreamMenu(cmd.Cmd):
             c1 = packet.quaternions[2]/32768
             d1 = packet.quaternions[3]/32768
 
+            sin_teta2 = math.sqrt(1-a1*a1)
+            xx = b1/sin_teta2
+            yy = c1/sin_teta2
+            zz = d1/sin_teta2
+
+            x_new = R11*xx + R12*yy + R13*zz
+            y_new = R21*xx + R22*yy + R23*zz
+            z_new = R31*xx + R32*yy + R33*zz
+
+
             q_final = packet
             q_final.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
             q_final.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
             q_final.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
             q_final.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+
+            #q_final.quaternions[0] = a1
+            #q_final.quaternions[1] = x_new*sin_teta2
+            #q_final.quaternions[2] = y_new*sin_teta2
+            #q_final.quaternions[3] = z_new*sin_teta2
+
+
             q0 = q_final.quaternions[0]
             q1 = q_final.quaternions[1]
             q2 = q_final.quaternions[2]
@@ -458,25 +558,25 @@ class StreamMenu(cmd.Cmd):
             x = 1-2*(q2*q2+q3*q3)
             y = 2*(q0*q3+q2*q1)
             z = 2*(q0*q2-q1*q3)
-            xyz = math.sqrt(x*x+y*y+z*z)
-            x = x/xyz
-            y = y/xyz
-            z = z/xyz
+            #xyz = math.sqrt(x*x+y*y+z*z)
+            #x = x/xyz
+            #y = y/xyz
+            #z = z/xyz
             if sampleCount==0:
+                x_ref = -1
+                y_ref = 0
+                z_ref = 0
+                str1 = "Hit Left! (-1 0 0)"
+            elif sampleCount==1:
                 x_ref = 0
                 y_ref = -1
                 z_ref = 0
-                str1 = "Hit Left! (0 -1 0)"
-            elif sampleCount==1:
+                str1 = "Hit Front! (0 -1 0)"
+            elif sampleCount==2:
                 x_ref = 1
                 y_ref = 0
                 z_ref = 0
-                str1 = "Hit Front! (1 0 0)"
-            elif sampleCount==2:
-                x_ref = 0
-                y_ref = 1
-                z_ref = 0
-                str1 = "Hit Right! (0 1 0)"
+                str1 = "Hit Right! (1 0 0)"
             elif sampleCount==3:
                 x_ref = 0
                 y_ref = 0
@@ -486,18 +586,30 @@ class StreamMenu(cmd.Cmd):
                 x_ref = 0
                 y_ref = 0
                 z_ref = 0
-            diff = (x-x_ref)*(x-x_ref) + (y-y_ref)*(y-y_ref) + (z-z_ref)*(z-z_ref)
-            diff = math.sqrt(diff)
+            #diff = (x-x_ref)*(x-x_ref) + (y-y_ref)*(y-y_ref) + (z-z_ref)*(z-z_ref)
+            #diff = math.sqrt(diff)
+            diff = abs(x-x_ref) + abs(y-y_ref) + abs(z-z_ref)
             #if abs(x-x_ref)<0.2 and abs(y-y_ref)<0.2 and abs(z-z_ref)<0.2:
-            if diff<0.3:
+            #if diff<0.3:
+            if diff<3:
                 #print(str1)
                 sampleCount = sampleCount + 1
-            print(str1)
+            #print(str1)
             #print(x,y,z)
+            #print(diff)
             #print(q_final)
-        self.api.streamQuaternion(False)
-        str1 = "Done! Good Job!"
-        print(str1)
+            a = q_final.quaternions[0]
+            b = q_final.quaternions[1]
+            c = q_final.quaternions[2]
+            d = q_final.quaternions[3]
+
+            #roll = 57.29578*((math.atan2(2*(a*b+c*d),1-2*(b*b+c*c))))
+	        #pitch = 57.29578*((math.asin(2*(a*c-b*d))))
+        	#yaw = 57.29578*((math.atan2(2*(a*d+b*c),1-2*(d*d+c*c))))
+            #print(yaw,pitch,roll)
+            self.api.streamQuaternion(False)
+            str1 = "Done! Good Job!"
+            print(str1)
 
     ## Override methods in Cmd object ##
     def preloop(self):
