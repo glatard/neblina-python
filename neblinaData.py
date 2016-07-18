@@ -635,6 +635,11 @@ class RotationData(object):
         self.rotationCount, int(self.rpm*10), garbage)
         return packetString
 
+    def csvString(self):
+        packetString = "{0};{1};{2};".format(self.timestamp,\
+        self.rotationCount, self.rpm)
+        return packetString
+
 ###################################################################################
 
 
