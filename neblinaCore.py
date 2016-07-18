@@ -26,6 +26,7 @@
 ###################################################################################
 
 import logging
+import time
 
 from neblina import *
 from neblinaCommandPacket import NebCommandPacket
@@ -121,9 +122,13 @@ class NeblinaCore(object):
 
     def waitForPacket(self, packetType, subSystem, command):
         packet = None
+        currentTime = time.time()
         while not packet or \
                 (not packet.isPacketValid(packetType, subSystem, command) and
                  not packet.isPacketError()):
+            if time.time() - currentTime > 3:
+                raise TimeoutError
+
             try:
                 bytes = self.device.receivePacket()
                 if bytes:
