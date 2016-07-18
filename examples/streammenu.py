@@ -325,6 +325,8 @@ class StreamMenu(cmd.Cmd):
         while not self.signalKiller.isKilled and sampleCount < numSamples:
             self.api.getIMU()
             sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+        print("\r\n")
 
         self.api.streamIMU(False)
         self.api.sessionRecord(False)
@@ -345,6 +347,8 @@ class StreamMenu(cmd.Cmd):
         while not self.signalKiller.isKilled and sampleCount < numSamples:
             self.api.getEulerAngle()
             sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+            print("\r\n")
 
         self.api.streamEulerAngle(False)
         self.api.sessionRecord(False)
@@ -364,6 +368,8 @@ class StreamMenu(cmd.Cmd):
         while not self.signalKiller.isKilled and sampleCount < numSamples:
             self.api.getQuaternion()
             sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+        print("\r\n")
 
         self.api.streamQuaternion(False)
         self.api.sessionRecord(False)
