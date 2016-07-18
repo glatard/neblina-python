@@ -597,19 +597,20 @@ class StreamMenu(cmd.Cmd):
             #print(str1)
             #print(x,y,z)
             #print(diff)
-            #print(q_final)
             a = q_final.quaternions[0]
             b = q_final.quaternions[1]
             c = q_final.quaternions[2]
             d = q_final.quaternions[3]
 
-            #roll = 57.29578*((math.atan2(2*(a*b+c*d),1-2*(b*b+c*c))))
-	        #pitch = 57.29578*((math.asin(2*(a*c-b*d))))
-        	#yaw = 57.29578*((math.atan2(2*(a*d+b*c),1-2*(d*d+c*c))))
-            #print(yaw,pitch,roll)
-            self.api.streamQuaternion(False)
-            str1 = "Done! Good Job!"
-            print(str1)
+            roll = 57.29*(math.atan2(2*(a*b+c*d),1-2*(b*b+c*c)))
+            pitch = 57.29*(math.asin(2*(a*c-b*d)))
+            yaw = 57.29*(math.atan2(2*(a*d+b*c),1-2*(d*d+c*c)))
+            print(yaw,pitch,roll)
+            #print(q_final)
+
+        self.api.streamQuaternion(False)
+        str1 = "Done! Good Job!"
+        print(str1)
 
     ## Override methods in Cmd object ##
     def preloop(self):
