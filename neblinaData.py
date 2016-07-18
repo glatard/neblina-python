@@ -548,7 +548,7 @@ class PedometerData(object):
     def __init__(self, dataString):
         self.timestamp,self.stepCount,\
         self.stepsPerMinute,\
-        self. Hi,\
+        self. walkingDirection,\
         garbage = struct.unpack(Formatting.Data.Pedometer, dataString)
         self.walkingDirection /= 10.0
 
