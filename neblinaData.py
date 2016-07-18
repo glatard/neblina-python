@@ -637,8 +637,9 @@ class RotationData(object):
 
     def csvString(self):
         packetString = "{0};{1};{2};".format(self.timestamp,\
-            self.quaternions[0], self.quaternions[1], self.quaternions[2], self.quaternions[3])
+        self.rotationCount, self.rpm)
         return packetString
+
 
 ###################################################################################
 
@@ -673,7 +674,7 @@ class QuaternionData(object):
 
     def csvString(self):
         packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
-            self.rotationCount,\self.rpm)
+            self.quaternions[0], self.quaternions[1], self.quaternions[2], self.quaternions[3])
         return packetString
 
 ###################################################################################
