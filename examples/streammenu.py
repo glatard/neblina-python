@@ -396,7 +396,7 @@ class StreamMenu(cmd.Cmd):
         deviceID = packet.deviceID
         print(packet)
 
-    def do_test(self, args):
+    def test(self, args):
         self.api.streamQuaternion(True)
         packet = self.api.getQuaternion()
         #a2 = 0.7071068
@@ -419,33 +419,42 @@ class StreamMenu(cmd.Cmd):
         cos_teta2 = math.cos(teta)
         sin_teta2 = math.sin(teta)
 
-        a2 = cos_teta2
-        b2 = 0
-        c2 = 0
-        d2 = -sin_teta2
+        a1 = cos_teta2
+        b1 = 0
+        c1 = 0
+        d1 = -sin_teta2
+
+        a2 = packet.quaternions[0]/32768
+        b2 = packet.quaternions[1]/32768
+        c2 = packet.quaternions[2]/32768
+        d2 = packet.quaternions[3]/32768
 
         #correct heading
         q_base = packet
-        #packet.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
-        #packet.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
-        #packet.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
-        #packet.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
-        #a1 = packet.quaternions[0]
-        #b1 = -packet.quaternions[1]
-        #c1 = -packet.quaternions[2]
-        #d1 = -packet.quaternions[3]
+        q_head = packet
+        q_head.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+        q_head.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+        q_head.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+        q_head.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+        print(q_head)
 
-        b1 = -b1
-        c1 = -c1
-        d1 = -d1
-        #a2 = 0.7071068
-        #b2 = 0
-        #c2 = -0.7071068
-        #d2 = 0
-        a2 = 1
+        #a1 = packet.quaternions[0]/32768
+        #b1 = -packet.quaternions[1]/32768
+        #c1 = -packet.quaternions[2]/32768
+        #d1 = -packet.quaternions[3]/32768
+        a1 = q_head.quaternions[0]
+        b1 = -q_head.quaternions[1]
+        c1 = -q_head.quaternions[2]
+        d1 = -q_head.quaternions[3]
+
+        a2 = 0.7071068
         b2 = 0
-        c2 = 0
+        c2 = -0.7071068
         d2 = 0
+        #a2 = 1
+        #b2 = 0
+        #c2 = 0
+        #d2 = 0
 
         #pitch and roll correction
         q_base.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
@@ -515,23 +524,49 @@ class StreamMenu(cmd.Cmd):
         sampleCount = 0
         while sampleCount<150:
             packet = self.api.getQuaternion()
+
+            a1 = cos_teta2
+            b1 = 0
+            c1 = 0
+            d1 = -sin_teta2
+
+            a2 = packet.quaternions[0]/32768
+            b2 = packet.quaternions[1]/32768
+            c2 = packet.quaternions[2]/32768
+            d2 = packet.quaternions[3]/32768
+
+            #correct heading
+            q_head = packet
+            q_head.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+            q_head.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+            q_head.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+            q_head.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+
+
+
             a2 = q_base.quaternions[0]
             b2 = q_base.quaternions[1]
             c2 = q_base.quaternions[2]
             d2 = q_base.quaternions[3]
-            a1 = packet.quaternions[0]/32768
-            b1 = packet.quaternions[1]/32768
-            c1 = packet.quaternions[2]/32768
-            d1 = packet.quaternions[3]/32768
+            #a1 = packet.quaternions[0]/32768
+            #b1 = packet.quaternions[1]/32768
+            #c1 = packet.quaternions[2]/32768
+            #d1 = packet.quaternions[3]/32768
+            a1 = q_head.quaternions[0]
+            b1 = q_head.quaternions[1]
+            c1 = q_head.quaternions[2]
+            d1 = q_head.quaternions[3]
 
-            sin_teta2 = math.sqrt(1-a1*a1)
-            xx = b1/sin_teta2
-            yy = c1/sin_teta2
-            zz = d1/sin_teta2
 
-            x_new = R11*xx + R12*yy + R13*zz
-            y_new = R21*xx + R22*yy + R23*zz
-            z_new = R31*xx + R32*yy + R33*zz
+
+            #sin_teta2 = math.sqrt(1-a1*a1)
+            #xx = b1/sin_teta2
+            #yy = c1/sin_teta2
+            #zz = d1/sin_teta2
+
+            #x_new = R11*xx + R12*yy + R13*zz
+            #y_new = R21*xx + R22*yy + R23*zz
+            #z_new = R31*xx + R32*yy + R33*zz
 
 
             q_final = packet
@@ -602,15 +637,153 @@ class StreamMenu(cmd.Cmd):
             c = q_final.quaternions[2]
             d = q_final.quaternions[3]
 
-            roll = 57.29*(math.atan2(2*(a*b+c*d),1-2*(b*b+c*c)))
-            pitch = 57.29*(math.asin(2*(a*c-b*d)))
-            yaw = 57.29*(math.atan2(2*(a*d+b*c),1-2*(d*d+c*c)))
-            print(yaw,pitch,roll)
+            #roll = 57.29*(math.atan2(2*(a*b+c*d),1-2*(b*b+c*c)))
+            #pitch = 57.29*(math.asin(2*(a*c-b*d)))
+            #yaw = 57.29*(math.atan2(2*(a*d+b*c),1-2*(d*d+c*c)))
+            #print(yaw,pitch,roll)
+            print(q_final)
+
+        self.api.streamQuaternion(False)
+        str1 = "Done! Good Job!"
+        print(str1)
+
+
+    def do_quicktest(self, args):
+        self.api.streamQuaternion(True)
+        packet = self.api.getQuaternion()
+        #a2 = 0.7071068
+        #b2 = 0
+        #c2 = -0.7071068
+        #d2 = 0
+        a1 = 1
+        b1 = 0
+        c1 = 0
+        d1 = 0
+
+
+        a2 = packet.quaternions[0]/32768
+        b2 = -packet.quaternions[1]/32768
+        c2 = -packet.quaternions[2]/32768
+        d2 = -packet.quaternions[3]/32768
+
+        q_base = packet
+        q_base.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+        q_base.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+        q_base.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+        q_base.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+        print(q_base)
+
+        teta = math.atan2(2*(-a2*d2+b2*c2),1-2*(d2*d2+c2*c2))
+        teta = teta/2
+        cos_teta2 = math.cos(teta)
+        sin_teta2 = math.sin(teta)
+
+        pitch = math.asin(2*(-a2*c2-b2*d2))
+        pitch = pitch/2
+        cos_pitch2 = math.cos(pitch)
+        sin_pitch2 = math.sin(pitch)
+
+        qr_1 = cos_teta2
+        qr_2 = 0
+        qr_3 = 0
+        qr_4 = -sin_teta2
+        #qr_1 = cos_teta2*cos_pitch2
+        #qr_2 = sin_teta2*sin_pitch2
+        #qr_3 = -cos_teta2*sin_pitch2
+        #qr_4 = -sin_teta2*cos_pitch2
+
+
+
+        sampleCount = 0
+        while sampleCount<150:
+            packet = self.api.getQuaternion()
+
+            #a1 = q_base.quaternions[0]
+            #b1 = q_base.quaternions[1]
+            #c1 = q_base.quaternions[2]
+            #d1 = q_base.quaternions[3]
+            a1 = qr_1
+            b1 = qr_2
+            c1 = qr_3
+            d1 = qr_4
+
+            a2 = packet.quaternions[0]/32768
+            b2 = packet.quaternions[1]/32768
+            c2 = packet.quaternions[2]/32768
+            d2 = packet.quaternions[3]/32768
+
+            #correct heading
+            q_final = packet
+            q_final.quaternions[0] = a1*a2-b1*b2-c1*c2-d1*d2
+            q_final.quaternions[1] = a1*b2+b1*a2+c1*d2-d1*c2
+            q_final.quaternions[2] = a1*c2-b1*d2+c1*a2+d1*b2
+            q_final.quaternions[3] = a1*d2+b1*c2-c1*b2+d1*a2
+            #q_final.quaternions[0] = a2
+            #q_final.quaternions[1] = b2
+            #q_final.quaternions[2] = c2
+            #q_final.quaternions[3] = d2
+
+
+            q0 = q_final.quaternions[0]
+            q1 = q_final.quaternions[1]
+            q2 = q_final.quaternions[2]
+            q3 = q_final.quaternions[3]
+            #q0 = a2
+            #q1 = b2
+            #q2 = c2
+            #q3 = d2
+
+            x = 1-2*(q2*q2+q3*q3)
+            y = 2*(q0*q3+q2*q1)
+            z = 2*(q0*q2-q1*q3)
+
+            if sampleCount==0:
+                x_ref = -1
+                y_ref = 0
+                z_ref = 0
+                str1 = "Hit Left! (-1 0 0)"
+            elif sampleCount==1:
+                x_ref = 0
+                y_ref = -1
+                z_ref = 0
+                str1 = "Hit Front! (0 -1 0)"
+            elif sampleCount==2:
+                x_ref = 1
+                y_ref = 0
+                z_ref = 0
+                str1 = "Hit Right! (1 0 0)"
+            elif sampleCount==3:
+                x_ref = 0
+                y_ref = 0
+                z_ref = 1
+                str1 = "Hit Up! (0 0 1)"
+            else:
+                x_ref = 0
+                y_ref = 0
+                z_ref = 0
+
+            diff = abs(x-x_ref) + abs(y-y_ref) + abs(z-z_ref)
+            if diff<3:
+                #print(str1)
+                sampleCount = sampleCount + 1
+            #print(str1)
+            print(x,y,z)
+            #print(diff)
+            a = q_final.quaternions[0]
+            b = q_final.quaternions[1]
+            c = q_final.quaternions[2]
+            d = q_final.quaternions[3]
+
+            #roll = 57.29*(math.atan2(2*(a*b+c*d),1-2*(b*b+c*c)))
+            #pitch = 57.29*(math.asin(2*(a*c-b*d)))
+            #yaw = 57.29*(math.atan2(2*(a*d+b*c),1-2*(d*d+c*c)))
+            #print(yaw,pitch,roll)
             #print(q_final)
 
         self.api.streamQuaternion(False)
         str1 = "Done! Good Job!"
         print(str1)
+
 
     ## Override methods in Cmd object ##
     def preloop(self):
