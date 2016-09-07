@@ -516,6 +516,8 @@ class NeblinaAPI(object):
 
             :param eraseType: Erase Type. Quick or Full.
         """
+        assert eraseType==Erase.Mass or eraseType==Erase.Quick
+
         # Step 1 - Initialization
         self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
         logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')

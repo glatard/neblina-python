@@ -307,7 +307,7 @@ class StreamMenu(cmd.Cmd):
             %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
     def do_eraseStorage(self, args):
-        self.api.eraseStorage()
+        self.api.eraseStorage(int(args))
         print('Flash erase has completed successfully!')
 
     def do_sessionRecordIMU(self, args):
