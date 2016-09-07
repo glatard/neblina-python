@@ -117,8 +117,6 @@ class NebUtilities(object):
                 NebUtilities.appendToFile(pedopath, packet.data.csvString());
             elif packet.header.command == Commands.Motion.RotationInfo:
                 NebUtilities.appendToFile(rotatepath, packet.data.csvString());
-            else:
-                assert False
 
     def appendToFile(path, string):
         file = open(path, "a")
