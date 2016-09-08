@@ -267,7 +267,7 @@ class StreamMenu(cmd.Cmd):
             return
         self.api.setDownsample(n)
 
-    def setAccelerometerRange(self, args):
+    def do_setAccelerometerRange(self, args):
         possibleFactors = [2,4,8,16]
         if(len(args) <= 0):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
