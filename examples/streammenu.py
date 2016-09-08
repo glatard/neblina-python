@@ -97,6 +97,8 @@ class StreamMenu(cmd.Cmd):
         """Exits from the console"""
 
         # Set the motion engine state back to its initial state by enabling the appropriate streaming features
+        print('Switching back to the BLE interface...')
+        self.api.setDataPortState(Interface.UART, False)
         print('Setting the motion engine back to its initial state...')
         if initialmotionstate.distance:
             self.api.streamTrajectoryInfo(True)
