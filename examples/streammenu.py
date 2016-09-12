@@ -128,6 +128,12 @@ class StreamMenu(cmd.Cmd):
         """Exit on system end of file character"""
         return self.do_exit(args)
 
+    def do_uart_test(self, args):
+        for i in range(1000):
+            print(i)
+            batteryLevel = self.api.getBatteryLevel()
+            print('Battery Level: {0}%'.format(batteryLevel))
+
     def do_shell(self, args):
         """Pass command to a system shell when line begins with '!'"""
         os.system(args)
