@@ -33,6 +33,14 @@ from neblinaData import *
 from neblinaError import *
 from neblinaUtilities import NebUtilities
 
+import math
+import matplotlib
+import random
+from numpy import *
+from pylab import *
+import matplotlib.pyplot as plt
+import time
+
 ###################################################################################
 
 
@@ -591,6 +599,78 @@ class NeblinaAPI(object):
                 logging.info('Saving dump file. Waiting for completion...')
                 NebUtilities.saveFlashPlayback(pbSessionID, packetList)
                 logging.info('Dump file saving completed.')
+            return len(packetList)
+
+    def sessionPlaybackPlot(self, pbSessionID):
+        """
+            Playback a recorded session and plot the pedometer related data including the thigh's elevation angle and the walking path.
+
+            :param pbSessionID: Recorded session identifier.
+            :return: Number of data retrieved.
+        """
+        self.core.sendCommand(SubSystem.Storage, Commands.Storage.Playback, True, sessionID=pbSessionID)
+        logging.debug('Sent the start playback command, waiting for response...')
+        # wait for confirmation
+        self.core.waitForAck(SubSystem.Storage, Commands.Storage.Playback)
+        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Playback)
+        if packet.header.packetType == PacketType.ErrorLogResp:
+            logging.error('Playback failed due to an invalid session number request!')
+            return 0
+        else:
+            pbSessionID = packet.data.sessionID
+            logging.info('Playback routine started from session number {0}'.format(pbSessionID))
+            packetList = self.core.storePacketsUntil(PacketType.RegularResponse, SubSystem.Storage,
+                                                     Commands.Storage.Playback)
+            logging.info('Finished playback from session number {0}!'.format(pbSessionID))
+            headingAngles = [0]*len(packetList)
+            rollAngles = [0]*len(packetList)
+            pos_x = [0]*len(packetList)
+            pos_y = [0]*len(packetList)
+            timestamp = [0]*len(packetList)
+            count = 0
+            stepCounter = 0
+
+            plt.figure(1)
+            plt.title('Thigh Elevation Angle')
+            plt.ylabel('Angle')
+            plt.xlabel('Sample')
+            plt.figure(2)
+            plt.title('Walking Path')
+            plt.xlabel('Walking Position X')
+            plt.ylabel('Walking Position Y')
+
+            for packet in packetList:
+                if packet.header.subSystem != SubSystem.Motion or packet.header.packetType != PacketType.RegularResponse:
+                    continue
+                if packet.header.command == Commands.Motion.Pedometer and packet.data.stepsPerMinute>0:
+                    headingAngles[stepCounter] = packet.data.walkingDirection
+                    stepCounter = stepCounter + 1
+                    pos_x[stepCounter] = pos_x[stepCounter-1] + math.sin(headingAngles[stepCounter-1]*math.pi/180)
+                    pos_y[stepCounter] = pos_y[stepCounter-1] + math.cos(headingAngles[stepCounter-1]*math.pi/180)
+                if packet.header.command == Commands.Motion.Quaternion:
+                    a = packet.data.quaternions[0]/32768
+                    b = packet.data.quaternions[1]/32768
+                    c = packet.data.quaternions[2]/32768
+                    d = packet.data.quaternions[3]/32768
+                    rollAngles[count] = math.atan2(2*(a*b+c*d),1-2*(b*b+c*c))
+                    rollAngles[count] = rollAngles[count]*180/math.pi
+                    count = count + 1
+                    timestamp[count] = timestamp[count-1] + 0.02
+            rollAngles = rollAngles[0:count-1]
+            headingAngles = headingAngles[0:stepCounter-1]
+            pos_x = pos_x[0:stepCounter]
+            pos_y = pos_y[0:stepCounter]
+
+            plt.figure(2)
+            plt.plot(pos_x[0:stepCounter],pos_y[0:stepCounter],'bo')
+            for ii in range(1,stepCounter):
+                plt.annotate('', xy=(pos_x[ii], pos_y[ii]), xytext=(pos_x[ii-1], pos_y[ii-1]), arrowprops=dict(facecolor='black', shrink=0.03))
+            plt.pause(0.001)
+
+            plt.figure(1)
+            plt.plot(timestamp[1:count],rollAngles[0:count-1],'bo-')
+            plt.pause(0.001)
+
             return len(packetList)
 
     def getSessionCount(self):
