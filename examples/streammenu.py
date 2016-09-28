@@ -556,6 +556,17 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionPlayback(mySessionID, dump)
         print("sessionPlayback completed")
 
+    def do_sessionPlaybackPlot(self, args):
+        arguments = args.split(' ')
+        mySessionID = 65535
+        if(len(args) <= 0):
+            mySessionID = 65535
+        elif(len(arguments) == 1):
+            mySessionID = int(arguments[0])
+        self.api.sessionPlaybackPlot(mySessionID)
+        print("sessionPlayback completed")
+
+
     def do_getFirmwareVersions(self, args):
         """
         Retrieve firmware versions
