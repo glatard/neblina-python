@@ -536,7 +536,7 @@ class NeblinaAPI(object):
         logging.info("Started erasing... This takes up to around 3 minutes...")
 
         # Step 5 - wait for the completion notice
-        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll)
+        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.EraseAll, 300)
         logging.info('Flash erase has completed successfully!')
 
     def sessionRecord(self, state):

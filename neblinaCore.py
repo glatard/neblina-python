@@ -120,13 +120,13 @@ class NeblinaCore(object):
         ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
         return ackPacket
 
-    def waitForPacket(self, packetType, subSystem, command):
+    def waitForPacket(self, packetType, subSystem, command, timeout=3):
         packet = None
         currentTime = time.time()
         while not packet or \
                 (not packet.isPacketValid(packetType, subSystem, command) and
                  not packet.isPacketError()):
-            if time.time() - currentTime > 3:
+            if time.time() - currentTime > timeout:
                 raise TimeoutError
 
             try:

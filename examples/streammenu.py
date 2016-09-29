@@ -141,6 +141,14 @@ class StreamMenu(cmd.Cmd):
         cmd.Cmd.do_help(self, args)
 
     def do_eepromWrite(self, args):
+        """
+        Write 8-byte string to EEPROM
+
+        Usage: >>eepromWrite <pageNumber> <string>
+
+        :param pageNumber: EEPROM page number (Range: 0-255)
+        :param string: 8-byte string (Example: 01234567)
+        """
         arguments = args.split(' ')
 
         if len(arguments) < 2:
@@ -162,9 +170,14 @@ class StreamMenu(cmd.Cmd):
             .format(writePageNumber, writeBytes))
 
     def do_eepromRead(self, args):
+        """
+        Read 8-byte string from EEPROM
+
+        Usage: >>eepromRead <pageNumber>
+
+        :param pageNumber: EEPROM page number (Range: 0-255)
+        """
         arguments = args.split(' ')
-        print(arguments)
-        print(len(arguments))
         if (arguments[0]) == '' or len(arguments) != 1:
             print('EEPROMRead <pageNumber>')
             return
@@ -182,68 +195,128 @@ class StreamMenu(cmd.Cmd):
             print('Got {0} at page #{1}'.format(dataBytes, readPageNumber))
 
     def do_getMotionStatus(self, args):
+        """
+        Retrieve motion streaming state
+
+        Usage: >>getMotionStatus
+        """
         states = self.api.getMotionStatus()
         print("Distance: {0}\nForce:{1}\nEuler:{2}\nQuaternion:{3}\nIMUData:{4}\nMotion:{5}\nSteps:{6}\nMAGData:{7}\nSitStand:{8}"\
         .format(states.distance, states.force, states.euler, states.quaternion,\
                 states.imuData, states.motion, states.steps, states.magData, states.sitStand))
 
     def do_getBatteryLevel(self, args):
+        """
+        Retrieve battery level
+
+        Usage: >>getBatteryLevel
+        """
         batteryLevel = self.api.getBatteryLevel()
         print('Battery Level: {0}%'.format(batteryLevel))
 
     def do_getTemperature(self, args):
+        """
+        Retrieve board temperature
+
+        Usage: >>getTemperature
+        """
         temp = self.api.getTemperature()
         print('Board Temperature: {0} degrees (Celsius)'.format(temp))
 
     def do_streamEulerAngle(self, args):
+        """
+        Stream EulerAngle until stopped with Ctrl+C
+
+        Usage: >>streamEulerAngle
+        """
         self.api.streamEulerAngle(True)
         while not self.signalKiller.isKilled:
             print(self.api.getEulerAngle())
         self.api.streamEulerAngle(False)
 
     def do_streamIMU(self, args):
+        """
+        Stream 6-axis IMU (Inertial Measurement Unit) until stopped with Ctrl+C
+
+        Usage: >>streamIMU
+        """
         self.api.streamIMU(True)
         while not self.signalKiller.isKilled:
             print(self.api.getIMU())
         self.api.streamIMU(False)
 
     def do_streamQuaternion(self, args):
+        """
+        Stream Quaternion until stopped with Ctrl+C
+
+        Usage: >>streamQuaternion
+        """
         self.api.streamQuaternion(True)
         while not self.signalKiller.isKilled:
             print(self.api.getQuaternion())
         self.api.streamQuaternion(False)
 
     def do_streamMAG(self, args):
+        """
+        Stream MAG (Magnetometer) until stopped with Ctrl+C
+
+        Usage: >>streamMAG
+        """
         self.api.streamMAG(True)
         while not self.signalKiller.isKilled:
             print(self.api.getMAG())
         self.api.streamMAG(False)
 
     def do_streamExternalForce(self, args):
+        """
+        Stream External Force until stopped with Ctrl+C
+
+        Usage: >>streamExternalForce
+        """
         self.api.streamExternalForce(True)
         while not self.signalKiller.isKilled:
             print(self.api.getExternalForce())
         self.api.streamExternalForce(False)
 
     def do_streamRotationInfo(self, args):
+        """
+        Stream RotationInfo until stopped with Ctrl+C
+
+        Usage: >>streamRotationInfo
+        """
         self.api.streamRotationInfo(True)
         while not self.signalKiller.isKilled:
             print(self.api.getRotationInfo())
         self.api.streamRotationInfo(False)
 
     def do_streamPedometer(self, args):
+        """
+        Stream Pedometer until stopped with Ctrl+C
+
+        Usage: >>streamPedometer
+        """
         self.api.streamPedometer(True)
         while not self.signalKiller.isKilled:
             print(self.api.getPedometer())
         self.api.streamPedometer(False)
 
     def do_streamFingerGesture(self, args):
+        """
+        Stream Finger Gesture until stopped with Ctrl+C
+
+        Usage: >>streamFingerGesture
+        """
         self.api.streamFingerGesture(True)
         while not self.signalKiller.isKilled:
             print(self.api.getFingerGesture())
         self.api.streamFingerGesture(False)
 
     def do_streamTrajectoryInfo(self, args):
+        """
+        Stream TrajectoryInfo until stopped with Ctrl+C
+
+        Usage: >>streamTrajectoryInfo
+        """
         self.api.recordTrajectory(True)
         self.api.streamTrajectoryInfo(True)
         while not self.signalKiller.isKilled:
@@ -252,12 +325,29 @@ class StreamMenu(cmd.Cmd):
         self.api.recordTrajectory(False)
 
     def do_streamDisableAll(self, args):
+        """
+        Disable all streams
+
+        Usage: >>streamDisableAll
+        """
         self.api.streamDisableAll()
 
     def do_resetTimestamp(self, args):
+        """
+        Reset motion timestamp
+
+        Usage: >>resetTimestamp
+        """
         self.api.resetTimestamp()
 
     def do_setDownsample(self, args):
+        """
+        Set downsample rate of motion streaming
+
+        Usage: >>setDownsample <factor>
+
+        :param factor: Downsampling factor (Range: [20, 40, 60, ..., 980, 1000])
+        """
         if(len(args) <= 0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
@@ -268,6 +358,13 @@ class StreamMenu(cmd.Cmd):
         self.api.setDownsample(n)
 
     def do_setAccelerometerRange(self, args):
+        """
+        Set accelerometer range
+
+        Usage: >>setAccelerometerRange <range>
+
+        :param range: Accelerometer range (Possible values: [2, 4, 8, 16])
+        """
         possibleFactors = [2,4,8,16]
         if(len(args) <= 0):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
@@ -279,6 +376,14 @@ class StreamMenu(cmd.Cmd):
         self.api.setAccelerometerRange(factor)
 
     def do_setLED(self, args):
+        """
+        Change a LED state.
+
+        Usage: >>setLED <number> <value>
+
+        :param number: LED number (Range: [0, 1])
+        :param value: LED state (0: close, 1: open)
+        """
         arguments = args.split(' ')
         if len(arguments) != 2:
             print('setled <ledNumber> <value>')
@@ -291,10 +396,22 @@ class StreamMenu(cmd.Cmd):
         self.api.setLED(ledIndex, ledValue)
 
     def do_getSessionCount(self, args):
+        """
+        Retrieve number of stored session
+
+        Usage: >>getSessionCount
+        """
         sessions = self.api.getSessionCount()
         print('Num of sessions: {0}'.format(sessions))
 
     def do_getSessionInfo(self, args):
+        """
+        Retrieve a session information
+
+        Usage: >>getSessionInfo <sessionId>
+
+        :param sessionId: Session identifier (Range: 0-65535)
+        """
         sessionID = 65535
         if(len(args) <= 0):
             sessionID = 65535
@@ -309,10 +426,26 @@ class StreamMenu(cmd.Cmd):
             %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
     def do_eraseStorage(self, args):
+        """
+        Erase storage
+
+        Usage: >>eraseStorage <type>
+
+        :note This can take up to 3 minutes. Do not power down the device during erasing.
+
+        :param type: Type of erasing (0: Quick, 1: Full)
+        """
         self.api.eraseStorage(int(args))
         print('Flash erase has completed successfully!')
 
     def do_sessionRecordIMU(self, args):
+        """
+        Record an IMU session for a number of sample
+
+        Usage: >>sessionRecordIMU <count>
+
+        :param count: Number of sample to record
+        """
         if(len(args) <= 0):
             numSamples = 1000
         else:
@@ -335,6 +468,13 @@ class StreamMenu(cmd.Cmd):
 
 
     def do_sessionRecordEuler(self, args):
+        """
+        Record an EulerAngle session for a number of sample
+
+        Usage: >>sessionRecordEuler <count>
+
+        :param count: Number of sample to record
+        """
         if (len(args) <= 0):
             numSamples = 1000
         else:
@@ -356,6 +496,13 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionRecord(False)
 
     def do_sessionRecordQuaternion(self, args):
+        """
+        Record a Quaternion session for a number of sample
+
+        Usage: >>sessionRecordQuaternion <count>
+
+        :param count: Number of sample to record
+        """
         if (len(args) <= 0):
             numSamples = 1000
         else:
@@ -377,6 +524,14 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionRecord(False)
 
     def do_sessionPlayback(self, args):
+        """
+        Playback a recorded session
+
+        Usage: >>sessionPlayback <sessionId> <dump>
+
+        :param sessionId: Session identifier (Range: 0-65535)
+        :param dump: Dump packet to file ? (True or False)
+        """
         arguments = args.split(' ')
         dump = False
         mySessionID = 65535
@@ -396,6 +551,11 @@ class StreamMenu(cmd.Cmd):
         print("sessionPlayback completed")
 
     def do_getFirmwareVersions(self, args):
+        """
+        Retrieve firmware versions
+
+        Usage: >>getFirmwareVersions
+        """
         packet = self.api.getFirmwareVersions()
         apiRelease = packet.apiRelease
         mcuFWVersion = packet.mcuFWVersion
