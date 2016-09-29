@@ -58,11 +58,6 @@ It is suggested to install these dependencies in a virtual environment. More inf
 ```
 $ git clone https://github.com/Motsai/neblina-python.git
 ```
-To be able to run interaction scripts, you must also instantiate the pyslip submodule:
-```
-$ git submodule init
-$ git submodule update
-```
 
 ### Ubuntu 14.04 LTS
 
