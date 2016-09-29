@@ -13,6 +13,7 @@ This repository is part of the development kit that provides a Python interface 
 
 ## Requirements
 * python3
+* pip3
 * pyserial
 * bluepy (Linux-only)
 * Windows 10 64-bit or Ubuntu 14.04 LTS 64-bit
