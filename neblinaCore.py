@@ -26,6 +26,7 @@
 ###################################################################################
 
 import logging
+import time
 
 from neblina import *
 from neblinaCommandPacket import NebCommandPacket
@@ -44,7 +45,6 @@ class NeblinaCore(object):
         self.interface = interface
 
     def close(self):
-        self.stop()
         if self.device:
             self.device.disconnect()
 
@@ -64,9 +64,6 @@ class NeblinaCore(object):
                 return packet.data.batteryLevel
             else:
                 self.device.getBatteryLevel()
-
-    def stop(self):
-        self.device.disconnect()
 
     def sendCommand(self, subSystem, command, enable=True, **kwargs):
         if self.device:
@@ -123,11 +120,15 @@ class NeblinaCore(object):
         ackPacket = self.waitForPacket(PacketType.Ack, subSystem, command)
         return ackPacket
 
-    def waitForPacket(self, packetType, subSystem, command):
+    def waitForPacket(self, packetType, subSystem, command, timeout=3):
         packet = None
+        currentTime = time.time()
         while not packet or \
                 (not packet.isPacketValid(packetType, subSystem, command) and
                  not packet.isPacketError()):
+            if time.time() - currentTime > timeout:
+                raise TimeoutError
+
             try:
                 bytes = self.device.receivePacket()
                 if bytes:
@@ -139,6 +140,7 @@ class NeblinaCore(object):
                 packet = None
                 continue
             except InvalidPacketFormatError as e:
+                logging.error("InvalidPacketFormatError")
                 packet = None
                 continue
             except CRCError as e:

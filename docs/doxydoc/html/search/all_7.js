@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['gesture',['gesture',['../classneblina_data_1_1_finger_gesture_data.html#a13ab37aa69fe940f51141c4e0b2f2db7',1,'neblinaData::FingerGestureData']]],
+  ['getbatterylevel',['getBatteryLevel',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a93c314f6c740550b8eeca1a67d601eeb',1,'neblinaAPI.NeblinaAPI.getBatteryLevel()'],['../classneblina_1_1_commands_1_1_power.html#a1e0507712b23f653f557d85e65046a26',1,'neblina.Commands.Power.GetBatteryLevel()']]],
+  ['getconfig',['GetConfig',['../classneblina_1_1_commands_1_1_digital_i_o.html#ab97cccbbeac5cebb51ddf8fad73ecbf7',1,'neblina::Commands::DigitalIO']]],
+  ['geteulerangle',['getEulerAngle',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a4ba64a2c9b2af40446e199dc22bfefb5',1,'neblinaAPI::NeblinaAPI']]],
+  ['getexternalforce',['getExternalForce',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a6114573b549303efacb046607d1c28ce',1,'neblinaAPI::NeblinaAPI']]],
+  ['getfingergesture',['getFingerGesture',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a3b129419610acc1c24f1b9f23400bf99',1,'neblinaAPI::NeblinaAPI']]],
+  ['getfirmwareversions',['getFirmwareVersions',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a23c0c5702a56855f7b0fa9554bd63673',1,'neblinaAPI::NeblinaAPI']]],
+  ['getimu',['getIMU',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#ace0b8c1c8335c64cfcfa28e894edf871',1,'neblinaAPI::NeblinaAPI']]],
+  ['getled',['getLED',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a9be96b2188db792f4bd131b52978779b',1,'neblinaAPI.NeblinaAPI.getLED()'],['../classneblina_1_1_formatting_1_1_command_data.html#ac0656bf3a2f16930c123e3982b8155ed',1,'neblina.Formatting.CommandData.GetLED()']]],
+  ['getmag',['getMAG',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#aa00bd6f7626e7abcda39701d24065dca',1,'neblinaAPI::NeblinaAPI']]],
+  ['getmotionstate',['getMotionState',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a50f036151abb600469bff704ebfeb521',1,'neblinaAPI::NeblinaAPI']]],
+  ['getmotionstatus',['getMotionStatus',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a82d7c8a8abf1a39a453abb65af3bba48',1,'neblinaAPI::NeblinaAPI']]],
+  ['getpedometer',['getPedometer',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a854e2799d336c715d7a56922d02c34c2',1,'neblinaAPI::NeblinaAPI']]],
+  ['getquaternion',['getQuaternion',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a1e5617d099caeb3edd9bfde446ad2be4',1,'neblinaAPI::NeblinaAPI']]],
+  ['getrecorderstatus',['getRecorderStatus',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#ab3632fc7bd99d3d6e0e3b0e6a1d36d30',1,'neblinaAPI::NeblinaAPI']]],
+  ['getrotationinfo',['getRotationInfo',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a0ed894def0833487730c77602cc32511',1,'neblinaAPI::NeblinaAPI']]],
+  ['getsessioncount',['getSessionCount',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a691bdb3a2d01f66b32fcffac4cee9787',1,'neblinaAPI::NeblinaAPI']]],
+  ['getsessioninfo',['getSessionInfo',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a2c716fde406d4eda97a0e28869b061b9',1,'neblinaAPI::NeblinaAPI']]],
+  ['getsittingstanding',['getSittingStanding',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#afa6107078218c23b2d7190388f573284',1,'neblinaAPI::NeblinaAPI']]],
+  ['gettemperature',['getTemperature',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a68039191cd34d552a9b21f613cf9b272',1,'neblinaAPI.NeblinaAPI.getTemperature()'],['../classneblina_1_1_commands_1_1_power.html#ad173112b618d9150b5658324ff573452',1,'neblina.Commands.Power.GetTemperature()']]],
+  ['gettrajectoryinfo',['getTrajectoryInfo',['../classneblina_a_p_i_1_1_neblina_a_p_i.html#a3ed0a253f96612f8b7e206899205417f',1,'neblinaAPI::NeblinaAPI']]],
+  ['getval',['GetVal',['../classneblina_1_1_commands_1_1_l_e_d.html#a56229db585f1be2f0264108910a85920',1,'neblina::Commands::LED']]],
+  ['getvalue',['GetValue',['../classneblina_1_1_commands_1_1_digital_i_o.html#afaf0a68885f0489086b22e91257528dc',1,'neblina::Commands::DigitalIO']]],
+  ['gyro',['gyro',['../classneblina_data_1_1_unit_test_motion_data.html#ad080000332893e19cac48f8ea3c58647',1,'neblinaData.UnitTestMotionData.gyro()'],['../classneblina_data_1_1_i_m_u_data.html#ad080000332893e19cac48f8ea3c58647',1,'neblinaData.IMUData.gyro()']]]
+];

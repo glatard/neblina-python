@@ -294,7 +294,7 @@ class FlashNumSessionsData(object):
 ###################################################################################
 
 
-class FWVersionsData(object):
+class FirmwareVersionsData(object):
     """ Neblina firmware versions data
 
         Formatting:
@@ -472,6 +472,13 @@ class MotionStateData(object):
         return "{0}us: startStop:{1})"\
         .format(self.timestamp,self.startStop)
 
+    def encode(self):
+        garbage = ('\000'*11).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.MotionState, self.timestamp,\
+        self.startStop, garbage)
+        return packetString
+
+
 ###################################################################################
 
 
@@ -532,6 +539,13 @@ class TrajectoryDistanceData(object):
         return "{0}us: eulerAngleErrors(yaw,pitch,roll):({1},{2},{3}), count:{4}, progress:{5}%"\
         .format(self.timestamp,self.eulerAngleErrors[0],\
             self.eulerAngleErrors[1], self.eulerAngleErrors[2], self.count, self.progress)
+
+    def encode(self):
+        garbage = ('\000'*3).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.TrajectoryDistance, self.timestamp,\
+        self.eulerAngleErrors[0], self.eulerAngleErrors[1], self.eulerAngleErrors[2], self.count, self.progress, garbage)
+        return packetString
+
 
 ###################################################################################
 
@@ -633,6 +647,11 @@ class RotationData(object):
         garbage = ('\000'*6).encode('utf-8')
         packetString = struct.pack(Formatting.Data.RotationInfo, self.timestamp,\
         self.rotationCount, int(self.rpm*10), garbage)
+        return packetString
+
+    def csvString(self):
+        packetString = "{0};{1};{2};".format(self.timestamp,\
+        self.rotationCount, self.rpm)
         return packetString
 
 ###################################################################################

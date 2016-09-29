@@ -59,12 +59,12 @@ class UARTIntegrationTest(BaseIntegrationTest):
             self.api.open(self.comPort)
             if not self.api.isOpened():
                 self.fail("Unable to connect to COM port.")
-            self.api.disableStreaming()
+            self.api.streamDisableAll()
             self.api.sessionRecord(False)
             self.api.setDataPortState(Interface.UART, True)
 
     def tearDown(self):
-        self.api.disableStreaming()
+        self.api.streamDisableAll()
         self.api.sessionRecord(False)
         self.api.close()
         pass

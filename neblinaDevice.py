@@ -28,11 +28,11 @@
 import asyncio
 
 from neblina import *
-from neblinaUART2 import NeblinaUART2
+from neblinaUART import NeblinaUART
 
 bleSupported = True
 try:
-    from neblinaBLE2 import NeblinaBLE2
+    from neblinaBLE import NeblinaBLE
 except ImportError:
     print("Unable to import BLE. BLE is unsupported and can not be used.")
     bleSupported = False
@@ -46,10 +46,10 @@ class NeblinaDevice(object):
         self.address = address
 
         if interface is Interface.UART:
-            self.communication = NeblinaUART2(self.address)
+            self.communication = NeblinaUART(self.address)
         else:
             assert bleSupported
-            self.communication = NeblinaBLE2(self.address)
+            self.communication = NeblinaBLE(self.address)
 
     def connect(self):
         self.communication.connect()
@@ -67,5 +67,6 @@ class NeblinaDevice(object):
             return None
 
     def sendPacket(self, packet):
-        self.communication.sendPacket(packet)
+        if self.isConnected():
+            self.communication.sendPacket(packet)
 

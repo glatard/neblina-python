@@ -91,33 +91,40 @@ class NebUtilities(object):
 
         os.makedirs(indexPath)
 
-        dumppath = os.path.join(indexPath, "dump.txt")
-        magpath = os.path.join(indexPath, "mag.csv")
-        imupath = os.path.join(indexPath, "imu.csv")
-        quatpath = os.path.join(indexPath, "quat.csv")
-        eulerpath = os.path.join(indexPath, "euler.csv")
-        forcepath = os.path.join(indexPath, "force.csv")
-        pedopath = os.path.join(indexPath, "pedometer.csv")
+        size = (Commands.Motion.MotionCount+1)
+        filepath = [0]*size
+        filehandle = [0]*size
+        filesize = [0]*size
+
+        filepath[0] = os.path.join(indexPath, "dump.txt")
+        filepath[Commands.Motion.MAG] = os.path.join(indexPath, "mag.csv")
+        filepath[Commands.Motion.IMU] = os.path.join(indexPath, "imu.csv")
+        filepath[Commands.Motion.Quaternion] = os.path.join(indexPath, "quat.csv")
+        filepath[Commands.Motion.EulerAngle] = os.path.join(indexPath, "euler.csv")
+        filepath[Commands.Motion.ExtForce] = os.path.join(indexPath, "force.csv")
+        filepath[Commands.Motion.Pedometer] = os.path.join(indexPath, "pedometer.csv")
+        filepath[Commands.Motion.RotationInfo] = os.path.join(indexPath, "rotation.csv")
+
+        for i in range(size):
+            if filepath[i]:
+                filehandle[i] = open(filepath[i], "a")
 
         for packet in packetList:
-            NebUtilities.appendToFile(dumppath, packet.stringEncode())
+            if packet.header.subSystem != SubSystem.Motion or packet.header.packetType != PacketType.RegularResponse:
+                continue
 
-            if packet.header.command == Commands.Motion.IMU:
-                NebUtilities.appendToFile(imupath, packet.data.csvString())
-            elif packet.header.command == Commands.Motion.MAG:
-                NebUtilities.appendToFile(magpath, packet.data.csvString())
-            elif packet.header.command == Commands.Motion.Quaternion:
-                NebUtilities.appendToFile(quatpath, packet.data.csvString())
-            elif packet.header.command == Commands.Motion.EulerAngle:
-                NebUtilities.appendToFile(eulerpath, packet.data.csvString())
-            elif packet.header.command == Commands.Motion.ExtForce:
-                NebUtilities.appendToFile(forcepath, packet.data.csvString())
-            elif packet.header.command == Commands.Motion.Pedometer:
-                NebUtilities.appendToFile(pedopath, packet.data.csvString());
-            else:
-                assert False
+            filesize[0] += 1
+            filehandle[0].write("{0}\n".format(packet.stringEncode()))
 
-    def appendToFile(path, string):
-        file = open(path, "a")
-        file.write("{0}\n".format(string))
-        file.close()
+            if filehandle[packet.header.command]:
+                filesize[packet.header.command] += 1
+                filehandle[packet.header.command].write("{0}\n".format(packet.data.csvString()))
+
+        for i in range(size):
+            if filepath[i]:
+                filehandle[i].close()
+
+        for i in range(size):
+            if filesize[i]==0 and filepath[i]:
+                os.remove(filepath[i])
+
