@@ -167,7 +167,7 @@ getTemperature
 #### Example 5: record motion data on chip
 To record, and playback a specific motion feature:
 ```
-eraseStorage //erase the on-chip recorder (optional)
+eraseStorage 0 //erase the on-chip recorder (optional), 0: quick erase, 1: mass erase
 sessionRecordQuaternion <number of samples> //by default, the streaming frequency is 50 Hz.
 sessionPlayback <session ID> <dump to file option> //use the same session ID as returned by the record command
 ```
