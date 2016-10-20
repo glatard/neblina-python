@@ -58,7 +58,7 @@ DebugResponses = {
     Commands.Debug.MotAndFlashRecState: MotAndFlashRecStateData,
     Commands.Debug.StartUnitTestMotion: BlankData,
     Commands.Debug.UnitTestMotionData: UnitTestMotionData,
-    Commands.Debug.FWVersions: FWVersionsData.decode,
+    Commands.Debug.FWVersions: FirmwareVersionsData.decode,
     6: BlankData,
     7: BlankData,
     8: BlankData,
@@ -240,6 +240,18 @@ class NebResponsePacket(object):
         elif (header != None and data != None):
             self.header = header
             self.data = data
+
+    def isPacketError(self):
+        return self.header.packetType == PacketType.ErrorLogResp
+
+    def isPacketValid(self, packetType, subSystem, command):
+        return self.isPacketHeaderValid(packetType, subSystem, command)
+
+    def isPacketHeaderValid(self, packetType, subSystem, command):
+        valid = (self.header.packetType == packetType)
+        valid &= (self.header.subSystem == subSystem)
+        valid &= (self.header.command == command)
+        return valid
 
     def stringEncode(self):
         headerStringCode = self.header.encode()

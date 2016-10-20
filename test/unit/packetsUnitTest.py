@@ -104,29 +104,31 @@ class packetsUnitTest(unittest.TestCase):
         commandDataBytes= b'\xde\xea\xbe\xef\xa5\x01\x11\x01\x02\xba\xbe\x00\x01\x02\x03\x04'
         commandBytes = commandHeaderBytes+commandDataBytes
         packet = NebResponsePacket(commandBytes)
-        self.assertEqual(packet.data.distance,   True )
-        self.assertEqual(packet.data.force,      False)
-        self.assertEqual(packet.data.euler,      True )
-        self.assertEqual(packet.data.quaternion, False)
-        self.assertEqual(packet.data.imuData,    False)
-        self.assertEqual(packet.data.motion,     True )
-        self.assertEqual(packet.data.steps,      False)
-        self.assertEqual(packet.data.magData,    True )
-        self.assertEqual(packet.data.sitStand,   True )
-        self.assertEqual(packet.data.recorderStatus,   2)
+        self.assertEqual(packet.data.motionStatus.distance,   True )
+        self.assertEqual(packet.data.motionStatus.force,      False)
+        self.assertEqual(packet.data.motionStatus.euler,      True )
+        self.assertEqual(packet.data.motionStatus.quaternion, False)
+        self.assertEqual(packet.data.motionStatus.imuData,    False)
+        self.assertEqual(packet.data.motionStatus.motion,     True )
+        self.assertEqual(packet.data.motionStatus.steps,      False)
+        self.assertEqual(packet.data.motionStatus.magData,    True )
+        self.assertEqual(packet.data.motionStatus.sitStand,   True )
+        self.assertEqual(packet.data.recorderStatus.status,   2)
 
     def testLEDCommandDecoding(self):
-        commandHeaderBytes = b'\x04\x10\x1c\x02'
-        commandDataBytes= b'\x03\x04\x23\x05\xfe\x08\xaa\x01\x02\xba\xbe\x00\x01\x02\x03\x04'
+        commandHeaderBytes = b'\x04\x08\x3a\x02'
+        commandDataBytes= b'\x01\x01\x01\x01\x01\x01\x01\x01'
         commandBytes = commandHeaderBytes+commandDataBytes
         packet = NebResponsePacket(commandBytes)
-        self.assertEqual(len(packet.data.ledTupleList), 3)
-        self.assertEqual(packet.data.ledTupleList[0][0], 4)
-        self.assertEqual(packet.data.ledTupleList[0][1], 35)
-        self.assertEqual(packet.data.ledTupleList[1][0], 5)
-        self.assertEqual(packet.data.ledTupleList[1][1], 254)
-        self.assertEqual(packet.data.ledTupleList[2][0], 8)
-        self.assertEqual(packet.data.ledTupleList[2][1], 170)
+        self.assertEqual(len(packet.data.ledState), 8)
+        self.assertEqual(packet.data.ledState[0], 1)
+        self.assertEqual(packet.data.ledState[1], 1)
+        self.assertEqual(packet.data.ledState[2], 1)
+        self.assertEqual(packet.data.ledState[3], 1)
+        self.assertEqual(packet.data.ledState[4], 1)
+        self.assertEqual(packet.data.ledState[5], 1)
+        self.assertEqual(packet.data.ledState[6], 1)
+        self.assertEqual(packet.data.ledState[7], 1)
 
     def testFlashStorageDecoding(self):
         packets, errorList = self.buildPacketListFromSLIP("FlashRecordPlayback.bin")

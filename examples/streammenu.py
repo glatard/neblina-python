@@ -28,14 +28,28 @@
 from __future__ import print_function
 import os
 import cmd
-import binascii
-import serial
-import serial.tools.list_ports
+import getopt
+import signal
+import sys
 import time
 import logging
 
 from neblina import *
-from neblinaUART import NeblinaUART
+from neblinaAPI import NeblinaAPI
+
+###################################################################################
+
+
+class GracefulKiller:
+    isKilled = False
+
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exit)
+        signal.signal(signal.SIGTERM, self.exit)
+
+    def exit(self, signum, frame):
+        #print("Signal received: {0}.".format(signum))
+        self.isKilled = True
 
 ###################################################################################
 
@@ -43,35 +57,28 @@ from neblinaUART import NeblinaUART
 class StreamMenu(cmd.Cmd):
     """docstring for StreamMenu"""
 
-    def __init__(self):
+    def __init__(self, address):
         cmd.Cmd.__init__(self)
+        self.signalKiller = GracefulKiller()
 
         self.bigLine = '-------------------------------------------------------------------\n'
-        self.configFileName = 'streamconfig.txt'
         self.prompt = '>>'
         self.intro = "Welcome to the Neblina Streaming Menu!"
 
-        # Check if config file exists
-        if not os.path.exists(self.configFileName):
-            self.setCOMPortName()
-
-        # Read the config file to get the name
-        with open(self.configFileName, 'r') as configFile:
-                comPortName = configFile.readline()
-
-        self.uart = NeblinaUART()
-        print("Setting up the connection...") # initial delay needed for the device to synchronize its processors
+        self.api = NeblinaAPI(Interface.UART)
+        print("Setting up the connection...")  # initial delay needed for the device to synchronize its processors
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
         time.sleep(1)
         print('.')
-        self.uart.open(comPortName) # all the commands including this one should be sent after the initial delay to guarantee the initializaion and synchronization of all the processors on Neblina
-        global initialmotionstate # the global variable that stores the initial motion engine state
-        initialmotionstate = self.uart.motionGetStates() # get the initial motion engine state
-        self.uart.stopAllStreams() # disable all streaming options after storing the initial state
-        self.uart.setStreamingInterface(Interface.UART) # switch the interface to avoid slow flash playback on UART
+        self.api.open(address)
+        global initialmotionstate  # the global variable that stores the initial motion engine state
+        initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
+        self.api.streamDisableAll()  # disable all streaming options after storing the initial state
+        self.api.setDataPortState(Interface.BLE, False)  # Close BLE streaming to prevent slowed streaming
+        self.api.setDataPortState(Interface.UART, True)  # Open UART streaming
 
 
     # If the user exits with Ctrl-C, try switching the interface back to BLE
@@ -79,7 +86,7 @@ class StreamMenu(cmd.Cmd):
         try:
             cmd.Cmd.cmdloop(self)
         except KeyboardInterrupt as e:
-            self.uart.setStreamingInterface(Interface.BLE)
+            self.api.setDataPortState(Interface.BLE, True)
 
     ## Command definitions ##
     def do_hist(self, args):
@@ -90,28 +97,30 @@ class StreamMenu(cmd.Cmd):
         """Exits from the console"""
 
         # Set the motion engine state back to its initial state by enabling the appropriate streaming features
+        print('Switching back to the BLE interface...')
+        self.api.setDataPortState(Interface.UART, False)
         print('Setting the motion engine back to its initial state...')
-        if (initialmotionstate.distance==True):
-            self.uart.motionStartStream(Commands.Motion.TrajectoryInfo)
-        if (initialmotionstate.force==True):
-            self.uart.motionStartStream(Commands.Motion.ExtForce)
-        if (initialmotionstate.euler==True):
-            self.uart.motionStartStream(Commands.Motion.EulerAngle)
-        if (initialmotionstate.quaternion==True):
-            self.uart.motionStartStream(Commands.Motion.Quaternion)
-        if (initialmotionstate.imuData==True):
-            self.uart.motionStartStream(Commands.Motion.IMU)
-        if (initialmotionstate.motion==True):
-            self.uart.motionStartStream(Commands.Motion.MotionState)
-        if (initialmotionstate.steps==True):
-            self.uart.motionStartStream(Commands.Motion.Pedometer)
-        if (initialmotionstate.magData==True):
-            self.uart.motionStartStream(Commands.Motion.MAG)
-        if (initialmotionstate.sitStand==True):
-            self.uart.motionStartStream(Commands.Motion.SittingStanding)
+        if initialmotionstate.distance:
+            self.api.streamTrajectoryInfo(True)
+        if initialmotionstate.force:
+            self.api.streamExternalForce(True)
+        if initialmotionstate.euler:
+            self.api.streamEulerAngle(True)
+        if initialmotionstate.quaternion:
+            self.api.streamQuaternion(True)
+        if initialmotionstate.imuData:
+            self.api.streamIMU(True)
+        if initialmotionstate.motion:
+            self.api.streamMotionState(True)
+        if initialmotionstate.steps:
+            self.api.streamPedometer(True)
+        if initialmotionstate.magData:
+            self.api.streamMAG(True)
+        if initialmotionstate.sitStand:
+            self.api.streamSittingStanding(True)
 
         # Make the module stream back towards its default interface (BLE)
-        self.uart.setStreamingInterface(Interface.BLE)
+        self.api.setDataPortState(Interface.BLE, True)
         return -1
 
     ## Command definitions to support Cmd object functionality ##
@@ -131,21 +140,15 @@ class StreamMenu(cmd.Cmd):
         ## The only reason to define this method is for the help text in the doc string
         cmd.Cmd.do_help(self, args)
 
-    def setCOMPortName(self):
-        portList = [port[0] for port in serial.tools.list_ports.comports()]
-        port = input('Select the COM port to use:' + '\n'.join(portList) + '\n' +  \
-            self.bigLine + self.prompt)
-        while(port not in portList):
-            print('{0} not in the available COM ports'.format(port))
-            port = input('Select the COM port to use:' + '\n'.join(portList[0]) + '\n' + \
-                self.bigLine + self.prompt)
+    def do_eepromWrite(self, args):
+        """
+        Write 8-byte string to EEPROM
 
-        # Write it to the config file
-        configFile = open(self.configFileName, 'w')
-        configFile.write(port)
-        configFile.close()
+        Usage: >>eepromWrite <pageNumber> <string>
 
-    def do_EEPROMWrite(self, args):
+        :param pageNumber: EEPROM page number (Range: 0-255)
+        :param string: 8-byte string (Example: 01234567)
+        """
         arguments = args.split(' ')
 
         if len(arguments) < 2:
@@ -161,15 +164,20 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        self.uart.EEPROMWrite(writePageNumber, writeBytes)
+        self.api.eepromWrite(writePageNumber, writeBytes)
 
         print('Write to page #{0} of dataBytes {1} was successful.'\
             .format(writePageNumber, writeBytes))
 
-    def do_EEPROMRead(self, args):
+    def do_eepromRead(self, args):
+        """
+        Read 8-byte string from EEPROM
+
+        Usage: >>eepromRead <pageNumber>
+
+        :param pageNumber: EEPROM page number (Range: 0-255)
+        """
         arguments = args.split(' ')
-        print(arguments)
-        print(len(arguments))
         if (arguments[0]) == '' or len(arguments) != 1:
             print('EEPROMRead <pageNumber>')
             return
@@ -179,67 +187,167 @@ class StreamMenu(cmd.Cmd):
             print('Page number must be between 0 and 255 inclusively')
             return
 
-        dataBytes = self.uart.EEPROMRead(readPageNumber)
+        dataBytes = self.api.eepromRead(readPageNumber)
 
         try:
             print('Got \'{0}\' at page #{1}'.format(dataBytes.decode('utf-8'), readPageNumber))
         except UnicodeDecodeError as ude:
             print('Got {0} at page #{1}'.format(dataBytes, readPageNumber))
 
-    def do_setCOMPort(self, args):
-        self.setCOMPortName()
+    def do_getMotionStatus(self, args):
+        """
+        Retrieve motion streaming state
 
-    def do_motionState(self, args):
-        states = self.uart.motionGetStates()
+        Usage: >>getMotionStatus
+        """
+        states = self.api.getMotionStatus()
         print("Distance: {0}\nForce:{1}\nEuler:{2}\nQuaternion:{3}\nIMUData:{4}\nMotion:{5}\nSteps:{6}\nMAGData:{7}\nSitStand:{8}"\
         .format(states.distance, states.force, states.euler, states.quaternion,\
                 states.imuData, states.motion, states.steps, states.magData, states.sitStand))
 
     def do_getBatteryLevel(self, args):
-        batteryLevel = self.uart.getBatteryLevel()
+        """
+        Retrieve battery level
+
+        Usage: >>getBatteryLevel
+        """
+        batteryLevel = self.api.getBatteryLevel()
         print('Battery Level: {0}%'.format(batteryLevel))
 
     def do_getTemperature(self, args):
-        temp = self.uart.getTemperature()
+        """
+        Retrieve board temperature
+
+        Usage: >>getTemperature
+        """
+        temp = self.api.getTemperature()
         print('Board Temperature: {0} degrees (Celsius)'.format(temp))
 
-    def do_streamEuler(self, args):
-        self.uart.motionStream(Commands.Motion.EulerAngle)
+    def do_streamEulerAngle(self, args):
+        """
+        Stream EulerAngle until stopped with Ctrl+C
+
+        Usage: >>streamEulerAngle
+        """
+        self.api.streamEulerAngle(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getEulerAngle())
+        self.api.streamEulerAngle(False)
 
     def do_streamIMU(self, args):
-        self.uart.motionStream(Commands.Motion.IMU)
+        """
+        Stream 6-axis IMU (Inertial Measurement Unit) until stopped with Ctrl+C
 
-    def do_streamQuat(self, args):
-        self.uart.motionStream(Commands.Motion.Quaternion)
+        Usage: >>streamIMU
+        """
+        self.api.streamIMU(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getIMU())
+        self.api.streamIMU(False)
+
+    def do_streamQuaternion(self, args):
+        """
+        Stream Quaternion until stopped with Ctrl+C
+
+        Usage: >>streamQuaternion
+        """
+        self.api.streamQuaternion(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getQuaternion())
+        self.api.streamQuaternion(False)
 
     def do_streamMAG(self, args):
-        self.uart.motionStream(Commands.Motion.MAG)
+        """
+        Stream MAG (Magnetometer) until stopped with Ctrl+C
 
-    def do_streamForce(self, args):
-        self.uart.motionStream(Commands.Motion.ExtForce)
+        Usage: >>streamMAG
+        """
+        self.api.streamMAG(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getMAG())
+        self.api.streamMAG(False)
 
-    def do_streamRotation(self, args):
-        self.uart.motionStream(Commands.Motion.RotationInfo)
+    def do_streamExternalForce(self, args):
+        """
+        Stream External Force until stopped with Ctrl+C
+
+        Usage: >>streamExternalForce
+        """
+        self.api.streamExternalForce(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getExternalForce())
+        self.api.streamExternalForce(False)
+
+    def do_streamRotationInfo(self, args):
+        """
+        Stream RotationInfo until stopped with Ctrl+C
+
+        Usage: >>streamRotationInfo
+        """
+        self.api.streamRotationInfo(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getRotationInfo())
+        self.api.streamRotationInfo(False)
 
     def do_streamPedometer(self, args):
-        self.uart.motionStream(Commands.Motion.Pedometer)
+        """
+        Stream Pedometer until stopped with Ctrl+C
 
-    def do_streamGesture(self, args):
-        self.uart.motionStream(Commands.Motion.FingerGesture)
+        Usage: >>streamPedometer
+        """
+        self.api.streamPedometer(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getPedometer())
+        self.api.streamPedometer(False)
 
-    def do_streamTrajectory(self, args):
-        self.uart.sendCommand(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop, True) # start recording a reference orientation trajectory
-        packet = self.uart.waitForAck(SubSystem.Motion, Commands.Motion.TrajectoryRecStartStop)
-        print("Recording a reference trajectory...")
-        self.uart.motionStream(Commands.Motion.TrajectoryInfo)
+    def do_streamFingerGesture(self, args):
+        """
+        Stream Finger Gesture until stopped with Ctrl+C
 
-    def do_stopStreams(self, args):
-        self.uart.motionStopStreams()
+        Usage: >>streamFingerGesture
+        """
+        self.api.streamFingerGesture(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getFingerGesture())
+        self.api.streamFingerGesture(False)
+
+    def do_streamTrajectoryInfo(self, args):
+        """
+        Stream TrajectoryInfo until stopped with Ctrl+C
+
+        Usage: >>streamTrajectoryInfo
+        """
+        self.api.recordTrajectory(True)
+        self.api.streamTrajectoryInfo(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getTrajectoryInfo())
+        self.api.streamTrajectoryInfo(False)
+        self.api.recordTrajectory(False)
+
+    def do_streamDisableAll(self, args):
+        """
+        Disable all streams
+
+        Usage: >>streamDisableAll
+        """
+        self.api.streamDisableAll()
 
     def do_resetTimestamp(self, args):
-        self.uart.motionResetTimestamp()
+        """
+        Reset motion timestamp
 
-    def do_downsample(self, args):
+        Usage: >>resetTimestamp
+        """
+        self.api.resetTimestamp()
+
+    def do_setDownsample(self, args):
+        """
+        Set downsample rate of motion streaming
+
+        Usage: >>setDownsample <factor>
+
+        :param factor: Downsampling factor (Range: [20, 40, 60, ..., 980, 1000])
+        """
         if(len(args) <= 0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
@@ -247,9 +355,16 @@ class StreamMenu(cmd.Cmd):
         if ((n % 20)!=0):
             print('The argument should be a multiplicand of 20, i.e., 20, 40, 60, etc!')
             return
-        self.uart.motionSetDownsample(n)
+        self.api.setDownsample(n)
 
-    def do_setAccFullScale(self, args):
+    def do_setAccelerometerRange(self, args):
+        """
+        Set accelerometer range
+
+        Usage: >>setAccelerometerRange <range>
+
+        :param range: Accelerometer range (Possible values: [2, 4, 8, 16])
+        """
         possibleFactors = [2,4,8,16]
         if(len(args) <= 0):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
@@ -258,9 +373,17 @@ class StreamMenu(cmd.Cmd):
         if(factor not in possibleFactors):
             print('The argument should be 2, 4, 8, or 16, representing the accelerometer range in g')
             return
-        self.uart.motionSetAccFullScale(factor)
+        self.api.setAccelerometerRange(factor)
 
-    def do_setled(self, args):
+    def do_setLED(self, args):
+        """
+        Change a LED state.
+
+        Usage: >>setLED <number> <value>
+
+        :param number: LED number (Range: [0, 1])
+        :param value: LED state (0: close, 1: open)
+        """
         arguments = args.split(' ')
         if len(arguments) != 2:
             print('setled <ledNumber> <value>')
@@ -270,20 +393,31 @@ class StreamMenu(cmd.Cmd):
         if(ledIndex < 0 or ledIndex > 1):
             print('Only led indices 0 or 1 are valid')
             return
-        self.uart.setLED(ledIndex, ledValue)
+        self.api.setLED(ledIndex, ledValue)
 
-    def do_flashState(self, args):
-        state = self.uart.flashGetState()
-        print('State: {0}'.format(state))
-        sessions = self.uart.flashGetSessions()
+    def do_getSessionCount(self, args):
+        """
+        Retrieve number of stored session
+
+        Usage: >>getSessionCount
+        """
+        sessions = self.api.getSessionCount()
         print('Num of sessions: {0}'.format(sessions))
 
-    def do_flashSessionInfo(self, args):
+    def do_getSessionInfo(self, args):
+        """
+        Retrieve a session information
+
+        Usage: >>getSessionInfo <sessionId>
+
+        :param sessionId: Session identifier (Range: 0-65535)
+        """
+        sessionID = 65535
         if(len(args) <= 0):
             sessionID = 65535
         elif(len(args) > 0):
             sessionID = int(args)
-        packet = self.uart.flashGetSessionInfo(sessionID)
+        packet = self.api.getSessionInfo(sessionID)
         if(packet == None):
             print('Session {0} does not exist on the flash'\
                 .format(sessionID))
@@ -291,33 +425,116 @@ class StreamMenu(cmd.Cmd):
             print( "Session %d: %d packets (%d bytes)"\
             %(packet.sessionID, packet.sessionLength, packet.sessionLengthBytes) )
 
-    def do_flashErase(self, args):
-        self.uart.flashErase()
+    def do_eraseStorage(self, args):
+        """
+        Erase storage
+
+        Usage: >>eraseStorage <type>
+
+        :note This can take up to 3 minutes. Do not power down the device during erasing.
+
+        :param type: Type of erasing (0: Quick, 1: Full)
+        """
+        self.api.eraseStorage(int(args))
         print('Flash erase has completed successfully!')
 
-    def do_flashRecordIMU(self, args):
+    def do_sessionRecordIMU(self, args):
+        """
+        Record an IMU session for a number of sample
+
+        Usage: >>sessionRecordIMU <count>
+
+        :param count: Number of sample to record
+        """
         if(len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.uart.flashRecord(numSamples, Commands.Motion.IMU)
 
-    def do_flashRecordEuler(self, args):
-        if(len(args) <= 0):
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
+        self.api.streamIMU(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getIMU()
+            sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+        print("\r\n")
+
+        self.api.streamIMU(False)
+        self.api.sessionRecord(False)
+
+
+    def do_sessionRecordEuler(self, args):
+        """
+        Record an EulerAngle session for a number of sample
+
+        Usage: >>sessionRecordEuler <count>
+
+        :param count: Number of sample to record
+        """
+        if (len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.uart.flashRecord(numSamples, Commands.Motion.EulerAngle)
 
-    def do_flashRecordQuaternion(self, args):
-        if(len(args) <= 0):
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
+        self.api.streamEulerAngle(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getEulerAngle()
+            sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+            print("\r\n")
+
+        self.api.streamEulerAngle(False)
+        self.api.sessionRecord(False)
+
+    def do_sessionRecordQuaternion(self, args):
+        """
+        Record a Quaternion session for a number of sample
+
+        Usage: >>sessionRecordQuaternion <count>
+
+        :param count: Number of sample to record
+        """
+        if (len(args) <= 0):
             numSamples = 1000
         else:
             numSamples = int(args)
-        self.uart.flashRecord(numSamples, Commands.Motion.Quaternion)
 
-    def do_flashPlayback(self, args):
+        sessionId = self.api.sessionRecord(True)
+        print("Recording session {0}.".format(sessionId))
+
+        self.api.streamQuaternion(True)
+
+        sampleCount = 0
+        while not self.signalKiller.isKilled and sampleCount < numSamples:
+            self.api.getQuaternion()
+            sampleCount += 1
+            print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
+        print("\r\n")
+
+        self.api.streamQuaternion(False)
+        self.api.sessionRecord(False)
+
+    def do_sessionPlayback(self, args):
+        """
+        Playback a recorded session
+
+        Usage: >>sessionPlayback <sessionId> <dump>
+
+        :param sessionId: Session identifier (Range: 0-65535)
+        :param dump: Dump packet to file ? (True or False)
+        """
         arguments = args.split(' ')
+        dump = False
+        mySessionID = 65535
         if(len(args) <= 0):
             mySessionID = 65535
             dump = False
@@ -330,10 +547,16 @@ class StreamMenu(cmd.Cmd):
                 dump = True
             else:
                 dump = False
-        self.uart.flashPlayback(mySessionID, dump)
+        self.api.sessionPlayback(mySessionID, dump)
+        print("sessionPlayback completed")
 
-    def do_versions(self, args):
-        packet = self.uart.debugFWVersions()
+    def do_getFirmwareVersions(self, args):
+        """
+        Retrieve firmware versions
+
+        Usage: >>getFirmwareVersions
+        """
+        packet = self.api.getFirmwareVersions()
         apiRelease = packet.apiRelease
         mcuFWVersion = packet.mcuFWVersion
         bleFWVersion = packet.bleFWVersion
@@ -354,7 +577,7 @@ class StreamMenu(cmd.Cmd):
         """Take care of any unfinished business.
            Despite the claims in the Cmd documentaion, Cmd.postloop() is not a stub.
         """
-        self.uart.close()
+        self.api.close()
         cmd.Cmd.postloop(self)   ## Clean up command completion
         print ("Exiting...")
 
@@ -372,6 +595,7 @@ class StreamMenu(cmd.Cmd):
         """If you want to stop the console, return something that evaluates to true.
            If you want to do some post command processing, do it here.
         """
+        self.signalKiller.isKilled = False
         return stop
 
     def emptyline(self):
@@ -387,8 +611,36 @@ class StreamMenu(cmd.Cmd):
         except Exception as e:
             print (e.__class__, ":", e)
 
+###################################################################################
+
+
+def printArguments():
+    print("Neblina stream menu")
+    print("Copyright Motsai 2010-2016")
+    print("")
+    print("Neblina commands:")
+    print("    -h --help   : Display available commands.")
+    print("    -a --address: Device address to use (COM port)")
+
+###################################################################################
+
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, format='%(message)s')
-    console = StreamMenu()
-    console . cmdloop()
+    #logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ha:")
+    except getopt.GetoptError:
+        printArguments()
+        sys.exit()
+
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            printArguments()
+            sys.exit()
+        elif opt in ("-a", "--address"):
+            console = StreamMenu(arg)
+            console.cmdloop()
+            sys.exit()
+
+    print("No device address specified. Exiting.")

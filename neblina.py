@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 ###################################################################################
-#
+# @package neblina
+
 # Copyright (c)     2010-2016   Motsai
 #
 # The MIT License (MIT)
@@ -27,6 +28,9 @@
 
 
 class BitMask:
+    """
+        BitMask pattern for packet header decoding
+    """
     SubSystem = 0x1F
     PacketType = 0xE0
 
@@ -34,19 +38,28 @@ class BitMask:
 
 
 class BitPosition:
+    """
+        Bit position for packet header decoding
+    """
     PacketType = 5
 
 ###################################################################################
 
 
 class Interface:
-    BLE = 0x00
-    UART = 0x01
+    """
+        Neblina communication interface
+    """
+    BLE = 0x00      # Bluetooth Smart (Low Energy)
+    UART = 0x01     # Serial
 
 ###################################################################################
 
 
 class PacketType:
+    """
+        Neblina packet type
+    """
     RegularResponse = 0x00
     Ack = 0x01
     Command = 0x02
@@ -64,6 +77,9 @@ class PacketType:
 
 
 class SubSystem:
+    """
+        Neblina subsystem
+    """
     Debug = 0x00
     Motion = 0x01
     Power = 0x02
@@ -82,6 +98,9 @@ class SubSystem:
 
 
 class Erase:
+    """
+        Neblina storage erase type
+    """
     Quick = 0x00
     Mass = 0x01
 
@@ -89,8 +108,14 @@ class Erase:
 
 
 class Commands:
+    """
+        Neblina commands for various subsystem
+    """
 
     class Debug:
+        """
+            Neblina debug commands
+        """
         SetInterface = 0x01
         MotAndFlashRecState = 0x02
         StartUnitTestMotion = 0x03
@@ -99,10 +124,16 @@ class Commands:
         InterfaceState = 0x09
 
     class Power:
+        """
+            Neblina power management commands
+        """
         GetBatteryLevel = 0x00
         GetTemperature = 0x01
 
     class Motion:
+        """
+            Neblina motion engin commands
+        """
         Downsample = 0x01  # Downsampling factor definition
         MotionState = 0x02  # streaming Motion State
         IMU = 0x03  # streaming the 6-axis IMU data
@@ -120,8 +151,12 @@ class Commands:
         ResetTimeStamp = 0x10  # Reset timestamp
         FingerGesture = 0x11  # Finger Gesture command
         RotationInfo = 0x12  # Rotation info in roll: number of rotations and speed in rpm
+        MotionCount = 0x13  # Keep last with next value
 
     class Storage:
+        """
+            Neblina storage commands
+        """
         EraseAll = 0x01  # Full-erase for the on-chip NOR flash memory
         Record = 0x02  # Either start a new recording session, or close the currently open one
         Playback = 0x03  # Open a previously recorded session for playback or close currently opened and being played
@@ -129,10 +164,16 @@ class Commands:
         SessionInfo = 0x05  # Get information associated with a particular session
 
     class EEPROM:
+        """
+            Neblina EEPROM commands
+        """
         Read = 0x01  # Read a page
         Write = 0x02  # Write to a page
 
     class DigitalIO:
+        """
+            Neblina Digital IO (DEPRECATED)
+        """
         SetConfig = 0x01
         GetConfig = 0x02
         SetValue = 0x03
@@ -141,16 +182,28 @@ class Commands:
         NotifyEvent = 0x06
 
     class Firmware:
+        """
+            Neblina firmware commands (DEPRECATED)
+        """
         Main = 0x01
         BLE = 0x02
 
     class LED:
+        """
+            Neblina LED commands
+        """
         SetVal = 0x01
         GetVal = 0x02
         Config = 0x03
 
     class BLE:
+        """
+            Neblina BLE commands (DEPRECATED)
+        """
         Receive = 0x01
+
+###################################################################################
+
 
 CommandStrings = {
     (SubSystem.Debug, Commands.Debug.SetInterface): 'Set Interface',
@@ -201,6 +254,7 @@ CommandStrings = {
     (SubSystem.EEPROM, Commands.EEPROM.Read): 'Read',
     (SubSystem.EEPROM, Commands.EEPROM.Write): 'Write',
 }
+
 ###################################################################################
 
 # Dictionary containing the string descriptors of each command
@@ -214,7 +268,7 @@ class Formatting:
         Blank = "16s"  # Blank 16 bytes
         MotionAndFlash = "<I 4s B 7s"  # Timestamp (unused for now), downsample factor
         EEPROMRead = "<H 8s 6s"  # Page number, 8 bytes Read Data
-        LEDGetVal = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
+        LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
         BatteryLevel = "<I H 10s"  # Battery Level (%)
         Temperature = "<I h 10s"  # Temperature x100 in Celsius
         FlashNumSessions = "<I H 10s"  # Reserved, number of sessions

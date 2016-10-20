@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['sessioninfo',['SessionInfo',['../classneblina_1_1_commands_1_1_storage.html#a791494e831fb1af339ea80c0aded621c',1,'neblina::Commands::Storage']]],
+  ['sessionlength',['sessionLength',['../classneblina_data_1_1_flash_session_info_data.html#ada83c1f4a2ee69a88445cde9cd717be9',1,'neblinaData::FlashSessionInfoData']]],
+  ['setconfig',['SetConfig',['../classneblina_1_1_commands_1_1_digital_i_o.html#a03bad728f6ca159e56d3f85197f0478d',1,'neblina::Commands::DigitalIO']]],
+  ['setdataportstate',['SetDataPortState',['../classneblina_1_1_formatting_1_1_command_data.html#abcf24a281babd038d7487ad7f3970c37',1,'neblina::Formatting::CommandData']]],
+  ['setfusiontype',['SetFusionType',['../classneblina_1_1_commands_1_1_motion.html#a5833838b2d66c4bcc026585ba68f081f',1,'neblina::Commands::Motion']]],
+  ['setinterface',['SetInterface',['../classneblina_1_1_commands_1_1_debug.html#aaa11a21f6b0d32f781124534d85dfec5',1,'neblina::Commands::Debug']]],
+  ['setled',['SetLED',['../classneblina_1_1_formatting_1_1_command_data.html#a2d9db888caba552d52a8c7db3ce389af',1,'neblina::Formatting::CommandData']]],
+  ['setval',['SetVal',['../classneblina_1_1_commands_1_1_l_e_d.html#ab6d341d078930e1de757ba9f7df414fd',1,'neblina::Commands::LED']]],
+  ['setvalue',['SetValue',['../classneblina_1_1_commands_1_1_digital_i_o.html#a07fc7e76af0b5eb8515f3215d1a1d18e',1,'neblina::Commands::DigitalIO']]],
+  ['sitstand',['sitStand',['../classneblina_data_1_1_motion_status_data.html#a0ca96e750c68887e5025a80df1ffcf1d',1,'neblinaData::MotionStatusData']]],
+  ['sittingstanding',['SittingStanding',['../classneblina_1_1_commands_1_1_motion.html#ac01f75400085893fd7455eec0453032b',1,'neblina::Commands::Motion']]],
+  ['spi',['SPI',['../classneblina_1_1_sub_system.html#a5c008257f789364d8bb90e7fd8adb0d8',1,'neblina::SubSystem']]],
+  ['startstop',['startStop',['../classneblina_data_1_1_motion_state_data.html#adda5119c2cd55e6e6cecd806dd6fe31b',1,'neblinaData::MotionStateData']]],
+  ['startunittestmotion',['StartUnitTestMotion',['../classneblina_1_1_commands_1_1_debug.html#ac2c775ac2c171ace91564891fe085869',1,'neblina::Commands::Debug']]],
+  ['status',['status',['../classneblina_data_1_1_recorder_status_data.html#a015eb90e0de9f16e87bd149d4b9ce959',1,'neblinaData::RecorderStatusData']]],
+  ['steps',['steps',['../classneblina_data_1_1_motion_status_data.html#a4d629e97dab1ddb8b4348b94f29fd12d',1,'neblinaData::MotionStatusData']]],
+  ['storage',['Storage',['../classneblina_1_1_sub_system.html#a445efb043dfae95ecb00426aac29c66f',1,'neblina::SubSystem']]],
+  ['subsystem',['SubSystem',['../classneblina_1_1_bit_mask.html#a5169904370b85376ba0bbed4f2ab903a',1,'neblina::BitMask']]]
+];
