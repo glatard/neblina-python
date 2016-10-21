@@ -624,6 +624,7 @@ class NeblinaAPI(object):
             logging.info('Finished playback from session number {0}!'.format(pbSessionID))
             headingAngles = [0]*len(packetList)
             rollAngles = [0]*len(packetList)
+            pitchAngles = [0]*len(packetList)
             pos_x = [0]*len(packetList)
             pos_y = [0]*len(packetList)
             timestamp = [0]*len(packetList)
@@ -653,10 +654,13 @@ class NeblinaAPI(object):
                     c = packet.data.quaternions[2]/32768
                     d = packet.data.quaternions[3]/32768
                     rollAngles[count] = math.atan2(2*(a*b+c*d),1-2*(b*b+c*c))
+                    pitchAngles[count] = math.asin(2*(a*c-b*d))
                     rollAngles[count] = rollAngles[count]*180/math.pi
+                    pitchAngles[count] = pitchAngles[count]*180/math.pi
                     count = count + 1
                     timestamp[count] = timestamp[count-1] + 0.02
             rollAngles = rollAngles[0:count-1]
+            pitchAngles = pitchAngles[0:count-1]
             headingAngles = headingAngles[0:stepCounter-1]
             pos_x = pos_x[0:stepCounter]
             pos_y = pos_y[0:stepCounter]
