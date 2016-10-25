@@ -634,11 +634,17 @@ class NeblinaAPI(object):
             plt.figure(1)
             plt.title('Thigh Elevation Angle')
             plt.ylabel('Angle')
-            plt.xlabel('Sample')
+            plt.xlabel('Time (sec)')
             plt.figure(2)
             plt.title('Walking Path')
             plt.xlabel('Walking Position X')
             plt.ylabel('Walking Position Y')
+            plt.xlim([-10,10])
+            plt.ylim([-10,10])
+            plt.figure(3)
+            plt.title('Thigh Side Tilt Angle')
+            plt.ylabel('Angle')
+            plt.xlabel('Time (sec)')
 
             for packet in packetList:
                 if packet.header.subSystem != SubSystem.Motion or packet.header.packetType != PacketType.RegularResponse:
@@ -655,6 +661,8 @@ class NeblinaAPI(object):
                     d = packet.data.quaternions[3]/32768
                     rollAngles[count] = math.atan2(2*(a*b+c*d),1-2*(b*b+c*c))
                     pitchAngles[count] = math.asin(2*(a*c-b*d))
+                    # rollAngles[count] = 1-2*(b*b+c*c)
+                    # pitchAngles[count] = 2*(a*c-b*d)
                     rollAngles[count] = rollAngles[count]*180/math.pi
                     pitchAngles[count] = pitchAngles[count]*180/math.pi
                     count = count + 1
@@ -673,6 +681,10 @@ class NeblinaAPI(object):
 
             plt.figure(1)
             plt.plot(timestamp[1:count],rollAngles[0:count-1],'bo-')
+            plt.pause(0.001)
+
+            plt.figure(3)
+            plt.plot(timestamp[1:count],pitchAngles[0:count-1],'bo-')
             plt.pause(0.001)
 
             return len(packetList)
