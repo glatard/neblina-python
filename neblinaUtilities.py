@@ -27,6 +27,7 @@
 
 import os
 import time
+import math
 
 from itertools import zip_longest
 
@@ -95,6 +96,8 @@ class NebUtilities(object):
         filepath = [0]*size
         filehandle = [0]*size
         filesize = [0]*size
+        filesize_tmp = 0
+        filehandle_tmp = [0]*1
 
         filepath[0] = os.path.join(indexPath, "dump.txt")
         filepath[Commands.Motion.MAG] = os.path.join(indexPath, "mag.csv")
@@ -120,6 +123,20 @@ class NebUtilities(object):
                 filesize[packet.header.command] += 1
                 filehandle[packet.header.command].write("{0}\n".format(packet.data.csvString()))
 
+            if packet.header.command==Commands.Motion.Quaternion:
+                a = packet.data.quaternions[0]/32768;
+                b = packet.data.quaternions[1]/32768;
+                c = packet.data.quaternions[2]/32768;
+                d = packet.data.quaternions[3]/32768;
+                timestamp = packet.data.timestamp
+                roll = math.atan2(2*(a*b+c*d), 1-2*(b*b+c*c))
+                pitch = math.asin(2*(a*c-b*d))
+                yaw = math.atan2(2*(a*d+b*c), 1-2*(d*d+c*c))
+                filesize_tmp += 1
+                if filesize_tmp==1:
+                    filehandle_tmp = open(os.path.join(indexPath, "QuatToEuler.csv"), "a")
+                filehandle_tmp.write("{0},{1},{2},{3}\n".format(timestamp,yaw,pitch,roll))
+
         for i in range(size):
             if filepath[i]:
                 filehandle[i].close()
@@ -127,4 +144,6 @@ class NebUtilities(object):
         for i in range(size):
             if filesize[i]==0 and filepath[i]:
                 os.remove(filepath[i])
+
+
 
