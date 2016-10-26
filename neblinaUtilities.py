@@ -96,8 +96,8 @@ class NebUtilities(object):
         filepath = [0]*size
         filehandle = [0]*size
         filesize = [0]*size
-        filesize_tmp = 0
-        filehandle_tmp = [0]*1
+        filesizeQuatToEuler = 0
+        filehandleQuatToEuler = [0]
 
         filepath[0] = os.path.join(indexPath, "dump.txt")
         filepath[Commands.Motion.MAG] = os.path.join(indexPath, "mag.csv")
@@ -132,10 +132,10 @@ class NebUtilities(object):
                 roll = math.atan2(2*(a*b+c*d), 1-2*(b*b+c*c))
                 pitch = math.asin(2*(a*c-b*d))
                 yaw = math.atan2(2*(a*d+b*c), 1-2*(d*d+c*c))
-                filesize_tmp += 1
-                if filesize_tmp==1:
-                    filehandle_tmp = open(os.path.join(indexPath, "QuatToEuler.csv"), "a")
-                filehandle_tmp.write("{0},{1},{2},{3}\n".format(timestamp,yaw,pitch,roll))
+                filesizeQuatToEuler += 1
+                if filesizeQuatToEuler==1:
+                    filehandleQuatToEuler = open(os.path.join(indexPath, "QuatToEuler.csv"), "a")
+                filehandleQuatToEuler.write("{0},{1},{2},{3}\n".format(timestamp,yaw,pitch,roll))
 
         for i in range(size):
             if filepath[i]:
