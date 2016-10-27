@@ -466,10 +466,10 @@ class MotionStateData(object):
         self.timestamp,\
         startStopByte,\
         garbage = struct.unpack(Formatting.Data.MotionState, dataString)
-        self.startStop = (startStopByte == 0)
+        self.startStop = (startStopByte == 1)
 
     def __str__(self):
-        return "{0}us: startStop:{1})"\
+        return "{0}us: startStop:{1}"\
         .format(self.timestamp,self.startStop)
 
     def encode(self):

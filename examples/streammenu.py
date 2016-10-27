@@ -234,6 +234,17 @@ class StreamMenu(cmd.Cmd):
             print(self.api.getEulerAngle())
         self.api.streamEulerAngle(False)
 
+    def do_streamMotionState(self, args):
+        """
+        Stream MotionState until stopped with Ctrl+C
+
+        Usage: >>streamMotionState
+        """
+        self.api.streamMotionState(True)
+        while not self.signalKiller.isKilled:
+            print(self.api.getMotionState())
+        self.api.streamMotionState(False)
+
     def do_streamIMU(self, args):
         """
         Stream 6-axis IMU (Inertial Measurement Unit) until stopped with Ctrl+C
