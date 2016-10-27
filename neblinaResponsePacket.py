@@ -59,8 +59,8 @@ DebugResponses = {
     Commands.Debug.StartUnitTestMotion: BlankData,
     Commands.Debug.UnitTestMotionData: UnitTestMotionData,
     Commands.Debug.FWVersions: FirmwareVersionsData.decode,
+    Commands.Debug.RSSI: RSSIData,
     6: BlankData,
-    7: BlankData,
     8: BlankData,
     Commands.Debug.InterfaceState: DataPortStatusData.decode,
 }

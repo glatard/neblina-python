@@ -482,6 +482,32 @@ class MotionStateData(object):
 ###################################################################################
 
 
+class RSSIData(object):
+    """ Neblina RSSI data
+
+        Formatting:
+        - Timestamp
+        - RSSI in dB
+    """
+    def __init__(self, dataString):
+        self.timestamp,\
+        self.RSSI,\
+        garbage = struct.unpack(Formatting.Data.MotionState, dataString)
+
+    def __str__(self):
+        return "{0}us: RSSI:{1}"\
+        .format(self.timestamp,self.RSSI-256)
+
+    def encode(self):
+        garbage = ('\000'*11).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.RSSI, self.timestamp,\
+        self.RSSI, garbage)
+        return packetString
+
+
+###################################################################################
+
+
 class ExternalForceData(object):
     """ Neblina external force data
 

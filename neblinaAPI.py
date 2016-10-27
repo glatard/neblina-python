@@ -225,6 +225,18 @@ class NeblinaAPI(object):
         logging.debug("Received FingerGesture.")
         return packet.data
 
+    def getRSSI(self):
+        """
+            Retrieve RSSI value.
+            This is a blocking function until an RSSI value is retrieve.
+            Requires that RSSI streaming is activated, otherwise will hang forever.
+
+            :return: RSSI instance.
+        """
+        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Debug, Commands.Debug.RSSI)
+        logging.debug("Received RSSI.")
+        return packet.data
+
     def getIMU(self):
         """
             Retrieve IMU (Inertial Motion Unit).
@@ -409,6 +421,7 @@ class NeblinaAPI(object):
         logging.debug("Sending streamPedometer. Waiting for acknowledge.")
         self.core.waitForAck(SubSystem.Motion, Commands.Motion.Pedometer)
         logging.debug("Acknowledgment received.")
+
 
     def streamQuaternion(self, state):
         """

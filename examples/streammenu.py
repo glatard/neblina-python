@@ -550,6 +550,15 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionPlayback(mySessionID, dump)
         print("sessionPlayback completed")
 
+    def do_streamRSSI(self, args):
+        """
+        Stream BLE's RSSI until stopped with Ctrl+C
+
+        Usage: >>streamRSSI
+        """
+        while not self.signalKiller.isKilled:
+            print(self.api.getRSSI())
+
     def do_getFirmwareVersions(self, args):
         """
         Retrieve firmware versions

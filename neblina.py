@@ -122,6 +122,7 @@ class Commands:
         UnitTestMotionData = 0x04
         FWVersions = 0x05
         InterfaceState = 0x09
+        RSSI = 0x07
 
     class Power:
         """
@@ -211,6 +212,7 @@ CommandStrings = {
     (SubSystem.Debug, Commands.Debug.StartUnitTestMotion): 'Enable/Disable Unit Test Motion',
     (SubSystem.Debug, Commands.Debug.UnitTestMotionData): 'Unit Test Data',
     (SubSystem.Debug, Commands.Debug.FWVersions): 'Firmware Versions',
+    (SubSystem.Debug, Commands.Debug.RSSI): 'Firmware Versions',
     (SubSystem.Motion, Commands.Motion.Downsample): 'Downsample',
     (SubSystem.Motion, Commands.Motion.MotionState): 'MotionState',
     (SubSystem.Motion, Commands.Motion.IMU): 'IMU Data',
@@ -273,12 +275,13 @@ class Formatting:
         Temperature = "<I h 10s"  # Temperature x100 in Celsius
         FlashNumSessions = "<I H 10s"  # Reserved, number of sessions
         FWVersions = "<B 3B 3B 8s"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
+        RSSI = "<I b 11s>" #Timestamp, RSSI
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
         MotionState = "<I B 11s"  # Timestamp, start/stop
         ExternalForce = "<I 3h 6s"  # Timestamp, External force xyz
         TrajectoryDistance = "<I 3h H B 3s"  # Timestamp, Euler angle errors, repeat count, completion percentage
         Pedometer = "<I H B h 7s"  # Timestamp, stepCount, stepsPerMinute, walking direction
-        FingerGesture = "<I B 11s"  # Timestamp, rotationCount
+        FingerGesture = "<I B 11s"  # Timestamp, swipe pattern
         RotationInfo = "<I I H 6s"  # Timestamp, rotationCount, rpm speed
         Quaternion = "<I 4h 4s"  # Timestamp, quaternion
         IMU = "<I 3h 3h"  # Timestamp, accelerometer(xyz), gyroscope(xyz)
