@@ -151,7 +151,8 @@ class Commands:
         ResetTimeStamp = 0x10  # Reset timestamp
         FingerGesture = 0x11  # Finger Gesture command
         RotationInfo = 0x12  # Rotation info in roll: number of rotations and speed in rpm
-        MotionCount = 0x13  # Keep last with next value
+        ExternalHeadingCorrection = 0x13 # external heading correction for the orientation filter
+        MotionCount = 0x14  # Keep last with next value
 
     class Storage:
         """
@@ -228,6 +229,7 @@ CommandStrings = {
     (SubSystem.Motion, Commands.Motion.ResetTimeStamp): 'Reset Timestamp',
     (SubSystem.Motion, Commands.Motion.FingerGesture): 'Finger Gesture',
     (SubSystem.Motion, Commands.Motion.RotationInfo): 'Rotation Info',
+    (SubSystem.Motion, Commands.Motion.ExternalHeadingCorrection): 'External Heading Correction',
     (SubSystem.Power, Commands.Power.GetBatteryLevel): 'Battery Level',
     (SubSystem.Power, Commands.Power.GetTemperature): 'Board Temperature',
     (SubSystem.DigitalIO, Commands.DigitalIO.SetConfig): 'Set Config',
@@ -288,6 +290,7 @@ class Formatting:
     class CommandData:
         Header = "<4B"
         Command = "<I B 11s"  # Timestamp (unused for now), enable/disable, garbage
+        ExternalHeading = "<I 2h 8s" # Timestamp (unused for now), heading angle in degrees x10, angle error in degrees x10
         FlashSession = "<I B H 9s"  # Timestamp, open/close, session ID
         FlashSessionInfo = "<I H 10s"  # Timestamp, session ID
         UnitTestMotion = "<I 3h 3h 3h"  # Timestamp, accel, gyro, mag

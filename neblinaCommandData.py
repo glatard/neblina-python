@@ -171,6 +171,28 @@ class NebDownsampleCommandData(NebCommandData):
 
 ###################################################################################
 
+class NebExternalHeadingCommandData():
+    """Neblina heading correction command data
+
+        Formatting:
+        - Timestamp (unused for now)
+        - headingAngle in degrees x10
+        - headingError in degrees x10
+    """
+    def __init__(self, timestamp, angle, err):
+        self.timestamp = timestamp
+        self.headingAngle = angle
+        self.headingError = err
+
+    def encode(self):
+        garbage = ('\000'*8).encode('utf-8')
+        commandDataString = struct.pack(Formatting.CommandData.ExternalHeading,\
+            self.timestamp, self.headingAngle, self.headingError, garbage)
+        return commandDataString
+
+
+###################################################################################
+
 
 class NebGetLEDCommandData(object):
     """ Neblina LED state retrieval command data

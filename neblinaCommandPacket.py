@@ -59,6 +59,8 @@ class NebCommandPacket(object):
             self.data = NebSetLEDCommandData(kwargs['ledValueTupleList'])
         elif subSystem == SubSystem.LED and commandType == Commands.LED.GetVal:
             self.data = NebGetLEDCommandData(kwargs['ledIndices'])
+        elif subSystem == SubSystem.Motion and commandType == Commands.Motion.ExternalHeadingCorrection:
+            self.data = NebExternalHeadingCommandData(kwargs['timestamp'], kwargs['headingAngle'], kwargs['headingError'])
         else:
             self.data = NebCommandData(enable)
         self.header = NebHeader(subSystem, PacketType.Command, commandType, length=len(self.data.encode()))

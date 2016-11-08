@@ -490,6 +490,16 @@ class NeblinaAPI(object):
                          pageNumber=writePageNumber, dataBytes=dataString)
         packet = self.core.waitForAck(SubSystem.EEPROM, Commands.EEPROM.Write)
 
+    def setHeadingAngle(self, angle, err):
+        """
+            Set a heading correction for the orientation filter.
+
+            :param angle: The angle in degrees x10
+            :param dataString: The angle error in degrees x10
+        """
+        assert -1800 <= angle <= 1800 and -1800 <= err <= 1800
+        self.core.sendCommand(SubSystem.Motion, Commands.Motion.ExternalHeadingCorrection, timestamp = 0, headingAngle=angle, headingError=err)
+
     def getLED(self, index):
         """
             Retrieve LED state.

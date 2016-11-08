@@ -200,6 +200,17 @@ class StreamMenu(cmd.Cmd):
         except UnicodeDecodeError as ude:
             print('Got {0} at page #{1}'.format(dataBytes, readPageNumber))
 
+    def do_setHeadingAngle(self, args):
+        arguments = args.split(' ')
+        if (len(arguments)==2):
+            angle = int(arguments[0])
+            err = int(arguments[1])
+            self.api.setHeadingAngle(angle, err)
+        else:
+            print('Invalid angle')
+
+
+
     def do_getMotionStatus(self, args):
         """
         Retrieve motion streaming state
