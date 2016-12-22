@@ -75,7 +75,7 @@ class StreamMenu(cmd.Cmd):
         print('.')
         self.api.open(address)
         global initialmotionstate  # the global variable that stores the initial motion engine state
-        initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
+        # initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
         self.api.streamDisableAll()  # disable all streaming options after storing the initial state
         self.api.setDataPortState(Interface.BLE, False)  # Close BLE streaming to prevent slowed streaming
         self.api.setDataPortState(Interface.UART, True)  # Open UART streaming
@@ -100,24 +100,24 @@ class StreamMenu(cmd.Cmd):
         print('Switching back to the BLE interface...')
         self.api.setDataPortState(Interface.UART, False)
         print('Setting the motion engine back to its initial state...')
-        if initialmotionstate.distance:
-            self.api.streamTrajectoryInfo(True)
-        if initialmotionstate.force:
-            self.api.streamExternalForce(True)
-        if initialmotionstate.euler:
-            self.api.streamEulerAngle(True)
-        if initialmotionstate.quaternion:
-            self.api.streamQuaternion(True)
-        if initialmotionstate.imuData:
-            self.api.streamIMU(True)
-        if initialmotionstate.motion:
-            self.api.streamMotionState(True)
-        if initialmotionstate.steps:
-            self.api.streamPedometer(True)
-        if initialmotionstate.magData:
-            self.api.streamMAG(True)
-        if initialmotionstate.sitStand:
-            self.api.streamSittingStanding(True)
+        #if initialmotionstate.distance:
+        #    self.api.streamTrajectoryInfo(True)
+        #if initialmotionstate.force:
+        #    self.api.streamExternalForce(True)
+        #if initialmotionstate.euler:
+        #    self.api.streamEulerAngle(True)
+        #if initialmotionstate.quaternion:
+        #    self.api.streamQuaternion(True)
+        #if initialmotionstate.imuData:
+        #    self.api.streamIMU(True)
+        #if initialmotionstate.motion:
+        #    self.api.streamMotionState(True)
+        #if initialmotionstate.steps:
+        #    self.api.streamPedometer(True)
+        #if initialmotionstate.magData:
+        #    self.api.streamMAG(True)
+        #if initialmotionstate.sitStand:
+        #    self.api.streamSittingStanding(True)
 
         # Make the module stream back towards its default interface (BLE)
         self.api.setDataPortState(Interface.BLE, True)

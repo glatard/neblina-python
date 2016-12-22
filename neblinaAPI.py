@@ -184,9 +184,9 @@ class NeblinaAPI(object):
         """
             Disable all streaming.
         """
-        self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        self.core.sendCommand(SubSystem.Debug, Commands.Debug.disableAllStream, True)
         logging.debug("Sending disable streaming command. Waiting for acknowledge.")
-        self.core.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        self.core.waitForAck(SubSystem.Debug, Commands.Debug.disableAllStream)
         logging.debug("Acknowledgment received.")
 
     def getEulerAngle(self):

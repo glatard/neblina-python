@@ -123,6 +123,7 @@ class Commands:
         FWVersions = 0x05
         InterfaceState = 0x09
         RSSI = 0x07
+        disableAllStream = 0x0C
 
     class Power:
         """
@@ -213,6 +214,7 @@ CommandStrings = {
     (SubSystem.Debug, Commands.Debug.UnitTestMotionData): 'Unit Test Data',
     (SubSystem.Debug, Commands.Debug.FWVersions): 'Firmware Versions',
     (SubSystem.Debug, Commands.Debug.RSSI): 'Firmware Versions',
+    (SubSystem.Debug, Commands.Debug.disableAllStream): 'Disable All Streaming',
     (SubSystem.Motion, Commands.Motion.Downsample): 'Downsample',
     (SubSystem.Motion, Commands.Motion.MotionState): 'MotionState',
     (SubSystem.Motion, Commands.Motion.IMU): 'IMU Data',
@@ -268,34 +270,34 @@ class Formatting:
 
     class Data:
         Blank = "16s"  # Blank 16 bytes
-        MotionAndFlash = "<I 4s B 7s"  # Timestamp (unused for now), downsample factor
-        EEPROMRead = "<H 8s 6s"  # Page number, 8 bytes Read Data
+        MotionAndFlash = "4s B"  # downsample factor
+        EEPROMRead = "<H 8s"  # Page number, 8 bytes Read Data
         LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
-        BatteryLevel = "<I H 10s"  # Battery Level (%)
-        Temperature = "<I h 10s"  # Temperature x100 in Celsius
-        FlashNumSessions = "<I H 10s"  # Reserved, number of sessions
-        FWVersions = "<B 3B 3B 8s"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
-        RSSI = "<I b 11s>" #Timestamp, RSSI
+        BatteryLevel = "<I H"  # Battery Level (%)
+        Temperature = "<I h"  # Temperature x100 in Celsius
+        FlashNumSessions = "<I H"  # Reserved, number of sessions
+        FWVersions = "<B 3B 3B"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
+        RSSI = "<I b>" #Timestamp, RSSI
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
-        MotionState = "<I B 11s"  # Timestamp, start/stop
-        ExternalForce = "<I 3h 6s"  # Timestamp, External force xyz
-        TrajectoryDistance = "<I 3h H B 3s"  # Timestamp, Euler angle errors, repeat count, completion percentage
-        Pedometer = "<I H B h 7s"  # Timestamp, stepCount, stepsPerMinute, walking direction
-        FingerGesture = "<I B 11s"  # Timestamp, swipe pattern
-        RotationInfo = "<I I H 6s"  # Timestamp, rotationCount, rpm speed
-        Quaternion = "<I 4h 4s"  # Timestamp, quaternion
+        MotionState = "<I B"  # Timestamp, start/stop
+        ExternalForce = "<I 3h"  # Timestamp, External force xyz
+        TrajectoryDistance = "<I 3h H B"  # Timestamp, Euler angle errors, repeat count, completion percentage
+        Pedometer = "<I H B h"  # Timestamp, stepCount, stepsPerMinute, walking direction
+        FingerGesture = "<I B"  # Timestamp, swipe pattern
+        RotationInfo = "<I I H"  # Timestamp, rotationCount, rpm speed
+        Quaternion = "<I 4h"  # Timestamp, quaternion
         IMU = "<I 3h 3h"  # Timestamp, accelerometer(xyz), gyroscope(xyz)
         MAG = "<I 3h 3h"  # Timestamp, magnetometer(xyz), accelerometer(xyz)
         Euler = "<I 4h 4s"  # Timestamp, Euler angle (yaw,pitch,roll,heading)
 
     class CommandData:
         Header = "<4B"
-        Command = "<I B 11s"  # Timestamp (unused for now), enable/disable, garbage
-        FlashSession = "<I B H 9s"  # Timestamp, open/close, session ID
-        FlashSessionInfo = "<I H 10s"  # Timestamp, session ID
-        UnitTestMotion = "<I 3h 3h 3h"  # Timestamp, accel, gyro, mag
-        AccRange = "<I H 10s"  # Timestamp (unused for now), downsample factor
-        Downsample = "<I H 10s"  # Timestamp (unused for now), downsample factor
+        Command = "B"  # enable/disable
+        FlashSession = "B H"  # open/close, session ID
+        FlashSessionInfo = "H"  # session ID
+        UnitTestMotion = "3h 3h 3h"  # accel, gyro, mag
+        AccRange = "H"  # downsample factor
+        Downsample = "H"  # downsample factor
         GetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         SetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         EEPROM = "<H 8s 6s"  # Page number, 8 bytes R/W Data

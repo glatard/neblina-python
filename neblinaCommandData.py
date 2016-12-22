@@ -37,18 +37,19 @@ class NebCommandData(object):
     """ Neblina command data
 
         Formatting:
-        - Timestamp (unused for now)
         - Enable/Disable
     """
 
     def __init__(self, enable):
         self.enable = enable
-        self.timestamp = 0 # Not really used for now
+        # self.timestamp = 0 # Not really used for now
 
     def encode(self):
-        garbage = ('\000'*11).encode('utf-8')
+        #garbage = ('\000'*11).encode('utf-8')
+        #commandDataString = struct.pack(Formatting.CommandData.Command,\
+        #    self.timestamp, self.enable, garbage)
         commandDataString = struct.pack(Formatting.CommandData.Command,\
-            self.timestamp, self.enable, garbage)
+            self.enable)
         return commandDataString
 
     def __str__(self):
@@ -61,7 +62,6 @@ class NebFlashPlaybackCommandData(object):
     """ Neblina flash playback command data
 
         Formatting:
-        - Timestamp
         - Open/Close
         - Session ID
     """
@@ -75,13 +75,15 @@ class NebFlashPlaybackCommandData(object):
         .format(self.sessionID, openCloseString)
 
     def encode(self):
-        garbage = ('\000'*9).encode('utf-8')
-        timestamp = 0
+        #garbage = ('\000'*9).encode('utf-8')
+        #timestamp = 0
         if self.openClose == 1:
             pass
         openCloseVal = 1 if self.openClose else 0
+        #commandDataString = struct.pack(Formatting.CommandData.FlashSession,\
+        #    timestamp, openCloseVal, self.sessionID, garbage)
         commandDataString = struct.pack(Formatting.CommandData.FlashSession,\
-            timestamp, openCloseVal, self.sessionID, garbage)
+            openCloseVal, self.sessionID)
         return commandDataString
 
 ###################################################################################
@@ -91,7 +93,6 @@ class NebFlashSessionInfoCommandData(object):
     """ Neblina flash session information command data
 
         Formatting:
-        - Timestamp
         - Session ID
     """
     def __init__(self, sessionID):
@@ -102,10 +103,12 @@ class NebFlashSessionInfoCommandData(object):
         .format(self.sessionID)
 
     def encode(self):
-        garbage = ('\000'*10).encode('utf-8')
-        timestamp = 0
+        #garbage = ('\000'*10).encode('utf-8')
+        #timestamp = 0
+        #commandDataString = struct.pack(Formatting.CommandData.FlashSessionInfo,\
+        #    timestamp, self.sessionID, garbage)
         commandDataString = struct.pack(Formatting.CommandData.FlashSessionInfo,\
-            timestamp, self.sessionID, garbage)
+            self.sessionID)
         return commandDataString
 
 ###################################################################################
@@ -140,16 +143,14 @@ class NebAccRangeCommandData(NebCommandData):
     """ Neblina accelerometer full-scale range command data
 
         Formatting:
-        - Timestamp (unused for now)
         - Downsampling factor
     """
     rangeCodes = {2: 0x00, 4: 0x01, 8: 0x02, 16: 0x03}
 
     def encode(self):
-        garbage = ('\000'*10).encode('utf-8')
         rangeCode = self.rangeCodes[self.enable]
         commandDataString = struct.pack(Formatting.CommandData.AccRange,\
-            self.timestamp, rangeCode, garbage)
+            rangeCode)
         return commandDataString
 
 ###################################################################################
@@ -159,14 +160,12 @@ class NebDownsampleCommandData(NebCommandData):
     """ Neblina downsampling factor command data
 
         Formatting:
-        - Timestamp (unused for now)
         - Downsampling factor
     """
 
     def encode(self):
-        garbage = ('\000'*10).encode('utf-8')
         commandDataString = struct.pack(Formatting.CommandData.Downsample,\
-            self.timestamp, self.enable, garbage)
+            self.enable)
         return commandDataString
 
 ###################################################################################
@@ -195,11 +194,11 @@ class NebGetLEDCommandData(object):
             ledIndexBytes += struct.pack('>B', ledIndex)
 
         # numGarbageBytes = len(ledIndexBytes)+1
-        numGarbageBytes = (maxLEDbytes-len(ledIndexBytes))+8
-        garbage = b'00'*numGarbageBytes
+        #numGarbageBytes = (maxLEDbytes-len(ledIndexBytes))+8
+        #garbage = b'00'*numGarbageBytes
 
-        stringFormat = Formatting.CommandData.GetLED.format(numLEDs, numGarbageBytes)
-        commandDataString = struct.pack(stringFormat, numLEDs, ledIndexBytes, garbage)
+        stringFormat = Formatting.CommandData.GetLED.format(numLEDs, 0)
+        commandDataString = struct.pack(stringFormat, numLEDs, ledIndexBytes)
         return commandDataString
 
 ###################################################################################
@@ -230,13 +229,13 @@ class NebSetLEDCommandData(object):
                 ledTuple[0], ledTuple[1])
 
         # numGarbageBytes = len(ledValueBytes)+1
-        numGarbageBytes = (maxLEDbytes-len(ledValueBytes))+1
-        garbage = b'00'*numGarbageBytes
+        #numGarbageBytes = (maxLEDbytes-len(ledValueBytes))+1
+        #garbage = b'00'*numGarbageBytes
 
         stringFormat = Formatting.CommandData.SetLED.format(numLEDs*bytesPerLED,\
-         numGarbageBytes)
+         0)
         commandDataString = struct.pack(\
-            stringFormat, numLEDs, ledValueBytes, garbage)
+            stringFormat, numLEDs, ledValueBytes)
         return commandDataString
 
 ###################################################################################
@@ -255,9 +254,9 @@ class NebEEPROMCommandData(object):
         self.dataBytes = dataBytes
 
     def encode(self):
-        garbage = b'00'*6
+        #garbage = b'00'*6
         commandDataString = struct.pack(Formatting.CommandData.EEPROM,\
-            self.pageNumber, self.dataBytes, garbage)
+            self.pageNumber, self.dataBytes)
         return commandDataString
 
 ###################################################################################

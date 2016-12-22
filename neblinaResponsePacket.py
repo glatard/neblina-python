@@ -221,6 +221,7 @@ class NebResponsePacket(object):
                 raise InvalidPacketFormatError('Cannot create a response packet with the string of a command packet.')
 
             self.header = NebHeader(subSystem, packetType, command, crc, packetLength)
+            # print(subSystem, packetType, command, packetLength)
 
             # Extract the data substring
             dataString = packetString[self.headerLength:self.headerLength + packetLength]

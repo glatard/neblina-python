@@ -156,7 +156,7 @@ class EEPROMReadData(object):
     def __init__(self, dataString):
         self.pageNumber, \
         self.dataBytes,\
-        garbage = struct.unpack(Formatting.Data.EEPROMRead, dataString)
+        #garbage = struct.unpack(Formatting.Data.EEPROMRead, dataString)
 
     def __str__(self):
         return "Page# {0} Data Bytes:{1} ".format(self.pageNumber, self.dataBytes)
@@ -192,9 +192,9 @@ class BatteryLevelData(object):
     """
     def __init__(self, dataString):
         # timestamp = 0
-        timestamp, \
+        # timestamp, \
         self.batteryLevel,\
-        garbage = struct.unpack(Formatting.Data.BatteryLevel, dataString)
+        #garbage = struct.unpack(Formatting.Data.BatteryLevel, dataString)
         self.batteryLevel = self.batteryLevel/10
 
     def __str__(self):
@@ -213,7 +213,7 @@ class TemperatureData(object):
         # timestamp = 0
         self.timestamp, \
         self.temperature,\
-        garbage = struct.unpack(Formatting.Data.Temperature, dataString)
+        #garbage = struct.unpack(Formatting.Data.Temperature, dataString)
         self.temperature = self.temperature/100
 
     def __str__(self):
@@ -222,7 +222,7 @@ class TemperatureData(object):
     def encode(self):
         garbage = ('\000'*10).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Temperature, self.timestamp,\
-        self.temperature, garbage)
+        self.temperature)
         return packetString('utf-8')
 
 ###################################################################################
@@ -232,15 +232,14 @@ class FlashSessionData(object):
     """ Neblina flash session data
 
         Formatting:
-        - Timestamp
         - Open/Close
         - Session ID
     """
     def __init__(self, dataString):
-        timestamp,\
+        # timestamp,\
         openCloseByte,\
         self.sessionID,\
-        garbage = struct.unpack(Formatting.CommandData.FlashSession, dataString)
+        # garbage = struct.unpack(Formatting.CommandData.FlashSession, dataString)
         # open = True, close = False
         self.openClose = (openCloseByte == 1)
 
@@ -262,7 +261,7 @@ class FlashSessionInfoData(object):
     def __init__(self, dataString):
         self.sessionLengthBytes,\
         self.sessionID,\
-        garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
+        # garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
         if self.sessionLengthBytes > 0:
             self.sessionLength = self.sessionLengthBytes / 18
         else:
@@ -284,8 +283,8 @@ class FlashNumSessionsData(object):
     """
     def __init__(self, dataString):
         reserved,\
-        self.numSessions,\
-        garbage = struct.unpack(Formatting.Data.FlashNumSessions, dataString)
+        self.numSessions
+        # garbage = struct.unpack(Formatting.Data.FlashNumSessions, dataString)
 
     def __str__(self):
         return "Number of sessions: {0}"\
@@ -465,7 +464,7 @@ class MotionStateData(object):
     def __init__(self, dataString):
         self.timestamp,\
         startStopByte,\
-        garbage = struct.unpack(Formatting.Data.MotionState, dataString)
+        # garbage = struct.unpack(Formatting.Data.MotionState, dataString)
         self.startStop = (startStopByte == 1)
 
     def __str__(self):
@@ -473,9 +472,9 @@ class MotionStateData(object):
         .format(self.timestamp,self.startStop)
 
     def encode(self):
-        garbage = ('\000'*11).encode('utf-8')
+        # garbage = ('\000'*11).encode('utf-8')
         packetString = struct.pack(Formatting.Data.MotionState, self.timestamp,\
-        self.startStop, garbage)
+        self.startStop)
         return packetString
 
 
@@ -520,8 +519,8 @@ class ExternalForceData(object):
         self.timestamp,\
         self.externalForces[0],\
         self.externalForces[1],\
-        self.externalForces[2],\
-        garbage = struct.unpack(Formatting.Data.ExternalForce, dataString)
+        self.externalForces[2]
+        #garbage = struct.unpack(Formatting.Data.ExternalForce, dataString)
 
     def __str__(self):
         return "{0}us: externalForces(x,y,z):({1},{2},{3})"\
@@ -531,7 +530,7 @@ class ExternalForceData(object):
     def encode(self):
         garbage = ('\000'*6).encode('utf-8')
         packetString = struct.pack(Formatting.Data.ExternalForce, self.timestamp,\
-        self.externalForces[0], self.externalForces[1], self.externalForces[2], garbage)
+        self.externalForces[0], self.externalForces[1], self.externalForces[2])
         return packetString
 
     def csvString(self):
@@ -558,8 +557,8 @@ class TrajectoryDistanceData(object):
         self.eulerAngleErrors[1],\
         self.eulerAngleErrors[2],\
         self.count,\
-        self.progress,\
-        garbage = struct.unpack(Formatting.Data.TrajectoryDistance, dataString)
+        self.progress
+        # garbage = struct.unpack(Formatting.Data.TrajectoryDistance, dataString)
 
     def __str__(self):
         return "{0}us: eulerAngleErrors(yaw,pitch,roll):({1},{2},{3}), count:{4}, progress:{5}%"\
@@ -567,9 +566,9 @@ class TrajectoryDistanceData(object):
             self.eulerAngleErrors[1], self.eulerAngleErrors[2], self.count, self.progress)
 
     def encode(self):
-        garbage = ('\000'*3).encode('utf-8')
+        # garbage = ('\000'*3).encode('utf-8')
         packetString = struct.pack(Formatting.Data.TrajectoryDistance, self.timestamp,\
-        self.eulerAngleErrors[0], self.eulerAngleErrors[1], self.eulerAngleErrors[2], self.count, self.progress, garbage)
+        self.eulerAngleErrors[0], self.eulerAngleErrors[1], self.eulerAngleErrors[2], self.count, self.progress)
         return packetString
 
 
@@ -593,9 +592,9 @@ class PedometerData(object):
         self.walkingDirection /= 10.0
 
     def encode(self):
-        garbage = ('\000'*7).encode('utf-8')
+        #garbage = ('\000'*7).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Pedometer, self.timestamp,\
-        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10), garbage)
+        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10))
         return packetString
 
     def __str__(self):
@@ -642,9 +641,9 @@ class FingerGestureData(object):
             return "{0}us: Gesture:None ".format(self.timestamp)
 
     def encode(self):
-        garbage = ('\000'*11).encode('utf-8')
+        # garbage = ('\000'*11).encode('utf-8')
         packetString = struct.pack(Formatting.Data.FingerGesture, self.timestamp,\
-        self.gesture, garbage)
+        self.gesture)
         return packetString
 
 ###################################################################################
@@ -661,7 +660,7 @@ class RotationData(object):
     def __init__(self, dataString):
         self.timestamp,self.rotationCount,\
         self.rpm,\
-        garbage = struct.unpack(Formatting.Data.RotationInfo, dataString)
+        # garbage = struct.unpack(Formatting.Data.RotationInfo, dataString)
         self.rpm = self.rpm/10.0
 
     def __str__(self):
@@ -670,9 +669,9 @@ class RotationData(object):
         self.rpm)
 
     def encode(self):
-        garbage = ('\000'*6).encode('utf-8')
+        # garbage = ('\000'*6).encode('utf-8')
         packetString = struct.pack(Formatting.Data.RotationInfo, self.timestamp,\
-        self.rotationCount, int(self.rpm*10), garbage)
+        self.rotationCount, int(self.rpm*10))
         return packetString
 
     def csvString(self):
@@ -696,14 +695,12 @@ class QuaternionData(object):
         self.quaternions[0],\
         self.quaternions[1],\
         self.quaternions[2],\
-        self.quaternions[3],\
-        garbage = struct.unpack(Formatting.Data.Quaternion, dataString)
+        self.quaternions[3] = struct.unpack(Formatting.Data.Quaternion, dataString)
 
     def encode(self):
-        garbage = ('\000'*4).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Quaternion, self.timestamp,\
         self.quaternions[0], self.quaternions[1],\
-        self.quaternions[2], self.quaternions[3], garbage)
+        self.quaternions[2], self.quaternions[3])
         return packetString
 
     def __str__(self):
@@ -843,9 +840,9 @@ class EulerAngleData(object):
         self.demoHeading = self.demoHeading/10.0
 
     def encode(self):
-        garbage = ('\000'*4).encode('utf-8')
+        # garbage = ('\000'*4).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Euler, self.timestamp,\
-            int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10), garbage)
+            int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10))
         return packetString
 
     def __str__(self):
