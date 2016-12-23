@@ -532,11 +532,11 @@ class NeblinaAPI(object):
         assert eraseType==Erase.Mass or eraseType==Erase.Quick
 
         # Step 1 - Initialization
-        self.core.sendCommand(SubSystem.Motion, Commands.Motion.DisableStreaming, True)
+        self.core.sendCommand(SubSystem.Debug, Commands.Debug.disableAllStream, True)
         logging.debug('Sending the DisableAllStreaming command, and waiting for a response...')
 
         # Step 2 - wait for ack
-        self.core.waitForAck(SubSystem.Motion, Commands.Motion.DisableStreaming)
+        self.core.waitForAck(SubSystem.Debug, Commands.Debug.disableAllStream)
         logging.debug('Acknowledge packet was received!')
 
         # Step 3 - erase the flash command
@@ -591,7 +591,8 @@ class NeblinaAPI(object):
         # wait for confirmation
         self.core.waitForAck(SubSystem.Storage, Commands.Storage.Playback)
         packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Storage, Commands.Storage.Playback)
-        if packet.header.packetType == PacketType.ErrorLogResp:
+        # if packet.header.packetType == PacketType.ErrorLogResp:
+        if packet==None:
             logging.error('Playback failed due to an invalid session number request!')
             return 0
         else:

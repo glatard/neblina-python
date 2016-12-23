@@ -238,8 +238,7 @@ class FlashSessionData(object):
     def __init__(self, dataString):
         # timestamp,\
         openCloseByte,\
-        self.sessionID,\
-        # garbage = struct.unpack(Formatting.CommandData.FlashSession, dataString)
+        self.sessionID = struct.unpack(Formatting.CommandData.FlashSession, dataString)
         # open = True, close = False
         self.openClose = (openCloseByte == 1)
 
@@ -260,8 +259,7 @@ class FlashSessionInfoData(object):
     """
     def __init__(self, dataString):
         self.sessionLengthBytes,\
-        self.sessionID,\
-        # garbage = struct.unpack(Formatting.CommandData.FlashSessionInfo, dataString)
+        self.sessionID = struct.unpack(Formatting.Data.FlashSessionInfoResponse, dataString)
         if self.sessionLengthBytes > 0:
             self.sessionLength = self.sessionLengthBytes / 18
         else:
@@ -282,9 +280,7 @@ class FlashNumSessionsData(object):
         - Number of sessions
     """
     def __init__(self, dataString):
-        reserved,\
-        self.numSessions
-        # garbage = struct.unpack(Formatting.Data.FlashNumSessions, dataString)
+        self.numSessions = struct.unpack(Formatting.Data.FlashNumSessions, dataString)
 
     def __str__(self):
         return "Number of sessions: {0}"\
@@ -519,8 +515,7 @@ class ExternalForceData(object):
         self.timestamp,\
         self.externalForces[0],\
         self.externalForces[1],\
-        self.externalForces[2]
-        #garbage = struct.unpack(Formatting.Data.ExternalForce, dataString)
+        self.externalForces[2] = struct.unpack(Formatting.Data.ExternalForce, dataString)
 
     def __str__(self):
         return "{0}us: externalForces(x,y,z):({1},{2},{3})"\
@@ -832,17 +827,16 @@ class EulerAngleData(object):
         - Euler angle (yaw,pitch,roll,heading)
     """
     def __init__(self, dataString):
-        self.timestamp, self.yaw, self.pitch, self.roll, self.demoHeading,\
-            garbage = struct.unpack(Formatting.Data.Euler, dataString)
+        self.timestamp, self.yaw, self.pitch, self.roll = struct.unpack(Formatting.Data.Euler, dataString)
         self.yaw = self.yaw/10.0
         self.pitch = self.pitch/10.0
         self.roll = self.roll/10.0
-        self.demoHeading = self.demoHeading/10.0
+        # self.demoHeading = self.demoHeading/10.0
 
     def encode(self):
         # garbage = ('\000'*4).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Euler, self.timestamp,\
-            int(self.yaw*10), int(self.pitch*10), int(self.roll*10), int(self.demoHeading*10))
+            int(self.yaw*10), int(self.pitch*10), int(self.roll*10))
         return packetString
 
     def __str__(self):
@@ -850,7 +844,7 @@ class EulerAngleData(object):
 
     def csvString(self):
         packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
-            self.yaw, self.pitch, self.roll, self.demoHeading)
+            self.yaw, self.pitch, self.roll)
         return packetString
 
 ###################################################################################

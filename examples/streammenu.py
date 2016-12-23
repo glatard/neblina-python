@@ -76,6 +76,7 @@ class StreamMenu(cmd.Cmd):
         self.api.open(address)
         global initialmotionstate  # the global variable that stores the initial motion engine state
         # initialmotionstate = self.api.getMotionStatus()  # get the initial motion engine state
+        self.api.core.sendCommand(SubSystem.Debug, Commands.Debug.disableAllStream, True)
         self.api.streamDisableAll()  # disable all streaming options after storing the initial state
         self.api.setDataPortState(Interface.BLE, False)  # Close BLE streaming to prevent slowed streaming
         self.api.setDataPortState(Interface.UART, True)  # Open UART streaming

@@ -131,6 +131,8 @@ class NeblinaCore(object):
 
             try:
                 bytes = self.device.receivePacket()
+                if int(bytes[0])>=128:
+                    return packet
                 if bytes:
                     packet = NebResponsePacket(bytes)
                 else:

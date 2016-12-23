@@ -273,9 +273,9 @@ class Formatting:
         MotionAndFlash = "4s B"  # downsample factor
         EEPROMRead = "<H 8s"  # Page number, 8 bytes Read Data
         LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
-        BatteryLevel = "<I H"  # Battery Level (%)
-        Temperature = "<I h"  # Temperature x100 in Celsius
-        FlashNumSessions = "<I H"  # Reserved, number of sessions
+        BatteryLevel = "H"  # Battery Level (%)
+        Temperature = "h"  # Temperature x100 in Celsius
+        FlashNumSessions = "H"  # number of sessions
         FWVersions = "<B 3B 3B"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
         RSSI = "<I b>" #Timestamp, RSSI
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
@@ -288,13 +288,14 @@ class Formatting:
         Quaternion = "<I 4h"  # Timestamp, quaternion
         IMU = "<I 3h 3h"  # Timestamp, accelerometer(xyz), gyroscope(xyz)
         MAG = "<I 3h 3h"  # Timestamp, magnetometer(xyz), accelerometer(xyz)
-        Euler = "<I 4h 4s"  # Timestamp, Euler angle (yaw,pitch,roll,heading)
+        Euler = "<I 3h"  # Timestamp, Euler angle (yaw,pitch,roll,heading)
+        FlashSessionInfoResponse = "<I H" # session length, session ID
 
     class CommandData:
         Header = "<4B"
         Command = "B"  # enable/disable
-        FlashSession = "B H"  # open/close, session ID
-        FlashSessionInfo = "H"  # session ID
+        FlashSession = "<B H"  # open/close, session ID
+        FlashSessionInfo = "H"  # session length, session ID
         UnitTestMotion = "3h 3h 3h"  # accel, gyro, mag
         AccRange = "H"  # downsample factor
         Downsample = "H"  # downsample factor
