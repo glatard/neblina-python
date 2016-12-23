@@ -790,8 +790,8 @@ class MAGData(object):
     def __str__(self):
         return "{0}us: accelxyz:({1},{2},{3}) magxyz:({4},{5},{6})"\
         .format(self.timestamp,
-                self.accel[0], self.accel[1], self.accel[2],
-                self.mag[0], self.mag[1], self.mag[2])
+                self.mag[0], self.mag[1], self.mag[2],
+                self.accel[0], self.accel[1], self.accel[2])
 
     @classmethod
     def decode(cls, dataString):
@@ -813,7 +813,7 @@ class MAGData(object):
 
     def csvString(self):
         packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
-            self.accel[0], self.accel[1], self.accel[2], self.mag[0], self.mag[1], self.mag[2])
+            self.mag[0], self.mag[1], self.mag[2], self.accel[0], self.accel[1], self.accel[2])
         return packetString
 
 ###################################################################################

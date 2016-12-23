@@ -245,7 +245,7 @@ class NeblinaAPI(object):
 
             :return: IMUData instance.
         """
-        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.IMU)
+        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Sensor, Commands.Sensor.AccGyr)
         logging.debug("Received IMU.")
         return packet.data
 
@@ -257,7 +257,7 @@ class NeblinaAPI(object):
 
             :return: MAGData instance.
         """
-        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Motion, Commands.Motion.MAG)
+        packet = self.core.waitForPacket(PacketType.RegularResponse, SubSystem.Sensor, Commands.Sensor.AccMag)
         logging.debug("Received MAG.")
         return packet.data
 
@@ -384,9 +384,9 @@ class NeblinaAPI(object):
 
             :param state: True, to start streaming. False, to stop streaming.
         """
-        self.core.sendCommand(SubSystem.Motion, Commands.Motion.IMU, state)
+        self.core.sendCommand(SubSystem.Sensor, Commands.Sensor.AccGyr, state)
         logging.debug("Sending streamIMU. Waiting for acknowledge.")
-        self.core.waitForAck(SubSystem.Motion, Commands.Motion.IMU)
+        self.core.waitForAck(SubSystem.Sensor, Commands.Sensor.AccGyr)
         logging.debug("Acknowledgment received.")
 
     def streamMAG(self, state):
@@ -395,9 +395,9 @@ class NeblinaAPI(object):
 
             :param state: True, to start streaming. False, to stop streaming.
         """
-        self.core.sendCommand(SubSystem.Motion, Commands.Motion.MAG, state)
+        self.core.sendCommand(SubSystem.Sensor, Commands.Sensor.AccMag, state)
         logging.debug("Sending streamMAG. Waiting for acknowledge.")
-        self.core.waitForAck(SubSystem.Motion, Commands.Motion.MAG)
+        self.core.waitForAck(SubSystem.Sensor, Commands.Sensor.AccMag)
         logging.debug("Acknowledgment received.")
 
     def streamMotionState(self, state):

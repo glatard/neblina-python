@@ -65,6 +65,11 @@ DebugResponses = {
     Commands.Debug.InterfaceState: DataPortStatusData.decode,
 }
 
+SensorResponses = {
+    Commands.Sensor.AccMag: MAGData.decode,  # streaming magnetometer data
+    Commands.Sensor.AccGyr: IMUData.decode,
+}
+
 StorageResponses = {
     Commands.Storage.EraseAll: BlankData,
     Commands.Storage.Record: FlashSessionData,
@@ -123,6 +128,7 @@ ResponsePacketDataConstructors = {
     SubSystem.Crypto: PlaceholderDataConstructors,
     SubSystem.Storage: StorageResponses,
     SubSystem.EEPROM: EEPROMResponses,
+    SubSystem.Sensor: SensorResponses,
 }
 
 

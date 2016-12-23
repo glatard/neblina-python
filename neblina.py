@@ -93,6 +93,7 @@ class SubSystem:
     Crypto = 0x0A
     Storage = 0x0B
     EEPROM = 0x0C
+    Sensor = 0x0D
 
 ###################################################################################
 
@@ -204,6 +205,13 @@ class Commands:
         """
         Receive = 0x01
 
+    class Sensor:
+        """
+            Neblina Sensor commands
+        """
+        AccGyr = 0x10
+        AccMag = 0x11
+
 ###################################################################################
 
 
@@ -257,6 +265,8 @@ CommandStrings = {
     (SubSystem.Storage, Commands.Storage.SessionInfo): 'Session ID',
     (SubSystem.EEPROM, Commands.EEPROM.Read): 'Read',
     (SubSystem.EEPROM, Commands.EEPROM.Write): 'Write',
+    (SubSystem.Sensor, Commands.Sensor.AccGyr): 'Accelerometer Gyroscope Data',
+    (SubSystem.Sensor, Commands.Sensor.AccMag): 'Accelerometer Magnetometer Data',
 }
 
 ###################################################################################
