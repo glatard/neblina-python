@@ -279,13 +279,13 @@ CommandStrings = {
 class Formatting:
 
     class Data:
-        Blank = "16s"  # Blank 16 bytes
-        MotionAndFlash = "4s B"  # downsample factor
+        Blank = "<16s"  # Blank 16 bytes
+        MotionAndFlash = "<4s B"  # downsample factor
         EEPROMRead = "<H 8s"  # Page number, 8 bytes Read Data
         LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
-        BatteryLevel = "H"  # Battery Level (%)
-        Temperature = "h"  # Temperature x100 in Celsius
-        FlashNumSessions = "H"  # number of sessions
+        BatteryLevel = "<H"  # Battery Level (%)
+        Temperature = "<h"  # Temperature x100 in Celsius
+        FlashNumSessions = "<H"  # number of sessions
         FWVersions = "<B 3B 3B"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
         RSSI = "<I b>" #Timestamp, RSSI
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
@@ -303,12 +303,12 @@ class Formatting:
 
     class CommandData:
         Header = "<4B"
-        Command = "B"  # enable/disable
+        Command = "<B"  # enable/disable
         FlashSession = "<B H"  # open/close, session ID
-        FlashSessionInfo = "H"  # session length, session ID
-        UnitTestMotion = "3h 3h 3h"  # accel, gyro, mag
-        AccRange = "H"  # downsample factor
-        Downsample = "H"  # downsample factor
+        FlashSessionInfo = "<H"  # session length, session ID
+        UnitTestMotion = "<3h 3h 3h"  # accel, gyro, mag
+        AccRange = "<H"  # downsample factor
+        Downsample = "<H"  # downsample factor
         GetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         SetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
         EEPROM = "<H 8s 6s"  # Page number, 8 bytes R/W Data
