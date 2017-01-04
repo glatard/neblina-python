@@ -653,8 +653,7 @@ class RotationData(object):
     """
     def __init__(self, dataString):
         self.timestamp,self.rotationCount,\
-        self.rpm,\
-        # garbage = struct.unpack(Formatting.Data.RotationInfo, dataString)
+        self.rpm = struct.unpack(Formatting.Data.RotationInfo, dataString)
         self.rpm = self.rpm/10.0
 
     def __str__(self):
