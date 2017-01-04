@@ -502,7 +502,7 @@ class StreamMenu(cmd.Cmd):
             self.api.getEulerAngle()
             sampleCount += 1
             print('Received {0} packets'.format(sampleCount), end="\r", flush=True)
-            print("\r\n")
+        print("\r\n")
 
         self.api.streamEulerAngle(False)
         self.api.sessionRecord(False)

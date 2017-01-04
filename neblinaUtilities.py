@@ -113,11 +113,19 @@ class NebUtilities(object):
                 filehandle[i] = open(filepath[i], "a")
 
         for packet in packetList:
-            if packet.header.subSystem != SubSystem.Motion or packet.header.packetType != PacketType.RegularResponse:
+            if packet.header.subSystem != SubSystem.Motion and packet.header.subSystem != SubSystem.Sensor:
+                continue
+
+            if packet.header.packetType != PacketType.RegularResponse:
                 continue
 
             filesize[0] += 1
             filehandle[0].write("{0}\n".format(packet.stringEncode()))
+
+            if packet.header.command == Commands.Sensor.AccGyr:
+               packet.header.command =  Commands.Motion.IMU
+            elif packet.header.command == Commands.Sensor.AccMag:
+                packet.header.command = Commands.Motion.MAG
 
             if filehandle[packet.header.command]:
                 filesize[packet.header.command] += 1
