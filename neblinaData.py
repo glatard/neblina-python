@@ -825,7 +825,7 @@ class EulerAngleData(object):
 
         Formatting:
         - Timestamp
-        - Euler angle (yaw,pitch,roll,heading)
+        - Euler angle (yaw,pitch,roll)
     """
     def __init__(self, dataString):
         self.timestamp, self.yaw, self.pitch, self.roll = struct.unpack(Formatting.Data.Euler, dataString)
@@ -841,10 +841,10 @@ class EulerAngleData(object):
         return packetString
 
     def __str__(self):
-        return "{0}us: yaw/pitch/roll:({1},{2},{3}))".format(self.timestamp,self.yaw, self.pitch, self.roll)
+        return "{0}us: yaw/pitch/roll:({1},{2},{3}))".format(self.timestamp, self.yaw, self.pitch, self.roll)
 
     def csvString(self):
-        packetString = "{0};{1};{2};{3};{4};".format(self.timestamp,\
+        packetString = "{0};{1};{2};{3}".format(self.timestamp,\
             self.yaw, self.pitch, self.roll)
         return packetString
 

@@ -298,7 +298,7 @@ class Formatting:
         Quaternion = "<I 4h"  # Timestamp, quaternion
         IMU = "<I 3h 3h"  # Timestamp, accelerometer(xyz), gyroscope(xyz)
         MAG = "<I 3h 3h"  # Timestamp, magnetometer(xyz), accelerometer(xyz)
-        Euler = "<I 3h"  # Timestamp, Euler angle (yaw,pitch,roll,heading)
+        Euler = "<I 3h"  # Timestamp, Euler angle (yaw,pitch,roll)
         FlashSessionInfoResponse = "<I H" # session length, session ID
 
     class CommandData:
