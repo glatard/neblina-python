@@ -611,12 +611,11 @@ class FingerGestureData(object):
 
         Formatting:
         - Timestamp
-        - Rotation count
+        - Swipe pattern
     """
 
     def __init__(self, dataString):
-        self.timestamp,self.gesture,\
-        garbage = struct.unpack(Formatting.Data.FingerGesture, dataString)
+        self.timestamp,self.gesture = struct.unpack(Formatting.Data.FingerGesture, dataString)
 
     def __str__(self):
         if self.gesture==0:
