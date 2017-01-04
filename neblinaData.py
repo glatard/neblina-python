@@ -459,8 +459,7 @@ class MotionStateData(object):
     """
     def __init__(self, dataString):
         self.timestamp,\
-        startStopByte,\
-        # garbage = struct.unpack(Formatting.Data.MotionState, dataString)
+        startStopByte = struct.unpack(Formatting.Data.MotionState, dataString)
         self.startStop = (startStopByte == 1)
 
     def __str__(self):
