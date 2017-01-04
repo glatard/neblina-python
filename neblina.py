@@ -292,7 +292,7 @@ class Formatting:
         MotionState = "<I B"  # Timestamp, start/stop
         ExternalForce = "<I 3h"  # Timestamp, External force xyz
         TrajectoryDistance = "<I 3h H B"  # Timestamp, Euler angle errors, repeat count, completion percentage
-        Pedometer = "<I H B h"  # Timestamp, stepCount, stepsPerMinute, walking direction
+        Pedometer = "<I H B h I"  # Timestamp, stepCount, stepsPerMinute, walking direction, toe-off timestamp
         FingerGesture = "<I B"  # Timestamp, swipe pattern
         RotationInfo = "<I I H"  # Timestamp, rotationCount, rpm speed
         Quaternion = "<I 4h"  # Timestamp, quaternion

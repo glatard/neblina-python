@@ -578,28 +578,29 @@ class PedometerData(object):
         - Step count
         - Steps per minute
         - Walking direction
+        - Toe-off timestamp
     """
     def __init__(self, dataString):
         self.timestamp,self.stepCount,\
         self.stepsPerMinute,\
         self.walkingDirection,\
-        garbage = struct.unpack(Formatting.Data.Pedometer, dataString)
+        self.toeoffTimestamp = struct.unpack(Formatting.Data.Pedometer, dataString)
         self.walkingDirection /= 10.0
 
     def encode(self):
         #garbage = ('\000'*7).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Pedometer, self.timestamp,\
-        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10))
+        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10), self.toeoffTimestamp)
         return packetString
 
     def __str__(self):
         return "{0}us: stepCount:{1}, stepsPerMinute:{2}, walkingDirection:{3}"\
         .format(self.timestamp, self.stepCount,\
-        self.stepsPerMinute, self.walkingDirection)
+        self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp)
 
     def csvString(self):
         packetString = "{0};{1};{2};{3};".format(self.timestamp,\
-            self.stepCount, self.stepsPerMinute, self.walkingDirection)
+            self.stepCount, self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp)
         return packetString
 
 ###################################################################################
