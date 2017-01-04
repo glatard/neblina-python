@@ -155,8 +155,7 @@ class EEPROMReadData(object):
     """
     def __init__(self, dataString):
         self.pageNumber, \
-        self.dataBytes,\
-        #garbage = struct.unpack(Formatting.Data.EEPROMRead, dataString)
+        self.dataBytes  = struct.unpack(Formatting.Data.EEPROMRead, dataString)
 
     def __str__(self):
         return "Page# {0} Data Bytes:{1} ".format(self.pageNumber, self.dataBytes)
@@ -193,9 +192,8 @@ class BatteryLevelData(object):
     def __init__(self, dataString):
         # timestamp = 0
         # timestamp, \
-        self.batteryLevel,\
-        #garbage = struct.unpack(Formatting.Data.BatteryLevel, dataString)
-        self.batteryLevel = self.batteryLevel/10
+        self.batteryLevel = struct.unpack(Formatting.Data.BatteryLevel, dataString)
+        self.batteryLevel = self.batteryLevel[0]/10
 
     def __str__(self):
         return "batteryLevel: {0}%".format(self.batteryLevel)
@@ -211,19 +209,18 @@ class TemperatureData(object):
     """
     def __init__(self, dataString):
         # timestamp = 0
-        self.timestamp, \
-        self.temperature,\
-        #garbage = struct.unpack(Formatting.Data.Temperature, dataString)
-        self.temperature = self.temperature/100
+        # self.timestamp, \
+        self.temperature = struct.unpack(Formatting.Data.Temperature, dataString)
+        self.temperature = self.temperature[0]/100
 
     def __str__(self):
-        return "{0}us: Temperature: {1}%".format(self.timestamp, self.temperature)
+        return "Temperature: {0}".format(self.temperature)
 
     def encode(self):
-        garbage = ('\000'*10).encode('utf-8')
-        packetString = struct.pack(Formatting.Data.Temperature, self.timestamp,\
-        self.temperature)
-        return packetString('utf-8')
+        # garbage = ('\000'*10).encode('utf-8')
+        packetString = struct.pack(Formatting.Data.Temperature, self.temperature)
+        # return packetString('utf-8')
+        return packetString
 
 ###################################################################################
 
@@ -276,7 +273,6 @@ class FlashNumSessionsData(object):
     """ Neblina flash number of sessions data
 
         Formatting:
-        - Reserved
         - Number of sessions
     """
     def __init__(self, dataString):
