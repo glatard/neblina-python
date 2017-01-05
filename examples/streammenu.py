@@ -195,7 +195,7 @@ class StreamMenu(cmd.Cmd):
         except UnicodeDecodeError as ude:
             print('Got {0} at page #{1}'.format(dataBytes, readPageNumber))
 
-    def do_getMotionStatus(self, args):
+    def getMotionStatus(self, args):
         """
         Retrieve motion streaming state
 
@@ -344,7 +344,7 @@ class StreamMenu(cmd.Cmd):
         """
         self.api.streamDisableAll()
 
-    def do_resetTimestamp(self, args):
+    def resetTimestamp(self, args):
         """
         Reset motion timestamp
 
@@ -562,7 +562,7 @@ class StreamMenu(cmd.Cmd):
         self.api.sessionPlayback(mySessionID, dump)
         print("sessionPlayback completed")
 
-    def do_streamRSSI(self, args):
+    def streamRSSI(self, args):
         """
         Stream BLE's RSSI until stopped with Ctrl+C
 
