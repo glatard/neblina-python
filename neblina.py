@@ -286,7 +286,7 @@ class Formatting:
         BatteryLevel = "<H"  # Battery Level (%)
         Temperature = "<h"  # Temperature x100 in Celsius
         FlashNumSessions = "<H"  # number of sessions
-        FWVersions = "<B 3B 3B 8B"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
+        FWVersions = "<B 3B 3B 8s"  # API Release, MCU Major/Minor/Build, BLE Major/Minor/Build, Device ID
         RSSI = "<I b>" #Timestamp, RSSI
         UnitTestMotion = "<B 3h 3h 3h 4h 3h 3h 3h H B I I h B I I"
         MotionState = "<I B"  # Timestamp, start/stop
