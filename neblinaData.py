@@ -547,8 +547,7 @@ class TrajectoryDistanceData(object):
         self.eulerAngleErrors[1],\
         self.eulerAngleErrors[2],\
         self.count,\
-        self.progress
-        # garbage = struct.unpack(Formatting.Data.TrajectoryDistance, dataString)
+        self.progress = struct.unpack(Formatting.Data.TrajectoryDistance, dataString)
 
     def __str__(self):
         return "{0}us: eulerAngleErrors(yaw,pitch,roll):({1},{2},{3}), count:{4}, progress:{5}%"\
