@@ -38,14 +38,12 @@ class NebCommandPacket(object):
     def __init__(self, subSystem, commandType, enable=True, **kwargs):
         # Logic for determining which type of command packet it is based on the header
         if subSystem == SubSystem.Debug and commandType == Commands.Debug.UnitTestMotionData:
-            self.data = NebUnitTestMotionDataCommandData(kwargs['timestamp'], kwargs['accel'],\
+                self.data = NebUnitTestMotionDataCommandData(kwargs['timestamp'], kwargs['accel'],\
                                                          kwargs['gyro'], kwargs['mag'])
         elif subSystem == SubSystem.Debug and commandType == Commands.Debug.InterfaceState:
             self.data = NebDataPortState(enable, kwargs['interface'])
         elif subSystem == SubSystem.Motion and commandType == Commands.Motion.Downsample:
             self.data = NebDownsampleCommandData(enable)
-        elif subSystem == SubSystem.Motion and commandType == Commands.Motion.AccRange:
-            self.data = NebAccRangeCommandData(enable)
         elif subSystem == SubSystem.Storage and commandType == Commands.Storage.Playback :
             self.data = NebFlashPlaybackCommandData(enable, kwargs['sessionID'])
         elif subSystem == SubSystem.Storage and commandType == Commands.Storage.SessionInfo:
@@ -59,6 +57,8 @@ class NebCommandPacket(object):
             self.data = NebSetLEDCommandData(kwargs['ledValueTupleList'])
         elif subSystem == SubSystem.LED and commandType == Commands.LED.GetVal:
             self.data = NebGetLEDCommandData(kwargs['ledIndices'])
+        elif subSystem == SubSystem.Sensor and commandType == Commands.Sensor.SensorRange:
+            self.data = NebSensorRangeCommandData(enable,kwargs['range'])
         else:
             self.data = NebCommandData(enable)
         self.header = NebHeader(subSystem, PacketType.Command, commandType, length=len(self.data.encode()))

@@ -170,8 +170,8 @@ class NeblinaAPI(object):
         """
         # Limit factor to 2, 4, 8 and 16
         assert factor == 2 or factor == 4 or factor == 8 or factor == 16
-        self.core.sendCommand(SubSystem.Motion, Commands.Motion.AccRange, factor)
-        self.core.waitForAck(SubSystem.Motion, Commands.Motion.AccRange)
+        self.core.sendCommand(SubSystem.Sensor, Commands.Sensor.SensorRange, Commands.Sensor.SensorTypeAccel, range=factor)
+        self.core.waitForAck(SubSystem.Sensor, Commands.Sensor.SensorRange)
 
     def resetTimestamp(self):
         """

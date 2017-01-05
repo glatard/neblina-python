@@ -42,12 +42,8 @@ class NebCommandData(object):
 
     def __init__(self, enable):
         self.enable = enable
-        # self.timestamp = 0 # Not really used for now
 
     def encode(self):
-        #garbage = ('\000'*11).encode('utf-8')
-        #commandDataString = struct.pack(Formatting.CommandData.Command,\
-        #    self.timestamp, self.enable, garbage)
         commandDataString = struct.pack(Formatting.CommandData.Command,\
             self.enable)
         return commandDataString
@@ -139,18 +135,20 @@ class NebUnitTestMotionDataCommandData(object):
 ###################################################################################
 
 
-class NebAccRangeCommandData(NebCommandData):
-    """ Neblina accelerometer full-scale range command data
+class NebSensorRangeCommandData(object):
+    """ Neblina sensor range command data
 
         Formatting:
-        - Downsampling factor
+        - Sensor Type
+        - Sensor Range
     """
-    rangeCodes = {2: 0x00, 4: 0x01, 8: 0x02, 16: 0x03}
+    def __init__(self, type, range):
+        self.type = type
+        self.range = range
 
     def encode(self):
-        rangeCode = self.rangeCodes[self.enable]
-        commandDataString = struct.pack(Formatting.CommandData.AccRange,\
-            rangeCode)
+        commandDataString = struct.pack(Formatting.CommandData.SensorRange,\
+            self.type, self.range)
         return commandDataString
 
 ###################################################################################

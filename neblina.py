@@ -211,6 +211,10 @@ class Commands:
         """
         AccGyr = 0x10
         AccMag = 0x11
+        SensorRange = 0x01
+        SensorTypeAccel = 0x00
+        SensorTypeGyro  = 0x01
+        SensorTypeMAG   = 0x02
 
 ###################################################################################
 
@@ -304,6 +308,7 @@ class Formatting:
     class CommandData:
         Header = "<4B"
         Command = "<B"  # enable/disable
+        SensorRange = "<H H" # sensor type, sensor range
         FlashSession = "<B H"  # open/close, session ID
         FlashSessionInfo = "<H"  # session length, session ID
         UnitTestMotion = "<3h 3h 3h"  # accel, gyro, mag
