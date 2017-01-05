@@ -518,10 +518,10 @@ class NeblinaAPI(object):
             :param ledValue: LED state. True, open. False, close.
         """
         assert 0 <= ledIndex <= 7
-        ledValues = [(ledIndex, ledValue)]
-        self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, ledValueTupleList=ledValues)
+        # ledValues = [(ledIndex, ledValue)]
+        self.core.sendCommand(SubSystem.LED, Commands.LED.SetVal, indx=ledIndex, val=ledValue )
         self.core.waitForAck(SubSystem.LED, Commands.LED.SetVal)
-        self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
+        # self.core.waitForPacket(PacketType.RegularResponse, SubSystem.LED, Commands.LED.GetVal)
 
     def eraseStorage(self, eraseType=Erase.Quick):
         """

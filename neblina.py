@@ -315,6 +315,6 @@ class Formatting:
         AccRange = "<H"  # downsample factor
         Downsample = "<H"  # downsample factor
         GetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
-        SetLED = "<B {0}s {1}s"  # Number of LEDs, LED Index x LEDs, LED Value x LEDs
+        SetLED = "<B B"  # LED Index x LEDs, LED Value x LEDs
         EEPROM = "<H 8s"  # Page number, 8 bytes R/W Data
         SetDataPortState = "<B B"  # Port ID, Open/Close

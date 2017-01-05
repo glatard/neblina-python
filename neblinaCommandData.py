@@ -202,7 +202,7 @@ class NebGetLEDCommandData(object):
 ###################################################################################
 
 
-class NebSetLEDCommandData(object):
+class NebSetLEDCommandData_old(object):
     """ Neblina LED settings command data
 
         Formatting:
@@ -234,6 +234,25 @@ class NebSetLEDCommandData(object):
          0)
         commandDataString = struct.pack(\
             stringFormat, numLEDs, ledValueBytes)
+        return commandDataString
+
+###################################################################################
+
+
+class NebSetLEDCommandData(object):
+    """ Neblina set LED command data
+
+        Formatting:
+        - LED index
+        - LED value
+    """
+    def __init__(self, indx, val):
+        self.indx = indx
+        self.val = val
+
+    def encode(self):
+        commandDataString = struct.pack(Formatting.CommandData.SetLED,\
+            self.indx, self.val)
         return commandDataString
 
 ###################################################################################

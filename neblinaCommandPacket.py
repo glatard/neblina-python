@@ -54,7 +54,7 @@ class NebCommandPacket(object):
             elif commandType == Commands.EEPROM.Write :
                 self.data = NebEEPROMCommandData(True, kwargs['pageNumber'], kwargs['dataBytes'])
         elif subSystem == SubSystem.LED and commandType == Commands.LED.SetVal:
-            self.data = NebSetLEDCommandData(kwargs['ledValueTupleList'])
+            self.data = NebSetLEDCommandData(kwargs['indx'], kwargs['val'])
         elif subSystem == SubSystem.LED and commandType == Commands.LED.GetVal:
             self.data = NebGetLEDCommandData(kwargs['ledIndices'])
         elif subSystem == SubSystem.Sensor and commandType == Commands.Sensor.SensorRange:
