@@ -66,8 +66,9 @@ DebugResponses = {
 }
 
 SensorResponses = {
-    Commands.Sensor.AccMag: MAGData.decode,  # streaming magnetometer data
-    Commands.Sensor.AccGyr: IMUData.decode,
+    Commands.Sensor.AccMag: AccMAGData.decode,  # streaming accelerometer/magnetometer data
+    Commands.Sensor.AccGyr: IMUData.decode, # streaming accelerometer/gyroscope data
+    Commands.Sensor.Mag: MAGData.decode,  # streaming magnetometer data
 }
 
 StorageResponses = {

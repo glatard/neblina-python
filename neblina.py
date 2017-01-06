@@ -211,6 +211,7 @@ class Commands:
         """
         AccGyr = 0x10
         AccMag = 0x11
+        Mag    = 0x0D
         SensorRange = 0x01
         SensorTypeAccel = 0x00
         SensorTypeGyro  = 0x01
@@ -271,6 +272,7 @@ CommandStrings = {
     (SubSystem.EEPROM, Commands.EEPROM.Write): 'Write',
     (SubSystem.Sensor, Commands.Sensor.AccGyr): 'Accelerometer Gyroscope Data',
     (SubSystem.Sensor, Commands.Sensor.AccMag): 'Accelerometer Magnetometer Data',
+    (SubSystem.Sensor, Commands.Sensor.Mag): 'Magnetometer Data',
 }
 
 ###################################################################################
@@ -301,7 +303,8 @@ class Formatting:
         RotationInfo = "<I I H"  # Timestamp, rotationCount, rpm speed
         Quaternion = "<I 4h"  # Timestamp, quaternion
         IMU = "<I 3h 3h"  # Timestamp, accelerometer(xyz), gyroscope(xyz)
-        MAG = "<I 3h 3h"  # Timestamp, magnetometer(xyz), accelerometer(xyz)
+        ACCMAG = "<I 3h 3h"  # Timestamp, magnetometer(xyz), accelerometer(xyz)
+        MAG = "<I 3h"  # Timestamp, magnetometer(xyz)
         Euler = "<I 3h"  # Timestamp, Euler angle (yaw,pitch,roll)
         FlashSessionInfoResponse = "<I H" # session length, session ID
 

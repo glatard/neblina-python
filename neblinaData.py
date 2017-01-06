@@ -758,8 +758,8 @@ class IMUData(object):
 
 ###################################################################################
 
-class MAGData(object):
-    """ Neblina magnetometer data
+class AccMAGData(object):
+    """ Neblina accelerometer/magnetometer data
 
         Formatting:
         - Timestamp
@@ -794,12 +794,12 @@ class MAGData(object):
         timestamp, \
         mag[0], mag[1], mag[2],\
         accel[0], accel[1], accel[2] \
-        = struct.unpack(Formatting.Data.MAG, dataString)
+        = struct.unpack(Formatting.Data.ACCMAG, dataString)
 
         return cls(timestamp, mag, accel)
 
     def encode(self):
-        packetString = struct.pack(Formatting.Data.MAG, \
+        packetString = struct.pack(Formatting.Data.ACCMAG, \
             self.timestamp, self.mag[0], self.mag[1], self.mag[2],\
             self.accel[0], self.accel[1], self.accel[2])
         return packetString
@@ -811,6 +811,48 @@ class MAGData(object):
 
 ###################################################################################
 
+class MAGData(object):
+    """ Neblina magnetometer data
+
+        Formatting:
+        - Timestamp
+        - Magnetometer (x,y,z)
+    """
+    def __init__(self, timestamp, mag):
+        self.mag = [0]*3
+        assert len(mag) == 3
+
+        self.timestamp = timestamp
+        self.mag[0] = int(mag[0])
+        self.mag[1] = int(mag[1])
+        self.mag[2] = int(mag[2])
+
+    def __str__(self):
+        return "{0}us: magxyz:({1},{2},{3})"\
+        .format(self.timestamp,
+                self.mag[0], self.mag[1], self.mag[2])
+
+    @classmethod
+    def decode(cls, dataString):
+        mag = [0]*3
+
+        timestamp, \
+        mag[0], mag[1], mag[2],\
+        = struct.unpack(Formatting.Data.MAG, dataString)
+
+        return cls(timestamp, mag)
+
+    def encode(self):
+        packetString = struct.pack(Formatting.Data.MAG, \
+            self.timestamp, self.mag[0], self.mag[1], self.mag[2])
+        return packetString
+
+    def csvString(self):
+        packetString = "{0};{1};{2};{3}".format(self.timestamp,\
+            self.mag[0], self.mag[1], self.mag[2])
+        return packetString
+
+###################################################################################
 
 class EulerAngleData(object):
     """ Neblina euler angle data

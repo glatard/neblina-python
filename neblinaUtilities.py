@@ -124,7 +124,7 @@ class NebUtilities(object):
 
             if packet.header.command == Commands.Sensor.AccGyr:
                packet.header.command =  Commands.Motion.IMU
-            elif packet.header.command == Commands.Sensor.AccMag:
+            elif packet.header.command == Commands.Sensor.Mag:
                 packet.header.command = Commands.Motion.MAG
 
             if filehandle[packet.header.command]:
