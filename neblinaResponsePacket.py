@@ -149,7 +149,7 @@ class NebResponsePacket(object):
 
     @classmethod
     def createEmptyResponsePacket(cls, subSystem, command):
-        garbage = ('\000' * 16).encode('utf-8')
+        garbage = ('\000' * 17).encode('utf-8')
         data = BlankData(garbage)
         dataString = data.encode()
         return cls.createResponsePacket(cls, subSystem, command, data, dataString)
@@ -179,12 +179,12 @@ class NebResponsePacket(object):
         return cls.createResponsePacket(cls, SubSystem.Motion, Commands.Motion.EulerAngle, data, dataString)
 
     @classmethod
-    def createPedometerResponsePacket(cls, timestamp, stepCount, stepsPerMinute, walkingDirection):
+    def createPedometerResponsePacket(cls, timestamp, stepCount, stepsPerMinute, walkingDirection, stairsUpCount, stairsDownCount):
         # Multiply the walking direction value by 10 to emulate the firmware behavior
         walkingDirection = int(walkingDirection * 10)
-        garbage = ('\000' * 7).encode('utf-8')
+        # garbage = ('\000' * 7).encode('utf-8')
         dataString = struct.pack(Formatting.Data.Pedometer, timestamp, stepCount, \
-                                 stepsPerMinute, walkingDirection, garbage)
+                                 stepsPerMinute, walkingDirection, stairsUpCount, stairsDownCount)
         data = PedometerData(dataString)
         return cls.createResponsePacket(cls, SubSystem.Motion, Commands.Motion.Pedometer, data, dataString)
 

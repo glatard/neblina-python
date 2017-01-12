@@ -43,7 +43,7 @@ class NebHeader(object):
         CtrlByte(7:5) = PacketType
         CtrlByte(4:0) = Subsytem Code
     """
-    def __init__(self, subSystem, packetType, commandType, crc=255, length=16 ):
+    def __init__(self, subSystem, packetType, commandType, crc=255, length=17 ):
         self.subSystem = subSystem
         self.length = length
         self.crc = crc

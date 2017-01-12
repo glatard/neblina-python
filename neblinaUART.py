@@ -50,7 +50,7 @@ class NeblinaUART(NeblinaCommunication):
         self.sc = None
         while self.sc is None:
             try:
-                self.sc = serial.Serial(port=self.address, baudrate=1000000)
+                self.sc = serial.Serial(port=self.address, baudrate=1000000, rtscts = True)
             except serial.serialutil.SerialException as se:
                 if 'Device or resource busy:' in se.__str__():
                     logging.info('Opening COM port is taking a little while, please stand by...')

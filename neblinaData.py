@@ -54,13 +54,13 @@ class BlankData(object):
         if len(dataString) > 0:
             self.blankBytes = struct.unpack(Formatting.Data.Blank, dataString)
         else:
-            self.blankBytes = ('\000'*16).encode('utf-8')
+            self.blankBytes = ('\000'*17).encode('utf-8')
 
     def __str__(self):
         return '{0}'.format(self.blankBytes)
 
     def encode(self):
-        garbage = ('\000'*16).encode('utf-8')
+        garbage = ('\000'*17).encode('utf-8')
         return struct.pack(Formatting.Data.Blank, garbage)
 
 ###################################################################################
@@ -573,28 +573,32 @@ class PedometerData(object):
         - Steps per minute
         - Walking direction
         - Toe-off timestamp
+        - Stairs up count
+        - Stairs down count
     """
     def __init__(self, dataString):
         self.timestamp,self.stepCount,\
         self.stepsPerMinute,\
         self.walkingDirection,\
-        self.toeoffTimestamp = struct.unpack(Formatting.Data.Pedometer, dataString)
+        self.toeoffTimestamp,\
+        self.stairsUpCount,\
+        self.stairsDownCount = struct.unpack(Formatting.Data.Pedometer, dataString)
         self.walkingDirection /= 10.0
 
+
     def encode(self):
-        #garbage = ('\000'*7).encode('utf-8')
         packetString = struct.pack(Formatting.Data.Pedometer, self.timestamp,\
-        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10), self.toeoffTimestamp)
+        self.stepCount, self.stepsPerMinute, int(self.walkingDirection*10), self.toeoffTimestamp, self.stairsUpCount, self.stairsDownCount)
         return packetString
 
     def __str__(self):
-        return "{0}us: stepCount:{1}, stepsPerMinute:{2}, walkingDirection:{3}"\
+        return "{0}us: stepCount:{1}, stepsPerMinute:{2}, walkingDirection:{3}, toeoffTimestamp: {4}, stairsUpCount: {5}, stairsDownCount: {6}"\
         .format(self.timestamp, self.stepCount,\
-        self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp)
+        self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp, self.stairsUpCount, self.stairsDownCount)
 
     def csvString(self):
-        packetString = "{0};{1};{2};{3};".format(self.timestamp,\
-            self.stepCount, self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp)
+        packetString = "{0};{1};{2};{3};{4};{5};{6}".format(self.timestamp,\
+            self.stepCount, self.stepsPerMinute, self.walkingDirection, self.toeoffTimestamp, self.stairsUpCount, self.stairsDownCount)
         return packetString
 
 ###################################################################################

@@ -285,7 +285,7 @@ CommandStrings = {
 class Formatting:
 
     class Data:
-        Blank = "<16s"  # Blank 16 bytes
+        Blank = "<17s"  # Blank 17 bytes
         MotionAndFlash = "<4s B"  # downsample factor
         EEPROMRead = "<H 8s"  # Page number, 8 bytes Read Data
         LEDGetVal = "<B B B B B B B B"  # 8 LEDs values
@@ -298,7 +298,7 @@ class Formatting:
         MotionState = "<I B"  # Timestamp, start/stop
         ExternalForce = "<I 3h"  # Timestamp, External force xyz
         TrajectoryDistance = "<I 3h H B"  # Timestamp, Euler angle errors, repeat count, completion percentage
-        Pedometer = "<I H B h I"  # Timestamp, stepCount, stepsPerMinute, walking direction, toe-off timestamp
+        Pedometer = "<I H B h I 2H"  # Timestamp, stepCount, stepsPerMinute, walking direction, toe-off timestamp, stairs up count, stairs down count
         FingerGesture = "<I B"  # Timestamp, swipe pattern
         RotationInfo = "<I I H"  # Timestamp, rotationCount, rpm speed
         Quaternion = "<I 4h"  # Timestamp, quaternion
