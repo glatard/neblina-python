@@ -161,6 +161,6 @@ class NeblinaCore(object):
                 return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
             except:
                 packet = None
-                # logging.error("Unexpected error : ", exc_info=True)
-                # return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
+                logging.error("Unexpected error : ", exc_info=True)
+                return NebResponsePacket.createEmptyResponsePacket(subSystem, command)
         return packet
