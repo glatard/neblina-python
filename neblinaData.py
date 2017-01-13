@@ -687,6 +687,10 @@ class QuaternionData(object):
         self.quaternions[1],\
         self.quaternions[2],\
         self.quaternions[3] = struct.unpack(Formatting.Data.Quaternion, dataString)
+        self.quaternions[0] = int((10000*self.quaternions[0])/32768)/10000
+        self.quaternions[1] = int((10000*self.quaternions[1])/32768)/10000
+        self.quaternions[2] = int((10000*self.quaternions[2])/32768)/10000
+        self.quaternions[3] = int((10000*self.quaternions[3])/32768)/10000
 
     def encode(self):
         packetString = struct.pack(Formatting.Data.Quaternion, self.timestamp,\
@@ -695,7 +699,7 @@ class QuaternionData(object):
         return packetString
 
     def __str__(self):
-        return "{0}us: quat0:{1} quat1:{2} quat2:{3} quat3:{4}".format(\
+        return "{0}us: q0:{1} q1:{2} q2:{3} q3:{4}".format(\
             self.timestamp, self.quaternions[0], self.quaternions[1],\
             self.quaternions[2], self.quaternions[3])
 
